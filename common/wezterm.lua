@@ -402,37 +402,53 @@ config.keys = {
 
   -- split pane
   {
-    key = 'LeftArrow',
-    mods = mod_key_2,
-    action = wezterm.action.SplitPane {
-      direction = 'Left',
-      size = { Percent = 50 },
-    },
-  },
-  {
-    key = 'RightArrow',
-    mods = mod_key_2,
+    key = 'd',
+    mods = mod_key,
     action = wezterm.action.SplitPane {
       direction = 'Right',
       size = { Percent = 50 },
     },
   },
   {
-    key = 'UpArrow',
-    mods = mod_key_2,
-    action = wezterm.action.SplitPane {
-      direction = 'Up',
-      size = { Percent = 50 },
-    },
-  },
-  {
-    key = 'DownArrow',
+    key = 'd',
     mods = mod_key_2,
     action = wezterm.action.SplitPane {
       direction = 'Down',
       size = { Percent = 50 },
     },
   },
+  -- {
+  --   key = 'LeftArrow',
+  --   mods = mod_key_2,
+  --   action = wezterm.action.SplitPane {
+  --     direction = 'Left',
+  --     size = { Percent = 50 },
+  --   },
+  -- },
+  -- {
+  --   key = 'RightArrow',
+  --   mods = mod_key_2,
+  --   action = wezterm.action.SplitPane {
+  --     direction = 'Right',
+  --     size = { Percent = 50 },
+  --   },
+  -- },
+  -- {
+  --   key = 'UpArrow',
+  --   mods = mod_key_2,
+  --   action = wezterm.action.SplitPane {
+  --     direction = 'Up',
+  --     size = { Percent = 50 },
+  --   },
+  -- },
+  -- {
+  --   key = 'DownArrow',
+  --   mods = mod_key_2,
+  --   action = wezterm.action.SplitPane {
+  --     direction = 'Down',
+  --     size = { Percent = 50 },
+  --   },
+  -- },
 
   -- command
   {

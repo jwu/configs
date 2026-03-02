@@ -96,12 +96,12 @@ save_to_clipboard = true
 
 [window]
 decorations = "full"
-dynamic_padding = false
+dynamic_padding = true
 dynamic_title = true
 opacity = 0.95
 startup_mode = "Windowed"
 title = "Alacritty"
-padding = { x = 10, y = 10}
+padding = { x = 0, y = 0}
 
 [general]
 live_config_reload = true
