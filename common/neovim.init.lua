@@ -1521,11 +1521,11 @@ require('lazy').setup({
     'kylechui/nvim-surround',
     event = 'VeryLazy',
     config = function()
-      require('nvim-surround').setup({
-        keymaps = {
-          visual = 's',
-        },
+      vim.g.nvim_surround_no_visual_mappings = true
+      vim.keymap.set('x', 's', '<Plug>(nvim-surround-visual)', {
+        desc = 'Add a surrounding pair around a visual selection',
       })
+      require('nvim-surround').setup()
     end,
   },
 
