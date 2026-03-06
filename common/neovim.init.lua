@@ -1162,6 +1162,7 @@ require('lazy').setup({
         ruby = true,
         lua = true,
         yaml = true,
+        json = true,
       }
 
       vim.api.nvim_create_autocmd('FileType', {
@@ -1294,37 +1295,49 @@ require('lazy').setup({
     -- DO NOT format on save
     -- event = { "BufWritePre" },
     cmd = { 'ConformInfo' },
-    opts = {
-      formatters_by_ft = {
-        lua = { 'stylua' },
-        python = { 'ruff_format' },
-        javascript = { 'prettier' },
-        typescript = { 'prettier' },
-        rust = { 'rustfmt' },
-        c = { 'clang_format' },
-        cpp = { 'clang_format' },
-      },
-      -- DO NOT format on save
-      -- format_on_save = { timeout_ms = 500, lsp_fallback = true },
-      formatters = {
-        prettier = {
-          prepend_args = { '--single-quote', '--tab-width', '2', '--use-tabs', 'false' },
+    config = function ()
+      require('conform').setup({
+        formatters_by_ft = {
+          lua = { 'stylua' },
+          python = { 'ruff_format' },
+          javascript = { 'prettier' },
+          typescript = { 'prettier' },
+          json = { 'prettier' },
+          rust = { 'rustfmt' },
+          c = { 'clang_format' },
+          cpp = { 'clang_format' },
         },
-        stylua = {
-          prepend_args = {
-            '--quote-style',
-            'AutoPreferSingle',
-            '--indent-type',
-            'Spaces',
-            '--indent-width',
-            '2',
+        -- DO NOT format on save
+        -- format_on_save = { timeout_ms = 500, lsp_fallback = true },
+        formatters = {
+          prettier = {
+            prepend_args = { '--single-quote', '--tab-width', '2', '--use-tabs', 'false' },
+          },
+          stylua = {
+            prepend_args = {
+              '--quote-style',
+              'AutoPreferSingle',
+              '--indent-type',
+              'Spaces',
+              '--indent-width',
+              '2',
+            },
+          },
+          clang_format = {
+            prepend_args = { '--style={IndentWidth: 2, UseTab: Never, ColumnLimit: 0}' },
           },
         },
-        clang_format = {
-          prepend_args = { '--style={IndentWidth: 2, UseTab: Never, ColumnLimit: 0}' },
-        },
-      },
-    },
+      })
+
+      -- use prettier format for json
+      -- NOTE: for '=', it's trigger priortty is 1st formatexpr, 2nd indentexpr
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = { 'json' },
+        callback = function()
+          vim.opt_local.formatexpr = 'v:lua.require\'conform\'.formatexpr()'
+        end,
+      })
+    end,
     keys = {
       {
         '<leader>ff',
@@ -1479,6 +1492,7 @@ require('lazy').setup({
         'rust_analyzer',
         'lua_ls',
         'pyright',
+        'jsonls',
       },
       automatic_installation = false,
       automatic_enable = true,
