@@ -18,8 +18,8 @@ if wezterm.target_triple:find('windows') then
   default_cwd = os.getenv('USERPROFILE') .. '/bin'
   font_size = 12
   tab_font_size = 10
-  mod_key = 'CTRL'
-  mod_key_2 = 'CTRL|SHIFT'
+  mod_key = 'ALT'
+  mod_key_2 = 'ALT|SHIFT'
   font_zh = 'Microsoft YaHei'
   front_end = 'OpenGL'
   -- this will help eza/lsd use colors follow by wezterm
@@ -381,22 +381,22 @@ config.keys = {
   -- active pane
   {
     key = 'LeftArrow',
-    mods = 'SHIFT',
+    mods = mod_key_2,
     action = wezterm.action.ActivatePaneDirection 'Left',
   },
   {
     key = 'RightArrow',
-    mods = 'SHIFT',
+    mods = mod_key_2,
     action = wezterm.action.ActivatePaneDirection 'Right',
   },
   {
     key = 'UpArrow',
-    mods = 'SHIFT',
+    mods = mod_key_2,
     action = wezterm.action.ActivatePaneDirection 'Up',
   },
   {
     key = 'DownArrow',
-    mods = 'SHIFT',
+    mods = mod_key_2,
     action = wezterm.action.ActivatePaneDirection 'Down',
   },
 
