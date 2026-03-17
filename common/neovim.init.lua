@@ -1358,8 +1358,8 @@ require('lazy').setup({
       local lint = require('lint')
       lint.linters_by_ft = {
         python = { 'ruff' },
-        javascript = { 'eslint' },
-        typescript = { 'eslint' },
+        javascript = { 'eslint_d' },
+        typescript = { 'eslint_d' },
         sh = { 'shellcheck' },
         dockerfile = { 'hadolint' },
       }
@@ -1393,6 +1393,7 @@ require('lazy').setup({
         'prettier',
         'shellcheck',
         'hadolint',
+        'eslint_d',
       },
     },
   },
