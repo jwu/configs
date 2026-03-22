@@ -204,7 +204,8 @@ vim.opt.timeoutlen = 300 -- time to wait for a mapped sequence to complete
 
 vim.opt.matchtime = 0 -- 0 second to show the matching paren (much faster)
 vim.opt.number = true -- show line number
-vim.opt.scrolloff = 8 -- minimal number of screen lines to keep above and below the cursor
+vim.opt.scrolloff = 8 -- keep (n) lines visible above/below the cursor
+vim.opt.sidescrolloff = 8 -- keep (n) columns visible left/right the cursor
 vim.opt.wrap = false -- do not wrap text
 vim.opt.autochdir = false -- no autochchdir
 vim.opt.synmaxcol = 240 -- only highlight first 240 columns for performance
