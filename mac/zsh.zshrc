@@ -4,8 +4,6 @@ export EDITOR=nvim
 export LANG=en_US.UTF-8
 export STARSHIP_CONFIG=~/.config/starship.toml
 
-ZSH_THEME="dracula"
-
 plugins=(
   git
 )
