@@ -30,10 +30,10 @@ if [[ -n $GHOSTTY_RESOURCES_DIR ]]; then
 fi
 
 # opencode
-export PATH=/Users/zyq/.opencode/bin:$PATH
+export PATH=~/.opencode/bin:$PATH
 
 # bun completions
-[ -s "/Users/zyq/.bun/_bun" ] && source "/Users/zyq/.bun/_bun"
+[ -s "~/.bun/_bun" ] && source "~/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
