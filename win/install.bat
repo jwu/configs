@@ -3,19 +3,19 @@ setlocal enabledelayedexpansion
 :: ========================================
 
 :: version setup
-set "AL_VER=v0.16.1"
+set "AL_VER=v0.17.0"
 set "FONT_VER=v3.4.0"
-set "CLINK_URL=https://github.com/chrisant996/clink/releases/download/v1.9.9/clink.1.9.9.3fd236.zip"
-set "CLINK_COMP_VER=0.6.7"
+set "CLINK_URL=https://github.com/chrisant996/clink/releases/download/v1.9.18/clink.1.9.18.c01124.zip"
+set "CLINK_COMP_VER=0.6.8"
 set "STARSHIP_VER=v1.24.2"
-set "FZF_VER=0.67.0"
-set "Z_VER=0.9.8"
-set "FD_VER=10.2.0"
-set "BAT_VER=0.24.0"
-set "DELTA_VER=0.18.2"
+set "FZF_VER=0.71.0"
+set "Z_VER=0.9.9"
+set "FD_VER=10.4.2"
+set "BAT_VER=0.26.1"
+set "DELTA_VER=0.19.2"
 set "RIPGREP_VER=15.1.0"
-set "EZA_VER=0.21.0"
-set "COREUTILS_VER=0.5.0"
+set "EZA_VER=0.23.4"
+set "COREUTILS_VER=0.8.0"
 
 :: error handling
 set "ERROR_COUNT=0"

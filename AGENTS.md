@@ -1,252 +1,135 @@
-# AGENTS.md - Terminal Settings Repository Guidelines
+# AGENTS.md
 
-This repository contains terminal configuration files and installation scripts for Windows, macOS, and Linux.
+## Project
 
-## Build/Lint/Test Commands
+This repo is a cross-platform terminal/dotfiles setup for Windows, macOS, and Linux.
 
-This is a configuration repository with shell/batch scripts. There is no traditional build system.
+It is **not** an application and has **no build system**. Most work here is:
+- updating install scripts
+- adjusting config files
+- fixing download/package references
+- keeping platform-specific setup in sync
 
-### Running Installation Scripts
+## Key structure
 
-**macOS:**
+Only remember these entry points:
+- `win/install.bat` — Windows tool installer with hardcoded versions / URLs
+- `win/config.bat` — Windows config/link setup
+- `mac/install.sh` — primary macOS installer (Homebrew-based)
+- `mac/install_x86_64.sh` — Intel Mac fallback installer
+- `linux/install.sh` / `linux/config.sh` — Linux install/config scripts
+- `common/` — shared configs used by multiple platforms
+
+Useful shared configs:
+- `common/wezterm.lua`
+- `common/neovim.init.lua`
+- `common/neovide.config.toml`
+- `common/git.gitconfig`
+
+## Working rules
+
+- Make **small, targeted changes**.
+- Prefer updating existing scripts/patterns over introducing new structure.
+- Keep scripts **idempotent** and safe to re-run.
+- Do not invent file names or workflows; check the repo first.
+- When updating versions, also verify the corresponding package name or asset URL still exists.
+
+## Validation
+
+Run the smallest relevant validation only.
+
+### Shell syntax
 ```bash
-cd mac
-./install.sh              # Install and configure terminal tools
-./setup_dev.sh           # Set up development environment (Rust, uv, Bun, NVM)
+bash -n mac/install.sh
+bash -n mac/install_x86_64.sh
+bash -n linux/install.sh
+bash -n linux/config.sh
 ```
 
-**Windows:**
-```cmd
-cd win
-install.bat              # Download and install tools
-config.bat               # Create symlinks for configurations
-```
-
-**Linux:**
-```bash
-# Manual setup - scripts are WIP
-# Install tools via package manager, then copy/link configs from common/
-```
-
-### Validating Scripts
-
-**ShellCheck (Bash):**
-```bash
-# Install shellcheck
-brew install shellcheck  # macOS
-apt install shellcheck   # Linux
-
-# Check a script
-shellcheck mac/install.sh
-
-# Check all scripts
-find . -name "*.sh" -exec shellcheck {} \;
-```
-
-**BatchLint (Windows Batch):**
+### Batch validation
 ```powershell
-# Install via pip
-pip install batchlint
-
-# Check a batch file
 batchlint win/install.bat
+batchlint win/config.bat
 ```
 
-### Syntax Validation
-
-**Bash dry-run:**
+### ShellCheck
 ```bash
-bash -n script.sh  # Parse-only, check syntax
+shellcheck mac/install.sh
+shellcheck mac/install_x86_64.sh
+shellcheck linux/install.sh
+shellcheck linux/config.sh
 ```
 
-**Batch file check:**
-```cmd
-# Windows built-in
-call :label  # Test goto targets exist
-```
+### Homebrew checks
+When editing `mac/install.sh`, verify package/cask names:
 
-## Code Style Guidelines
-
-### Shell Scripts (Bash)
-
-**Indentation:** Use 2 spaces for indentation (no tabs).
-
-**Shebang and Error Handling:**
 ```bash
-#!/bin/bash
-set -euo pipefail  # Exit on error, undefined vars, pipe failures
+brew info --formula starship zoxide neovim fzf eza fd bat git-delta
+brew info --cask wezterm@nightly alacritty neovide font-fira-mono-nerd-font
 ```
 
-**Variable Naming:**
-- Use `SCREAMING_SNAKE_CASE` for constants
-- Use `camelCase` or `snake_case` for local variables
-- Double-quote all variable expansions: `"$VAR"` not `$VAR`
+### Download URL checks
+When editing hardcoded release URLs, verify they are downloadable:
 
-**Path Handling:**
 ```bash
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+curl -I -L <url>
 ```
 
-**Output Format:**
-```bash
-echo ">>> Starting installation..."
-echo "    Informational message"
-echo "Error: Something failed" >&2
-exit 1
-```
+For GitHub releases, prefer checking the latest release/API before changing version constants.
 
-**Arrays for Lists:**
-```bash
-PACKAGES=(
-    "starship"
-    "zoxide"
-    "neovim"
-)
+## Platform-specific guidance
 
-brew install "${PACKAGES[@]}"
-```
+### Windows
+- `win/install.bat` is version-sensitive.
+- Some assets are not simple version templates.
+- `CLINK_URL` is a full asset URL with a build suffix; verify the exact asset name.
+- After changing versions, check every download URL.
 
-**Command Existence Check:**
-```bash
-if ! command -v brew &> /dev/null; then
-    echo "Error: Homebrew is not installed."
-    exit 1
-fi
-```
+### macOS
+- `mac/install.sh` is the main path.
+- `wezterm@nightly` is the current validated cask name.
+- On Intel Macs, upstream projects may stop publishing latest `x86_64-apple-darwin` assets; if so, prefer Homebrew over pinning an old release.
 
-**Optional Operations:**
-```bash
-brew tap homebrew/cask-fonts 2>/dev/null || true
-```
+### Linux
+- Use the existing `linux/install.sh` and `linux/config.sh` flow.
+- Prefer package-manager-friendly and repeatable changes.
 
-### Batch Scripts (Windows)
+## Safety
 
-**Header:**
-```batch
-@echo off
-setlocal enabledelayedexpansion
-```
+Safe to do without asking:
+- read/search files
+- small edits to scripts/configs
+- syntax checks
+- local validation like `bash -n`, `shellcheck`, `batchlint`, `brew info`, URL HEAD checks
 
-**Variables:**
-```batch
-set "VAR_NAME=value"
-set "PATH_DIR=%USERPROFILE%\bin"
-```
+Ask before:
+- deleting files
+- large refactors or repo-wide rewrites
+- adding new dependencies/tools without clear need
+- changing install behavior in a way that breaks existing users
+- running destructive commands
 
-**Functions:**
-```batch
-:UPDATE_ALACRITTY
-echo "Updating Alacritty..."
-goto:eof
-```
+## Preferred patterns
 
-**Error Handling:**
-```batch
-set "ERROR_COUNT=0"
+- Bash: prefer `#!/bin/bash` + `set -euo pipefail`
+- Batch: use `setlocal enabledelayedexpansion`
+- Use clear progress output like `>>> ...`
+- Quote variables properly
+- Prefer symlinks on Unix-like systems when the script already follows that pattern
+- Prefer copying/linking from existing files in `common/`, `mac/`, `linux/`, `win/`
 
-:DOWNLOAD_FILE
-curl "%URL%" -L -o "%OUTPUT%" || (
-    echo Failed to download
-    set /a "ERROR_COUNT+=1"
-    exit /b 1
-)
-```
+## References
 
-### Configuration Files
+When making changes, these are usually the best files to copy patterns from:
+- Windows installer logic: `win/install.bat`
+- macOS Homebrew flow: `mac/install.sh`
+- Intel macOS direct-download logic: `mac/install_x86_64.sh`
+- Linux config/install flow: `linux/install.sh`, `linux/config.sh`
 
-**TOML (.toml):**
-- Alacritty, Neovide configs
-- Standard TOML format with `key = value`
+## When stuck
 
-**Lua (.lua):**
-- Neovim init, WezTerm config
-- Lua 5.1+ compatible
-- Use `local` for module-scoped variables
-
-**YAML (.yaml):**
-- LSD config
-- Standard YAML 1.2
-
-**JSON (.json):**
-- Zed, Omnisharp configs
-- Standard JSON (no comments)
-
-### Import/Link Strategy
-
-**macOS/Linux - Symlinks Preferred:**
-```bash
-ln -sf "$ROOT_DIR/common/wezterm.lua" "$HOME/.wezterm.lua"
-```
-
-**Windows - Copy or mklink:**
-```batch
-copy "%~dp0\..\common\wezterm.lua" "%USERPROFILE%\.wezterm.lua"
-```
-
-**Backup Before Modification:**
-```bash
-backup_file() {
-    if [ -f "$1" ]; then
-        cp "$1" "$1.bak.$(date +%Y%m%d_%H%M%S)"
-    fi
-}
-```
-
-### Error Handling Patterns
-
-**Bash:**
-```bash
-# Exit on failure
-if ! command_that_might_fail; then
-    echo "Error: ..." >&2
-    exit 1
-fi
-
-# Or use &&/||
-command_that_might_fail || exit 1
-```
-
-**Batch:**
-```batch
-set "ERROR_COUNT=0"
-
-:PROCESS
-command || (
-    echo Failed
-    set /a "ERROR_COUNT+=1
-)
-```
-
-### General Conventions
-
-1. **Version Constants:** Define at top of scripts
-2. **Modular Functions:** Use labeled sections in batch, functions in bash
-3. **Silent Optional Operations:** Use `|| true` or `2>/dev/null`
-4. **Clear Output:** Use `>>>` prefix for major steps
-5. **Cross-Platform Paths:** Use `$HOME`, `%USERPROFILE%`, not hardcoded paths
-6. **No Secrets:** Never commit API keys, tokens, or passwords
-7. **Idempotent Scripts:** Safe to run multiple times
-
-### Directory Structure
-
-```
-settings/
-├── common/              # Shared configs (wezterm.lua, lsd.yaml, neovim.init.lua)
-├── mac/                 # macOS-specific (install.sh, setup_dev.sh, alacritty.toml)
-├── win/                 # Windows-specific (install.bat, config.bat)
-├── linux/               # Linux-specific (WIP)
-└── AGENTS.md           # This file
-```
-
-## Cursor/Copilot Rules
-
-No specific Cursor rules or Copilot instructions found in the repository.
-
-## Notes for Agents
-
-- This is a dotfiles/config repository, not an application
-- Changes to scripts should be tested on the target platform
-- Configuration file changes should maintain compatibility with existing setups
-- When adding new tools, update version constants in both mac/*.sh and win/*.bat
-- Respect user choice of symlinks vs copies as documented in scripts
+Do not guess.
+- inspect the real file structure
+- check the current script before editing
+- verify package names / asset URLs
+- if a change has multiple plausible directions, ask first

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
@@ -65,26 +65,34 @@ else
 fi
 
 if ! command -v eza &> /dev/null; then
-  echo "Installing eza..."
-  version="v0.21.0"
-  url="https://github.com/eza-community/eza/releases/download/${version}/eza-x86_64-apple-darwin.tar.gz"
-  download_and_install "$url" "eza"
+  echo "Installing eza via Homebrew..."
+  if command -v brew &> /dev/null; then
+    brew install eza || brew upgrade eza
+    ln -sf "$(brew --prefix)/bin/eza" "$BIN_DIR/eza"
+  else
+    echo "Error: Latest eza release does not provide a macOS x86_64 binary. Homebrew is required." >&2
+    exit 1
+  fi
 else
   echo "  eza already installed"
 fi
 
 if ! command -v fd &> /dev/null; then
-  echo "Installing fd..."
-  version="10.2.0"
-  url="https://github.com/sharkdp/fd/releases/download/v${version}/fd-v${version}-x86_64-apple-darwin.tar.gz"
-  download_and_install "$url" "fd"
+  echo "Installing fd via Homebrew..."
+  if command -v brew &> /dev/null; then
+    brew install fd || brew upgrade fd
+    ln -sf "$(brew --prefix)/bin/fd" "$BIN_DIR/fd"
+  else
+    echo "Error: Latest fd release does not provide a macOS x86_64 binary. Homebrew is required." >&2
+    exit 1
+  fi
 else
   echo "  fd already installed"
 fi
 
 if ! command -v bat &> /dev/null; then
   echo "Installing bat..."
-  version="0.24.0"
+  version="0.26.1"
   url="https://github.com/sharkdp/bat/releases/download/v${version}/bat-v${version}-x86_64-apple-darwin.tar.gz"
   download_and_install "$url" "bat"
 else
@@ -92,10 +100,14 @@ else
 fi
 
 if ! command -v delta &> /dev/null; then
-  echo "Installing delta..."
-  version="0.18.2"
-  url="https://github.com/dandavison/delta/releases/download/${version}/delta-${version}-x86_64-apple-darwin.tar.gz"
-  download_and_install "$url" "delta"
+  echo "Installing delta via Homebrew..."
+  if command -v brew &> /dev/null; then
+    brew install git-delta || brew upgrade git-delta
+    ln -sf "$(brew --prefix)/bin/delta" "$BIN_DIR/delta"
+  else
+    echo "Error: Latest delta release does not provide a macOS x86_64 binary. Homebrew is required." >&2
+    exit 1
+  fi
 else
   echo "  delta already installed"
 fi
@@ -111,7 +123,7 @@ fi
 
 if ! command -v nvim &> /dev/null; then
   echo "Installing neovim..."
-  version="v0.11.6"
+  version="v0.12.1"
   url="https://github.com/neovim/neovim/releases/download/${version}/nvim-macos-x86_64.tar.gz"
   temp_dir=$(mktemp -d)
   curl -fsSL "$url" -o "$temp_dir/nvim.tar.gz"
