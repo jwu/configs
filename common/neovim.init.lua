@@ -202,6 +202,7 @@ vim.opt.timeoutlen = 300 -- time to wait for a mapped sequence to complete
 -- Desc: Appearance
 --------------------------------------------------------------------
 
+vim.opt.background = 'dark'
 vim.opt.matchtime = 0 -- 0 second to show the matching paren (much faster)
 vim.opt.number = true -- show line number
 vim.opt.scrolloff = 8 -- keep (n) lines visible above/below the cursor
@@ -527,7 +528,8 @@ require('lazy').setup({
 
   {
     'navarasu/onedark.nvim',
-    priority = 100,
+    priority = 1000,
+    lazy = false,
     dependencies = { 'RRethy/base16-nvim' },
     config = function()
       require('onedark').setup({
