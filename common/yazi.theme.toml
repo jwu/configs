@@ -1,0 +1,17 @@
+[status]
+overall = { bg = "#1e1e2e" }
+sep_left  = { open = "", close = "" }
+sep_right = { open = "", close = "" }
+perm_type = { fg = "#61afef" }
+perm_read = { fg = "#e5c07b" }
+perm_write = { fg = "#e06c75" }
+perm_exec = { fg = "#98c379" }
+perm_sep  = { fg = "#5c6370" }
+
+[mode]
+normal_main = { fg = "#282c34", bg = "#c678dd", bold = true }
+normal_alt  = { fg = "#abb2bf", bg = "#393f4a" }
+select_main = { fg = "#282c34", bg = "#61afef", bold = true }
+select_alt  = { fg = "#abb2bf", bg = "#393f4a" }
+unset_main  = { fg = "#282c34", bg = "#e86671", bold = true }
+unset_alt   = { fg = "#abb2bf", bg = "#393f4a" }
