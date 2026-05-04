@@ -1319,16 +1319,27 @@ require('lazy').setup({
         formatters_by_ft = {
           lua = { 'stylua' },
           python = { 'ruff_format' },
-          javascript = { 'prettier' },
-          typescript = { 'prettier' },
-          json = { 'prettier' },
           rust = { 'rustfmt' },
           c = { 'clang_format' },
           cpp = { 'clang_format' },
+          javascript = { 'biome', 'prettier', stop_after_first = true },
+          typescript = { 'biome', 'prettier', stop_after_first = true },
+          javascriptreact = { 'biome', 'prettier', stop_after_first = true },
+          typescriptreact = { 'biome', 'prettier', stop_after_first = true },
+          json = { 'biome', 'prettier', stop_after_first = true },
         },
         -- DO NOT format on save
         -- format_on_save = { timeout_ms = 500, lsp_fallback = true },
         formatters = {
+          biome = {
+            prepend_args = {
+              'format',
+              '--jsx-quote-style=single',
+              '--javascript-formatter-indent-style=space',
+              '--javascript-formatter-indent-width=2',
+              '--javascript-formatter-quote-style=single',
+            },
+          },
           prettier = {
             prepend_args = { '--single-quote', '--tab-width', '2', '--use-tabs', 'false' },
           },
@@ -1377,8 +1388,6 @@ require('lazy').setup({
       local lint = require('lint')
       lint.linters_by_ft = {
         python = { 'ruff' },
-        javascript = { 'eslint_d' },
-        typescript = { 'eslint_d' },
         sh = { 'shellcheck' },
         dockerfile = { 'hadolint' },
       }
@@ -1412,7 +1421,6 @@ require('lazy').setup({
         'prettier',
         'shellcheck',
         'hadolint',
-        'eslint_d',
       },
     },
   },
@@ -1438,6 +1446,10 @@ require('lazy').setup({
         capabilities = capabilities,
       })
       vim.lsp.config('vtsls', {
+        capabilities = capabilities,
+      })
+      -- NOTE: biome only works when the project has biome.json
+      vim.lsp.config('biome', {
         capabilities = capabilities,
       })
       vim.lsp.config('lua_ls', {
@@ -1517,6 +1529,7 @@ require('lazy').setup({
         'pyright',
         'rust_analyzer',
         'vtsls',
+        'biome',
       },
       automatic_installation = false,
       automatic_enable = true,
@@ -1535,7 +1548,6 @@ require('lazy').setup({
     },
   },
 
-  -- TODO: https://github.com/mfussenegger/nvim-lint
   -- TODO: https://github.com/neomake/neomake
 
   ------------------------------
