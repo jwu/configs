@@ -770,7 +770,7 @@ require('lazy').setup({
   },
 
   ------------------------------
-  -- exvim-lite
+  -- jwu vim utils
   ------------------------------
 
   -- DELME:
@@ -785,13 +785,21 @@ require('lazy').setup({
       vim.keymap.set('n', '<C-Tab>', ':EXbalt<CR>', { noremap = true, silent = true, unique = true })
 
       -- plugin<->edit window switch
-      vim.keymap.set('n', '<leader><Tab>', ':EXsw<CR>', { noremap = true, silent = true, unique = true })
-      vim.keymap.set('n', '<leader><Esc>', ':EXgc<CR>', { noremap = true, silent = true, unique = true })
+      -- vim.keymap.set('n', '<leader><Tab>', ':EXsw<CR>', { noremap = true, silent = true, unique = true })
+      -- vim.keymap.set('n', '<leader><Esc>', ':EXgc<CR>', { noremap = true, silent = true, unique = true })
 
       -- search
       vim.keymap.set('n', '<leader>F', ':GS<space>', { noremap = true, unique = true })
       vim.keymap.set('n', '<leader>gg', ':EXSearchCWord<CR>', { noremap = true, unique = true })
       vim.keymap.set('n', '<leader>gs', ':call ex#search#toggle_window()<CR>', { noremap = true, unique = true })
+    end,
+  },
+
+  {
+    'jwu/last-win-jump.nvim',
+    lazy = false,
+    config = function()
+      vim.keymap.set('n', '<leader><Tab>', '<Plug>(last-win-jump-toggle)')
     end,
   },
 
@@ -1088,7 +1096,7 @@ require('lazy').setup({
       sign_priority = 8,
       keywords = {
         FIX = { icon = ' ', color = 'error', alt = { 'FIXME', 'BUG', 'FIXIT', 'ISSUE' } },
-        DEL = { icon = ' ', color = 'error', alt = { 'DELME' } },
+        DEL = { icon = ' ', color = 'error', alt = { 'DELME', 'DISABLE' } },
         TODO = { icon = ' ', color = 'info' },
         NOTE = { icon = ' ', color = 'hint', alt = { 'INFO' } },
         HACK = { icon = ' ', color = 'warning' },
