@@ -2,6 +2,14 @@
 # type: boolean
 autosuggest.enable = True
 
+# name: Show usage hint for automatic suggestions
+# type: boolean
+autosuggest.hint = True
+
+# name: Show a suggestion in a muted color
+# type: boolean
+autosuggest.inline = True
+
 # name: Argument color
 # type: color
 color.arg = bold
@@ -90,3 +98,4 @@ history.max_lines = 10000
 # name: Share history between instances
 # type: boolean
 history.shared = True
+
