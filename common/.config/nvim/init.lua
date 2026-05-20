@@ -119,7 +119,6 @@ if vim.env.SSH_TTY ~= nil then
       ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
     },
   }
-  vim.opt.clipboard = 'unnamedplus'
 end
 
 -- DELME: {
@@ -350,9 +349,9 @@ vim.keymap.set('', 'Q', 'gq')
 -- define the copy/paste judged by clipboard
 -- general copy/paste.
 -- NOTE: y,p,P could be mapped by other key-mapping
-vim.keymap.set('', '<leader>y', '"*y')
-vim.keymap.set('', '<leader>p', '"*p')
-vim.keymap.set('', '<leader>P', '"*P')
+vim.keymap.set('', '<leader>y', '"+y')
+vim.keymap.set('', '<leader>p', '"+p')
+vim.keymap.set('', '<leader>P', '"+P')
 
 -- copy folder path to clipboard, foo/bar/foobar.c => foo/bar/
 vim.keymap.set('n', '<leader>y1', ':let @*=fnamemodify(bufname("%"),":p:h")<CR>', { noremap = true, silent = true })
