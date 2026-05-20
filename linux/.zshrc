@@ -3,6 +3,7 @@ export ZSH=~/.oh-my-zsh
 export EDITOR=nvim
 export LANG=en_US.UTF-8
 export STARSHIP_CONFIG=~/.config/starship.toml
+export POWERLINE_NERD_FONTS=1
 
 plugins=(
   git
@@ -23,6 +24,12 @@ alias ls='eza'
 alias ll='eza -lh --icons'
 alias la='eza -lah --icons'
 alias lt='eza --icons --tree'
+
+# nvm
+source /usr/share/nvm/init-nvm.sh
+
+# cargo
+export PATH=~/.cargo/bin:$PATH
 
 # opencode
 export PATH=~/.opencode/bin:$PATH
