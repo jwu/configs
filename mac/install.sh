@@ -26,6 +26,7 @@ echo ">>> Installing/Updating packages via Homebrew..."
 brew update
 
 PACKAGES=(
+  "coreutils"
   "starship"
   "zoxide"
   "neovim"
