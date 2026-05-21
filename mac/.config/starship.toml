@@ -30,7 +30,7 @@ format = "@[$hostname]($style) "
 [directory]
 truncation_length = 100
 truncate_to_repo = false
-style = "bold cyan"
+style = "bold blue"
 
 [git_branch]
 always_show_remote = true
