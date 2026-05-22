@@ -52,6 +52,11 @@ set "STARSHIP_CONFIG=%MY_CONFIGS%\starship.toml"
 
 set "FZF_COMPLETE_OPTS=-e"
 
+:: set pi nerdfonts
+:: ========================================
+
+set "PI_NERD_FONTS=1"
+
 :: inject clink
 :: ========================================
 

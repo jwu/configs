@@ -15,8 +15,7 @@ export ZSH=~/.oh-my-zsh
 export EDITOR=nvim
 export LANG=en_US.UTF-8
 export STARSHIP_CONFIG=~/.config/starship.toml
-export POWERLINE_NERD_FONTS=1
-export COLORTERM=truecolor
+export PI_NERD_FONTS=1
 
 # ------------------------------
 # zsh & oh-my-zsh
