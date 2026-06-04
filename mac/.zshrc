@@ -110,7 +110,7 @@ function pstat() {
 # ------------------------------
 
 alias neovide="/Applications/Neovide.app/Contents/MacOS/neovide --fork"
-alias zed="/Applications/Zed.app/Contents/MacOS/zed"
+alias zed="/Applications/Zed.app/Contents/MacOS/cli"
 
 # ------------------------------
 # dev envs
