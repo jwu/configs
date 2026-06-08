@@ -16,10 +16,17 @@ export EDITOR=nvim
 export LANG=en_US.UTF-8
 export STARSHIP_CONFIG=~/.config/starship.toml
 export PI_NERD_FONTS=1
+export COLORTERM=truecolor
 
 # ------------------------------
 # zsh & oh-my-zsh
 # ------------------------------
+
+# make sure omz dircolors works
+# NOTE: you must install gdircolors on macOS with brew install coreutils
+if (( $+commands[gdircolors] )) && ! (( $+commands[dircolors] )); then
+  eval $(gdircolors)
+fi
 
 # ZSH_THEME="one-dark"
 
