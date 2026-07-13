@@ -1304,7 +1304,7 @@ require('lazy').setup({
           ['<Down>'] = { 'select_next', 'fallback' },
         },
         sources = function()
-          -- disable search completion (we use ex-searchcompl instead)
+          -- disable search completion (we use jwu/searchcompl.nvim instead)
           local cmdtype = vim.fn.getcmdtype()
           if cmdtype == '/' or cmdtype == '?' then
             return {} -- No sources for search mode
@@ -1326,7 +1326,14 @@ require('lazy').setup({
 
   -- NOTE: Use this instead of blink.cmp cmdline
   -- NOTE: blink.cmp will show a list menu which I don't like
-  'exvim/ex-searchcompl',
+  {
+    'jwu/searchcmp.nvim',
+    lazy = false,
+    config = function()
+      vim.keymap.set('n', '/', '<Plug>(searchcmp-forward)', { remap = true })
+      vim.keymap.set('n', '?', '<Plug>(searchcmp-backward)', { remap = true })
+    end,
+  },
 
   ------------------------------
   -- lsp
