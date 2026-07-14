@@ -121,24 +121,6 @@ if vim.env.SSH_TTY ~= nil then
   }
 end
 
--- DELME: {
-local function OSX()
-  return is_mac
-end
-
-local function LINUX()
-  return is_linux
-end
-
-local function WINDOWS()
-  return is_win
-end
-
-_G.OSX = OSX
-_G.LINUX = LINUX
-_G.WINDOWS = WINDOWS
--- } DELME:
-
 -- /////////////////////////////////////////////////////////////////////////////
 -- language and encoding setup
 -- /////////////////////////////////////////////////////////////////////////////
@@ -788,33 +770,34 @@ require('lazy').setup({
   -- jwu vim utils
   ------------------------------
 
-  -- DELME:
   {
-    'jwu/exvim-lite',
+    'jwu/gsearch.nvim',
     config = function()
-      -- buffer operation
-      -- vim.keymap.set('n', '<leader>bd', ':EXbd<CR>', { noremap = true, silent = true, unique = true })
-      vim.keymap.del('n', '<C-l>')
-      vim.keymap.set('n', '<C-l>', ':EXbn<CR>', { noremap = true, silent = true, unique = true })
-      vim.keymap.set('n', '<C-h>', ':EXbp<CR>', { noremap = true, silent = true, unique = true })
-      vim.keymap.set('n', '<C-Tab>', ':EXbalt<CR>', { noremap = true, silent = true, unique = true })
+      vim.api.nvim_set_hl(0, 'GsearchConfirm', { bg = '#702963', ctermbg = 'darkyellow' })
+      vim.api.nvim_set_hl(0, 'GsearchTarget', { bg = '#702963', ctermbg = 'darkyellow' })
 
-      -- plugin<->edit window switch
-      -- vim.keymap.set('n', '<leader><Tab>', ':EXsw<CR>', { noremap = true, silent = true, unique = true })
-      -- vim.keymap.set('n', '<leader><Esc>', ':EXgc<CR>', { noremap = true, silent = true, unique = true })
-
-      -- search
       vim.keymap.set('n', '<leader>F', ':GS<space>', { noremap = true, unique = true })
-      vim.keymap.set('n', '<leader>gg', ':EXSearchCWord<CR>', { noremap = true, unique = true })
-      vim.keymap.set('n', '<leader>gs', ':call ex#search#toggle_window()<CR>', { noremap = true, unique = true })
+      vim.keymap.set('n', '<leader>gg', ':GSearchCWord<CR>', { noremap = true, unique = true })
+      vim.keymap.set('n', '<leader>gs', function()
+        require('gsearch').toggle()
+      end, { noremap = true, unique = true })
     end,
   },
 
   {
-    'jwu/last-win-jump.nvim',
+    'jwu/win-buf-op.nvim',
     lazy = false,
     config = function()
-      vim.keymap.set('n', '<leader><Tab>', '<Plug>(last-win-jump-toggle)')
+      vim.keymap.set('n', '<leader><Tab>', '<Plug>(win-buf-op-jump)')
+      vim.keymap.set('n', '<leader><Esc>', '<Plug>(win-buf-op-close-ext)')
+      vim.keymap.set('n', '<C-l>', '<Plug>(win-buf-op-bnext)')
+      vim.keymap.set('n', '<C-h>', '<Plug>(win-buf-op-bprev)')
+
+      -- NOTE:
+      -- Switch to the alternate edit buffer. <C-Tab> works in Neovide and
+      -- compatible terminals; <S-Tab> is the fallback for terminals that cannot distinguish it.
+      vim.keymap.set('n', '<C-Tab>', '<Plug>(win-buf-op-balt)')
+      vim.keymap.set('n', '<S-Tab>', '<Plug>(win-buf-op-balt)')
     end,
   },
 
