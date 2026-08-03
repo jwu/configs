@@ -1528,6 +1528,11 @@ require('lazy').setup({
           },
         },
       })
+      -- NOTE: godot lsp only works when Godot Editor is open, default is 127.0.0.1:6005
+      vim.lsp.config('gdscript', {
+        capabilities = capabilities,
+      })
+      vim.lsp.enable('gdscript')
 
       -- Use LspAttach autocommand to only map the following keys
       -- after the language server attaches to the current buffer
