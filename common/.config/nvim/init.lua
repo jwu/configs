@@ -624,6 +624,33 @@ require('lazy').setup({
             -- jump = { close = true },
             hidden = true,
             ignored = false,
+            actions = {
+              explorer_reveal_in_file_manager = {
+                action = function(_, item)
+                  if not item or not item.file then
+                    return
+                  end
+                  if is_mac then
+                    vim.fn.jobstart(item.dir and { 'open', item.file } or { 'open', '-R', item.file }, { detach = true })
+                  elseif is_win then
+                    vim.fn.jobstart(
+                      item.dir and { 'explorer.exe', item.file } or { 'explorer.exe', '/select,' .. item.file },
+                      { detach = true }
+                    )
+                  end
+                end,
+                desc = 'Reveal in file manager',
+              },
+            },
+            win = {
+              list = {
+                keys = {
+                  ['<Space>'] = 'toggle_maximize',
+                  ['<S-CR>'] = (is_mac or is_win) and 'explorer_reveal_in_file_manager'
+                    or { { 'pick_win', 'jump' } },
+                },
+              },
+            },
           },
           files = {
             hidden = true,
