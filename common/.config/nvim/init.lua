@@ -1072,6 +1072,28 @@ require('lazy').setup({
     end,
   },
 
+  {
+    'MeanderingProgrammer/render-markdown.nvim',
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons
+    config = function()
+      ---@module 'render-markdown'
+      ---@type render.md.UserConfig
+      require('render-markdown').setup({
+        enabled = false,
+        heading = {
+          icons = { '󰲠 ', '󰲢 ', '󰲤 ', '󰲦 ', '󰲨 ', '󰲪 ' },
+        }
+      })
+
+      vim.api.nvim_set_hl(0, 'RenderMarkdownH1Bg', { bg = 'none' })
+      vim.api.nvim_set_hl(0, 'RenderMarkdownH2Bg', { bg = 'none' })
+      vim.api.nvim_set_hl(0, 'RenderMarkdownH3Bg', { bg = 'none' })
+      vim.api.nvim_set_hl(0, 'RenderMarkdownH4Bg', { bg = 'none' })
+      vim.api.nvim_set_hl(0, 'RenderMarkdownH5Bg', { bg = 'none' })
+      vim.api.nvim_set_hl(0, 'RenderMarkdownH6Bg', { bg = 'none' })
+    end,
+  },
+
   ------------------------------
   -- text highlight
   ------------------------------
