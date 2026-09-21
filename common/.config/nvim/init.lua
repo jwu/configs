@@ -1524,6 +1524,7 @@ require('lazy').setup({
               },
               disable = {
                 'missing-fields',
+                'undefined-global',
               },
             },
             runtime = {
