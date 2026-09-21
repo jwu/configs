@@ -1,0 +1,115 @@
+// Niri configuration migrated from the active Hyprland Lua config.
+
+input {
+    focus-follows-mouse
+
+    keyboard {
+        xkb {
+            layout "us"
+        }
+        repeat-rate 30
+        repeat-delay 300
+    }
+}
+
+// DP-3 is the Dell U2722DX detected by Hyprland.
+// Hyprland transform 3 maps to Niri's 270-degree transform.
+output "DP-3" {
+    mode "2560x1440@59.951"
+    scale 1
+    transform "270"
+}
+
+prefer-no-csd
+
+layout {
+    // Niri uses one gap value for both column spacing and the outer gap.
+    gaps 4
+    center-focused-column "on-overflow"
+
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+        proportion 1.0
+    }
+
+    default-column-width { proportion 0.5; }
+
+    focus-ring {
+        width 2
+        active-color "#7fc8ff"
+        inactive-color "#505050"
+    }
+
+    border {
+        off
+    }
+}
+
+spawn-at-startup "waybar"
+spawn-at-startup "fcitx5"
+
+screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+binds {
+    Mod+Return { spawn "ghostty"; }
+    Mod+E { spawn "nautilus"; }
+    Mod+Space { spawn "fcitx5-remote" "-t"; }
+
+    // These match the active Hyprland Lua bindings. C is also kept as a
+    // close shortcut because it was present in the older Hyprland config.
+    Mod+W { close-window; }
+    Mod+C { close-window; }
+    Mod+V { toggle-window-floating; }
+    Mod+Shift+Q { quit; }
+
+    Mod+O repeat=false { toggle-overview; }
+
+    Mod+Left  { focus-column-left; }
+    Mod+Down  { focus-window-down; }
+    Mod+Up    { focus-window-up; }
+    Mod+Right { focus-column-right; }
+    Mod+H     { focus-column-left; }
+    Mod+J     { focus-window-down; }
+    Mod+K     { focus-window-up; }
+    Mod+L     { focus-column-right; }
+
+    Mod+Ctrl+Left  { move-column-left; }
+    Mod+Ctrl+Down  { move-window-down; }
+    Mod+Ctrl+Up    { move-window-up; }
+    Mod+Ctrl+Right { move-column-right; }
+    Mod+Ctrl+H     { move-column-left; }
+    Mod+Ctrl+J     { move-window-down; }
+    Mod+Ctrl+K     { move-window-up; }
+    Mod+Ctrl+L     { move-column-right; }
+
+    Mod+BracketLeft  { consume-or-expel-window-left; }
+    Mod+BracketRight { consume-or-expel-window-right; }
+
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+
+    Mod+Page_Down { focus-workspace-down; }
+    Mod+Page_Up   { focus-workspace-up; }
+    Mod+U         { focus-workspace-down; }
+    Mod+I         { focus-workspace-up; }
+
+    Mod+R { switch-preset-column-width; }
+    Mod+F { maximize-column; }
+    Mod+Shift+F { fullscreen-window; }
+    Mod+M { maximize-window-to-edges; }
+
+    Print { screenshot; }
+    Ctrl+Print { screenshot-screen; }
+    Alt+Print { screenshot-window; }
+
+    Mod+Shift+Slash { show-hotkey-overlay; }
+}

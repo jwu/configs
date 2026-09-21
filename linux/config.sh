@@ -35,6 +35,35 @@ else
   echo "FONT=$FONT_NAME" | sudo tee -a "$CONFIG_FILE" > /dev/null
 fi
 
+# Fcitx5 / input method environment
+mkdir -p "$HOME/.config/environment.d"
+backup_file "$HOME/.config/environment.d/fcitx5.conf"
+cp "$SCRIPT_DIR/.config/environment.d/fcitx5.conf" "$HOME/.config/environment.d/fcitx5.conf"
+
+# Niri
+if command -v niri &> /dev/null; then
+  echo "Configuring Niri..."
+  mkdir -p "$HOME/.config/niri"
+  backup_file "$HOME/.config/niri/config.kdl"
+  cp "$SCRIPT_DIR/.config/niri/config.kdl" "$HOME/.config/niri/config.kdl"
+fi
+
+# Hyprland
+if command -v hyprland &> /dev/null; then
+  echo "Configuring Hyprland..."
+  mkdir -p "$HOME/.config/hypr"
+  backup_file "$HOME/.config/hypr/hyprland.lua"
+  cp "$SCRIPT_DIR/.config/hypr/hyprland.lua" "$HOME/.config/hypr/hyprland.lua"
+fi
+
+# Ghostty
+if command -v ghostty &> /dev/null; then
+  echo "Configuring Ghostty..."
+  mkdir -p "$HOME/.config/ghostty"
+  backup_file "$HOME/.config/ghostty/config.ghostty"
+  cp "$SCRIPT_DIR/.config/ghostty/config.ghostty" "$HOME/.config/ghostty/config.ghostty"
+fi
+
 # EZA
 echo "Configuring EZA..."
 mkdir -p "$HOME/.config/eza"

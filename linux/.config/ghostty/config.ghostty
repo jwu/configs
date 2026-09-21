@@ -1,0 +1,166 @@
+# ============================================================
+# Ghostty Configuration
+# ============================================================
+
+# ------------------------------------------------------------
+# Font
+# ------------------------------------------------------------
+font-family = FiraMono Nerd Font
+font-family-bold = FiraMono Nerd Font
+font-family-italic = FiraMono Nerd Font
+font-family-bold-italic = FiraMono Nerd Font
+font-size = 13.5
+font-style = Medium
+font-style-bold = Bold
+font-style-italic = Italic
+font-style-bold-italic = Bold Italic
+font-thicken = true
+font-thicken-strength = 0
+# alpha-blending = linear-corrected
+
+# Chinese fallback fonts, in order
+font-family = Sarasa Mono SC
+font-family = Noto Sans CJK SC
+window-title-font-family = Sarasa Gothic SC
+
+# ------------------------------------------------------------
+# Colors (One Half Dark / OneDark)
+# ------------------------------------------------------------
+term = xterm-256color
+theme = One Half Dark
+
+background = 282c34
+foreground = abb2bf
+
+# Normal colors
+# 0-black, 1-red, 2-green, 3-yellow, 4-blue, 5-purple, 6-cyan, 7-white
+palette = 0=181a1f
+palette = 1=e86671
+palette = 2=98c379
+palette = 3=e5c07b
+palette = 4=61afef
+palette = 5=c678dd
+palette = 6=56b6c2
+palette = 7=abb2bf
+
+# Bright colors
+# 8-black, 9-red, 10-green, 11-yellow, 12-blue, 13-purple, 14-cyan, 15-white
+palette = 8=5c6370
+palette = 9=e06c75
+palette = 10=98c379
+palette = 11=e5c07b
+palette = 12=61afef
+palette = 13=c678dd
+palette = 14=56b6c2
+palette = 15=abb2bf
+
+# Cursor
+cursor-color = dcdfe4
+cursor-text = 282c34
+
+# Split
+unfocused-split-opacity = 0.85
+unfocused-split-fill = 000000
+split-divider-color = 3b3f4c
+
+# Selection
+selection-background = 3b3f4c
+selection-foreground = cell-foreground
+# selection-foreground = dcdfe4
+
+# Search
+search-background = ebd09c
+search-foreground = 282c34
+
+# Search Selected
+search-selected-background = d19a66
+search-selected-foreground = 282c34
+
+# ------------------------------------------------------------
+# Cursor
+# ------------------------------------------------------------
+cursor-style = block
+cursor-style-blink = true
+shell-integration-features = no-cursor,ssh-env,ssh-terminfo
+
+# ------------------------------------------------------------
+# Window
+# ------------------------------------------------------------
+background-opacity = 1.0
+window-padding-x = 2
+window-padding-y = 2
+window-padding-balance = true
+
+# macOS: use native decorations
+macos-titlebar-style = tabs
+
+# ------------------------------------------------------------
+# Scrollback
+# ------------------------------------------------------------
+# 10 MB, about 15,000 lines
+scrollback-limit = 10000000
+
+# ------------------------------------------------------------
+# Mouse
+# ------------------------------------------------------------
+mouse-hide-while-typing = false
+
+# ------------------------------------------------------------
+# clipboard
+# ------------------------------------------------------------
+copy-on-select = clipboard
+clipboard-trim-trailing-spaces = true
+
+# ------------------------------------------------------------
+# Bell
+# ------------------------------------------------------------
+bell-features = false
+
+# ------------------------------------------------------------
+# Tab Bar
+# ------------------------------------------------------------
+# Ghostty has native tabs on macOS, enabled by default.
+# Active tab color (approximate wezterm purple theme)
+# These require macos-titlebar-style = native to take effect
+macos-titlebar-proxy-icon = hidden
+
+# ------------------------------------------------------------
+# Key Bindings
+# ------------------------------------------------------------
+# New window (CMD+N)
+keybind = cmd+n=new_window
+
+# Close pane/tab (CMD+W)
+keybind = cmd+w=close_surface
+
+# Split pane
+# keybind = cmd+shift+left=new_split:left
+# keybind = cmd+shift+right=new_split:right
+# keybind = cmd+shift+up=new_split:up
+# keybind = cmd+shift+down=new_split:down
+keybind = cmd+d=new_split:left
+keybind = cmd+shift+d=new_split:down
+
+# Navigate between panes
+keybind = cmd+shift+left=goto_split:left
+keybind = cmd+shift+right=goto_split:right
+keybind = cmd+shift+up=goto_split:up
+keybind = cmd+shift+down=goto_split:down
+
+# quick terminal
+keybind = global:ctrl+backquote=toggle_quick_terminal
+
+# ------------------------------------------------------------
+# Misc
+# ------------------------------------------------------------
+# Auto reload config
+# Auto reload config (Ghostty watches config automatically, no extra config needed)
+
+# Confirm close
+confirm-close-surface = false
+
+# Bold text uses bright colors
+bold-is-bright = true
+
+# make left option as Alt/Meta, this help nvim hotkey works in ghostty
+macos-option-as-alt = left
