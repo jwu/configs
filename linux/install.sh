@@ -42,6 +42,7 @@ PACKAGES=(
   "ghostty"
   "waybar"
   "swaylock"
+  "swayidle"
   "fcitx5"
   "fcitx5-gtk"
   "fcitx5-qt"

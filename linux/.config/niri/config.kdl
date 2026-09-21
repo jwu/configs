@@ -49,6 +49,7 @@ layout {
 
 spawn-at-startup "waybar"
 spawn-at-startup "fcitx5"
+spawn-at-startup "swayidle" "timeout" "300" "swaylock -f" "timeout" "360" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors"
 
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
@@ -73,7 +74,7 @@ binds {
     Mod+H     { focus-column-left; }
     Mod+J     { focus-window-down; }
     Mod+K     { focus-window-up; }
-    Mod+L     { focus-column-right; }
+    Mod+L { spawn "swaylock"; }
 
     Mod+Ctrl+Left  { move-column-left; }
     Mod+Ctrl+Down  { move-window-down; }
