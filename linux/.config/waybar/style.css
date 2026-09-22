@@ -1,5 +1,22 @@
 @import "./colors.css";
 
+/* 基线与行高约定（改 format 时务必遵守）：
+ * waybar(GTK3) 把每个模块的 label 放进自己的格子做“垂直居中”，label 的行高只取决于
+ * 它内容里最大的那个字形。只要有模块含 20px 铭牌、另一个只有 16px 文字，两者基线就会
+ * 差 1~1.5px，看起来就“不在一条线上”。
+ *
+ * 做法：所有模块的 format 前面都放两段零宽撑高 span（U+200B 零宽空格，不占宽度）：
+ *     <span size='15pt'>​</span>                  ← 撑 ascent 到 18.7px
+ *     <span size='15pt' rise='-1536'>​</span>      ← 撑 descent 到 7.3px（-1536 = 下移 2px）
+ * 这样每个模块的 line box 都是 18.7+7.3 = 26px，且 ascent 相同 → 基线一致。
+ *
+ * 铭牌本身再单独下移 2px（rise='-1536'），让「框」的中心和数字的中心重合：
+ * 15pt 框字原本是「基线上方 15px / 下方 1px」，下移 2px 后变成上下各 3px，正好居中。
+ *
+ * 例外：clock 里的「月日」是中文字形，行高比 26px 更大且 ascent 不同，会整体低约 0.7px，
+ * 所以用 #clock { margin-bottom: 1px }（GTK3 里 margin 只产生约一半位移）提回来。
+ *
+ * 20px = 15pt（Pango markup 的 size 只认 pt/%/关键字，不认 px；tray/privacy 走 icon-size 像素值）。*/
 * {
   font-family: "FiraMono Nerd Font";
   font-size: 16px;
@@ -83,6 +100,7 @@ window#waybar > box {
 
 #clock {
   color: @ghostty_blue;
+  margin-bottom: 1px;   /* 把时钟上提 0.5px，对齐其它模块基线 */
 }
 
 /* 用量（CPU 󰘚 / 内存 󰍛 / GPU 󰚗）：低负载绿 → 告警黄 → 危急红

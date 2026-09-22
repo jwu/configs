@@ -8,7 +8,7 @@
   "margin-right": 0,
   "spacing": 0,
   "include": ["~/.config/waybar/modules.json"],
-  "modules-left": ["clock", "cpu", "temperature#cpu", "memory", "custom/gpu", "custom/gpu-temp", "custom/ssd"],
+  "modules-left": ["clock", "cpu", "temperature#cpu", "custom/gpu", "custom/gpu-temp", "memory", "custom/ssd"],
   "modules-center": ["mpris", "niri/workspaces", "privacy"],
   "modules-right": [
     "tray",

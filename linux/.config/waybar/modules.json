@@ -13,14 +13,14 @@
   },
   "niri/workspaces": {
     "on-click": "activate",
-    "format": "{icon}",
+    "format": "<span size='15pt'>\u200b</span><span size='15pt' rise='-1536'>\u200b</span>{icon}",
     "format-icons": {
       "default": "󰄰",
       "active": "󰄯"
     }
   },
   "cpu": {
-    "format": "CPU {usage}%",
+    "format": "<span size='15pt'>\u200b</span><span size='15pt' rise='-1536'>\u200b</span><span size='15pt' rise='-1536'>󰬊󰬗󰬜</span> {usage}%",
     "interval": 1,
     "states": {
       "warning": 50,
@@ -31,7 +31,7 @@
     "on-click": "ghostty -e btop"
   },
   "memory": {
-    "format": "RAM {used:0.1f}G",
+    "format": "<span size='15pt'>\u200b</span><span size='15pt' rise='-1536'>\u200b</span><span size='15pt' rise='-1536'>󰬙󰬈󰬔</span> {used:0.1f}G",
     "interval": 2,
     "states": {
       "warning": 75,
@@ -47,7 +47,7 @@
     "interval": 2,
     "warning-threshold": 75,
     "critical-threshold": 88,
-    "format": "{temperatureC}°C",
+    "format": "<span size='15pt'>\u200b</span><span size='15pt' rise='-1536'>\u200b</span>{temperatureC}°C",
     "tooltip": true,
     "tooltip-format": "CPU Package (i7-12700KF): {temperatureC}°C"
   },
@@ -71,12 +71,12 @@
   },
   "clock": {
     "interval": 1,
-    "format": "<span foreground='#c678dd'>{0:%m月%d日}</span> <span foreground='#61afef'>{0:%H:%M}</span>",
+    "format": "<span size='15pt'>\u200b</span><span size='15pt' rise='-1536'>\u200b</span><span foreground='#c678dd'>{0:%m月%d日}</span> <span foreground='#61afef'>{0:%H:%M}</span>",
     "format-alt": "{0:%d.%m.%y}",
     "tooltip-format": "<tt><small>{calendar}</small></tt>"
   },
   "mpris": {
-    "format": "<span size='14pt'>󰐎</span>",
+    "format": "<span size='15pt'>\u200b</span><span size='15pt' rise='-1536'>\u200b</span><span size='14pt'>󰐎</span>",
     "interval": 1,
     "on-click": "playerctl play-pause",
     "on-click-right": "playerctl next",
@@ -87,7 +87,7 @@
   "tray": {
     "spacing": 10,
     "reverse-direction": true,
-    "icon-size": 16,
+    "icon-size": 20,
     "show-passive-items": false
   },
   "privacy": {
@@ -119,10 +119,10 @@
       "disabled": "<span size='12pt'>󰤭</span>",
       "disconnected": "<span size='12pt'>󰤩</span>"
     },
-    "format-wifi": "<span alpha='75%'>{ipaddr}</span> {icon}",
-    "format-ethernet": "<span alpha='75%'>{ipaddr}</span> {icon}",
-    "format-disconnected": "{icon}",
-    "format-disabled": "{icon}",
+    "format-wifi": "<span size='15pt'>\u200b</span><span size='15pt' rise='-1536'>\u200b</span><span alpha='75%'>{ipaddr}</span> {icon}",
+    "format-ethernet": "<span size='15pt'>\u200b</span><span size='15pt' rise='-1536'>\u200b</span><span alpha='75%'>{ipaddr}</span> {icon}",
+    "format-disconnected": "<span size='15pt'>\u200b</span><span size='15pt' rise='-1536'>\u200b</span>{icon}",
+    "format-disabled": "<span size='15pt'>\u200b</span><span size='15pt' rise='-1536'>\u200b</span>{icon}",
     "interval": 5,
     "tooltip-format": "{essid}\t{gwaddr}",
     "on-click": "rfkill toggle wifi",
@@ -131,7 +131,7 @@
     "max-length": 20
   },
   "pulseaudio#microphone": {
-    "format": "{format_source}",
+    "format": "<span size='15pt'>\u200b</span><span size='15pt' rise='-1536'>\u200b</span>{format_source}",
     "format-source": "<span size='14pt'>󰍬</span>",
     "format-source-muted": "<span size='14pt'>󰍭</span>",
     "on-click": "pactl set-source-mute @DEFAULT_SOURCE@ toggle",
@@ -145,13 +145,13 @@
   },
   "pulseaudio": {
     "interval": 1,
-    "format": "{icon}",
+    "format": "<span size='15pt'>\u200b</span><span size='15pt' rise='-1536'>\u200b</span>{icon}",
     "format-icons": [
       "<span size='14pt'>󰕿</span>",
       "<span size='14pt'>󰖀</span>",
       "<span size='14pt'>󰕾</span>"
     ],
-    "format-muted": "<span size='14pt'>󰝟</span>",
+    "format-muted": "<span size='15pt'>\u200b</span><span size='15pt' rise='-1536'>\u200b</span><span size='14pt'>󰝟</span>",
     "on-click-right": "pavucontrol -t 3",
     "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
     "reverse-scrolling": true,
