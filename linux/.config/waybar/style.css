@@ -1,0 +1,190 @@
+@import "./colors.css";
+
+* {
+  font-family: "FiraMono Nerd Font";
+  font-size: 16px;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+window#waybar {
+  background: @ghostty_bg;
+}
+
+window#waybar > box {
+  padding: 0 10px;
+}
+
+#cpu:hover,
+#memory:hover,
+#network:hover,
+#pulseaudio:hover,
+#pulseaudio.microphone:hover,
+#pulseaudio.sink-muted:hover {
+  opacity: 0.5;
+}
+
+#cpu,
+#memory,
+#custom-gpu,
+#temperature,
+#custom-gpu-temp,
+#custom-ssd,
+#clock,
+#mpris,
+#tray,
+#privacy,
+#network,
+#pulseaudio,
+#pulseaudio.microphone {
+  color: @ghostty_fg;
+  padding: 0 6px;
+}
+
+#workspaces button {
+  color: @ghostty_fg;
+  padding: 0;
+  /* 覆盖 GTK 主题（Adwaita）注入的按钮样式。
+   * 根因：waybar 只加载用户这一份样式表（见 src/client.cpp），官方默认样式里的
+   * `#workspaces button { background-color: transparent }` 不会生效，
+   * 于是 Adwaita 的 button 样式直接漏了进来。
+   * 离线解析 hover 态实测到的泄漏项：
+   *   background-image = 渐变图案（白底就是它，不是 background-color）
+   *   border-color = rgba(205,199,194) / border-width = 1px（近白描边）
+   * 只写 background: transparent 能清掉渐变，但清不掉那 1px 描边，
+   * 所以 border: none 也必须写。 */
+  background-color: transparent;
+  background-image: none;
+  border: none;
+  box-shadow: none;
+  text-shadow: none;
+  outline: none;
+}
+
+/* hover / 按下 / 激活都不给底色 */
+#workspaces button:hover,
+#workspaces button:active,
+#workspaces button:checked {
+  background-color: transparent;
+  background-image: none;
+  border: none;
+  box-shadow: none;
+  outline: none;
+}
+
+#workspaces button.active {
+  color: @color2;
+}
+
+#privacy {
+  margin: 4px;
+  color: @color3;
+}
+
+#clock {
+  color: @ghostty_blue;
+}
+
+/* 用量（CPU 󰘚 / 内存 󰍛 / GPU 󰚗）：低负载绿 → 告警黄 → 危急红
+ * 阈值见 modules.json 的 states（custom/gpu 的阈值写在 scripts/gpu.sh 里）*/
+#cpu,
+#memory,
+#custom-gpu {
+  color: @ghostty_green;
+}
+#cpu.warning,
+#memory.warning,
+#custom-gpu.warning {
+  color: @ghostty_yellow;
+}
+#cpu.critical,
+#memory.critical,
+#custom-gpu.critical {
+  color: @ghostty_red;
+}
+
+/* 温度：常温用中性色，过热才变色
+ * CPU 阈值见 temperature#cpu 的 warning/critical-threshold；GPU/SSD 写在各自脚本里 */
+#temperature,
+#custom-gpu-temp,
+#custom-ssd {
+  color: @ghostty_fg;
+}
+#temperature.warning,
+#custom-gpu-temp.warning,
+#custom-ssd.warning {
+  color: @ghostty_yellow;
+}
+#temperature.critical,
+#custom-gpu-temp.critical,
+#custom-ssd.critical {
+  color: @ghostty_red;
+}
+
+/* 温度紧贴所属组件，读起来是一组：CPU 4% 31°C ／ GPU 11% 40°C */
+#temperature.cpu,
+#custom-gpu-temp {
+  padding: 0 6px 0 0;
+}
+
+#mpris {
+  color: @color3;
+}
+
+#network.disabled {
+  color: @color1;
+}
+#network.wifi {
+  color: @color2;
+}
+#network.ethernet {
+  color: @color3;
+}
+
+#pulseaudio.sink-muted:not(.microphone) {
+  color: @color3;
+}
+#pulseaudio.microphone.source-muted {
+  color: @color1;
+}
+
+tooltip {
+  background: @ghostty_bg;
+  border: 1px solid @ghostty_fg;
+}
+tooltip * {
+  color: @ghostty_fg;
+  margin: 2px;
+  background: @ghostty_bg;
+}
+
+#pulseaudio-slider {
+  min-width: 90px;
+  margin: 0 8px;
+}
+
+#pulseaudio-slider trough {
+  min-height: 5px;
+  border-radius: 99px;
+  background: @color0;
+  border: none;
+  box-shadow: none;
+}
+
+#pulseaudio-slider highlight {
+  min-height: 5px;
+  border-radius: 99px;
+  background: @color4;
+  border: none;
+  box-shadow: none;
+}
+
+#pulseaudio-slider slider {
+  min-width: 11px;
+  min-height: 11px;
+  border-radius: 99px;
+  background: @ghostty_fg;
+  border: none;
+  box-shadow: none;
+  margin: -3px 0;
+}

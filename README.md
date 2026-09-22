@@ -165,6 +165,7 @@ cd ~/bin/configs/linux
    - `linux/.config/niri/config.kdl` -> `~/.config/niri/config.kdl`
    - `linux/.config/hypr/hyprland.lua` -> `~/.config/hypr/hyprland.lua`
    - `linux/.config/ghostty/config.ghostty` -> `~/.config/ghostty/config.ghostty`
+   - `linux/.config/waybar/` -> `~/.config/waybar/`（`config.jsonc`、`modules.json`、`style.css`、`colors.css`，以及 `scripts/` 下的 GPU / NVMe 取值脚本）
    - `linux/.config/environment.d/fcitx5.conf` -> `~/.config/environment.d/fcitx5.conf`
    - 运行 `desktop-settings/fcitx5/install-linux.sh` 同步 Fcitx5、Rime 和候选窗主题
 
