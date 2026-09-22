@@ -220,7 +220,7 @@ if is_win then
 elseif is_mac then
   vim.opt.guifont = 'FiraMono Nerd Font,PingFang SC:h16'
 else
-  vim.opt.guifont = 'FiraMono Nerd Font:h12'
+  vim.opt.guifont = 'FiraMono Nerd Font,Sarasa Gothic SC,Noto Sans CJK SC:h13.5'
 end
 
 --------------------------------------------------------------------
