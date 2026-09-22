@@ -127,6 +127,10 @@ macos-titlebar-proxy-icon = hidden
 # ------------------------------------------------------------
 # Key Bindings
 # ------------------------------------------------------------
+# Paste from the Wayland clipboard. This also makes niri's Mod+V
+# binding behave as paste inside Ghostty instead of sending Ctrl+V to the PTY.
+keybind = ctrl+v=paste_from_clipboard
+
 # New window (CMD+N)
 keybind = cmd+n=new_window
 

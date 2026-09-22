@@ -48,6 +48,10 @@ PACKAGES=(
   "fcitx5-qt"
   "fcitx5-rime"
   "fcitx5-configtool"
+  "cliphist"
+  "fuzzel"
+  "wtype"
+  "wl-clipboard"
   "noto-fonts-cjk"
   "ttf-sarasa-gothic"
 )

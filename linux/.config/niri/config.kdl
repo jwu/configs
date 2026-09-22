@@ -54,6 +54,7 @@ layout {
 
 spawn-at-startup "waybar"
 spawn-at-startup "fcitx5"
+spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
 spawn-at-startup "swayidle" "timeout" "300" "swaylock -f" "timeout" "360" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors"
 
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
@@ -61,13 +62,15 @@ screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 binds {
     Mod+Return { spawn "ghostty"; }
     Mod+E { spawn "nautilus"; }
-    Mod+Space { spawn "fcitx5-remote" "-t"; }
+    Mod+Space { spawn "fuzzel"; }
+    Ctrl+Space { spawn "fcitx5-remote" "-t"; }
 
     // These match the active Hyprland Lua bindings. C is also kept as a
     // close shortcut because it was present in the older Hyprland config.
     Mod+W { close-window; }
     Mod+C { close-window; }
     Mod+V { toggle-window-floating; }
+    Mod+Shift+V { spawn "/home/jwu/.local/bin/niri-clipboard-history"; }
     Mod+Shift+Q { quit; }
 
     Mod+O repeat=false { toggle-overview; }
@@ -76,6 +79,8 @@ binds {
     Mod+Down  { focus-window-down; }
     Mod+Up    { focus-window-up; }
     Mod+Right { focus-column-right; }
+    Mod+WheelScrollDown { focus-column-right; }
+    Mod+WheelScrollUp   { focus-column-left; }
     Mod+H     { focus-column-left; }
     Mod+J     { focus-window-down; }
     Mod+K     { focus-window-up; }

@@ -68,6 +68,14 @@ if command -v hyprland &> /dev/null; then
   cp "$SCRIPT_DIR/.config/hypr/hyprland.lua" "$HOME/.config/hypr/hyprland.lua"
 fi
 
+# Clipboard history helper
+if command -v cliphist &> /dev/null && command -v fuzzel &> /dev/null && command -v wl-copy &> /dev/null && command -v wl-paste &> /dev/null && command -v wtype &> /dev/null; then
+  echo "Configuring clipboard history helper..."
+  mkdir -p "$HOME/.local/bin"
+  cp "$SCRIPT_DIR/.local/bin/niri-clipboard-history" "$HOME/.local/bin/niri-clipboard-history"
+  chmod +x "$HOME/.local/bin/niri-clipboard-history"
+fi
+
 # Ghostty
 if command -v ghostty &> /dev/null; then
   echo "Configuring Ghostty..."
