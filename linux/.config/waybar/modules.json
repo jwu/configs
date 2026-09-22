@@ -19,6 +19,19 @@
       "active": "󰄯"
     }
   },
+  "cffi/niri-windows": {
+    "module_path": "/home/jwu/.config/waybar/waybar-niri-windows.so",
+    "options": {
+      "mode": "graphical",
+      "minimum-size": 3,
+      "spacing": 1,
+      "column-borders": 2,
+      "floating-borders": 2,
+      "on-tile-click": "FocusWindow",
+      "on-tile-middle-click": "CloseWindow",
+      "on-tile-right-click": ""
+    }
+  },
   "cpu": {
     "format": "<span size='15pt'>\u200b</span><span size='15pt' rise='-1536'>\u200b</span><span size='15pt' rise='-1536'>󰬊󰬗󰬜</span> {usage}%",
     "interval": 1,

@@ -11,6 +11,7 @@
   "modules-left": ["clock", "cpu", "temperature#cpu", "custom/gpu", "custom/gpu-temp", "memory", "custom/ssd"],
   "modules-center": ["mpris", "niri/workspaces", "privacy"],
   "modules-right": [
+    "cffi/niri-windows",
     "tray",
     "network",
     "pulseaudio#microphone",
