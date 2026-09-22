@@ -46,6 +46,9 @@ if command -v niri &> /dev/null; then
   mkdir -p "$HOME/.config/niri"
   backup_file "$HOME/.config/niri/config.kdl"
   cp "$SCRIPT_DIR/.config/niri/config.kdl" "$HOME/.config/niri/config.kdl"
+  mkdir -p "$HOME/.local/bin"
+  cp "$SCRIPT_DIR/.local/bin/niri-open-terminal-below" "$HOME/.local/bin/niri-open-terminal-below"
+  chmod +x "$HOME/.local/bin/niri-open-terminal-below"
 fi
 
 # Swaylock

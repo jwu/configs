@@ -61,6 +61,7 @@ screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
 binds {
     Mod+Return { spawn "ghostty"; }
+    Mod+Shift+Return { spawn "/home/jwu/.local/bin/niri-open-terminal-below"; }
     Mod+E { spawn "nautilus"; }
     Mod+Space { spawn "fuzzel"; }
     Ctrl+Space { spawn "fcitx5-remote" "-t"; }
