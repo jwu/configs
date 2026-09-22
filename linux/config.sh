@@ -59,7 +59,7 @@ if command -v swaylock &> /dev/null; then
   cp -a "$SCRIPT_DIR/backgrounds/." "$SWAYLOCK_BACKGROUND_DIR/"
   mkdir -p "$HOME/.config/swaylock"
   backup_file "$HOME/.config/swaylock/config"
-  sed "s|__SWAYLOCK_BACKGROUND_DIR__|$SWAYLOCK_BACKGROUND_DIR|g" \\
+  sed "s|__SWAYLOCK_BACKGROUND_DIR__|$SWAYLOCK_BACKGROUND_DIR|g" \
     "$SCRIPT_DIR/.config/swaylock/config" > "$HOME/.config/swaylock/config"
 fi
 
