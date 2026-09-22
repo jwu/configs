@@ -118,6 +118,38 @@ else
 fi
 
 # ==========================================
+# Waybar: niri window minimap (CFFI module)
+# ==========================================
+
+# https://github.com/calico32/waybar-niri-windows
+# 图形模式小地图（CFFI 模块，wbcffi ABI v2），需要 niri >= 25.08。
+# 上游只发 amd64 预编译包，所以下完先校 sha256 再落盘；
+# 升级版本时同时改 WNMW_VERSION 和 WNMW_SHA256（取自同 tag 的 checksums.txt）。
+WNMW_VERSION="v2.3.1"
+WNMW_SHA256="6ae40a7ac277a1a46a823933213a5e0585b2c2a16374c225c66e17730304e533"
+WNMW_ASSET="waybar-niri-windows.so"
+WNMW_DEST="$HOME/.config/waybar/$WNMW_ASSET"
+
+echo ">>> Installing Waybar niri-windows module ($WNMW_VERSION)..."
+if [ -f "$WNMW_DEST" ] && echo "$WNMW_SHA256  $WNMW_DEST" | sha256sum -c --status -; then
+  echo "  Already installed and checksum matches, skipping."
+else
+  mkdir -p "$HOME/.config/waybar"
+  WNMW_TMP_DIR="$(mktemp -d)"
+  curl -fsSL \
+    "https://github.com/calico32/waybar-niri-windows/releases/download/$WNMW_VERSION/$WNMW_ASSET" \
+    -o "$WNMW_TMP_DIR/$WNMW_ASSET"
+  if ! echo "$WNMW_SHA256  $WNMW_TMP_DIR/$WNMW_ASSET" | sha256sum -c --status -; then
+    echo "Error: sha256 mismatch for $WNMW_ASSET"
+    rm -rf "$WNMW_TMP_DIR"
+    exit 1
+  fi
+  cp "$WNMW_TMP_DIR/$WNMW_ASSET" "$WNMW_DEST"
+  rm -rf "$WNMW_TMP_DIR"
+  echo "  Installed to $WNMW_DEST"
+fi
+
+# ==========================================
 # Copy Configurations
 # ==========================================
 

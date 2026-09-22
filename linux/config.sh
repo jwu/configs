@@ -55,10 +55,16 @@ fi
 if command -v waybar &> /dev/null; then
   echo "Configuring Waybar..."
   mkdir -p "$HOME/.config/waybar/scripts"
-  for f in config.jsonc modules.json style.css colors.css; do
+  for f in config.jsonc style.css colors.css; do
     backup_file "$HOME/.config/waybar/$f"
     cp "$SCRIPT_DIR/.config/waybar/$f" "$HOME/.config/waybar/$f"
   done
+  # modules.json 里的 module_path 必须落成绝对路径：waybar 是直接
+  # dlopen() 这个值，不会展开 ~ / $HOME。照 swaylock 的做法把占位符换掉。
+  WAYBAR_MODULE_DIR="$HOME/.config/waybar"
+  backup_file "$HOME/.config/waybar/modules.json"
+  sed "s|__WAYBAR_MODULE_DIR__|$WAYBAR_MODULE_DIR|g" \
+    "$SCRIPT_DIR/.config/waybar/modules.json" > "$HOME/.config/waybar/modules.json"
   # 取值脚本（GPU 占用/温度；两块 NVMe 取更热的一块）
   for f in gpu.sh nvme-temp.sh; do
     backup_file "$HOME/.config/waybar/scripts/$f"

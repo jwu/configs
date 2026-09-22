@@ -20,7 +20,7 @@
     }
   },
   "cffi/niri-windows": {
-    "module_path": "/home/jwu/.config/waybar/waybar-niri-windows.so",
+    "module_path": "__WAYBAR_MODULE_DIR__/waybar-niri-windows.so",
     "options": {
       "mode": "graphical",
       "minimum-size": 3,
