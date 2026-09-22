@@ -61,7 +61,7 @@ screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
 binds {
     Mod+Return { spawn "ghostty"; }
-    Mod+Shift+Return { spawn "/home/jwu/.local/bin/niri-open-terminal-below"; }
+    Mod+Shift+Return { spawn "~/.local/bin/niri-open-terminal-below"; }
     Mod+E { spawn "nautilus"; }
     Mod+Space { spawn "fuzzel"; }
     Ctrl+Space { spawn "fcitx5-remote" "-t"; }
@@ -71,7 +71,7 @@ binds {
     Mod+W { close-window; }
     Mod+C { close-window; }
     Mod+V { toggle-window-floating; }
-    Mod+Shift+V { spawn "/home/jwu/.local/bin/niri-clipboard-history"; }
+    Mod+Shift+V { spawn "~/.local/bin/niri-clipboard-history"; }
     Mod+Shift+Q { quit; }
 
     Mod+O repeat=false { toggle-overview; }
