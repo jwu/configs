@@ -131,6 +131,10 @@ macos-titlebar-proxy-icon = hidden
 # binding behave as paste inside Ghostty instead of sending Ctrl+V to the PTY.
 keybind = ctrl+v=paste_from_clipboard
 
+# Pass Ctrl+Shift+V through to the application instead of Ghostty's built-in
+# paste, so pi's app.clipboard.pasteImage (ctrl+shift+v) can receive it.
+keybind = ctrl+shift+v=unbind
+
 # New window (CMD+N)
 keybind = cmd+n=new_window
 
