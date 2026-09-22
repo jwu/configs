@@ -12,8 +12,8 @@ input {
     }
 
     mouse {
-        accel-speed -0.6
-        accel-profile "flat"
+      accel-speed -0.6
+      accel-profile "flat"
     }
 }
 
@@ -25,7 +25,7 @@ output "DP-3" {
     transform "270"
 }
 
-prefer-no-csd
+// prefer-no-csd
 
 layout {
     // Niri uses one gap value for both column spacing and the outer gap.
