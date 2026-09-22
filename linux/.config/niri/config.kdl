@@ -10,6 +10,11 @@ input {
         repeat-rate 30
         repeat-delay 300
     }
+
+    mouse {
+        accel-speed -0.6
+        accel-profile "flat"
+    }
 }
 
 // DP-3 is the Dell U2722DX detected by Hyprland.
