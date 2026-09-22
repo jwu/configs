@@ -1,0 +1,34 @@
+/* 颜色预设：原来的样子（2026-09-22 用截图取像素实测保存）
+ *
+ * 实测值（window-theme 默认 auto、不做任何颜色覆盖时）：
+ *   标题栏底色 #222226   标题栏文字 #ffffff
+ *   窗口顶边 1px 描边 #323235
+ *
+ * 这是 ghostty 自己按终端底色算出来的 chrome 配色（不是 libadwaita 的默认值：
+ * 纯 Adwaita 暗色标题栏是 #2e2e32）。存成显式规则，方便随时切回来，
+ * 也防止将来 libadwaita / ghostty 升级后这套颜色变了。
+ *
+ * 切换方式：~/.config/ghostty/config.ghostty 里把颜色预设那行换成
+ *   gtk-custom-css = ~/.config/ghostty/titlebar-colors-default.css
+ *
+ * 说明：失焦（backdrop）时 libadwaita 原本会让标题栏变暗，这里按比例给了个近似值；
+ * 其余 hover / 阴影仍由 libadwaita 管。
+ */
+
+window headerbar {
+    background-color: #222226;
+    color: #ffffff;
+}
+
+window headerbar:backdrop {
+    background-color: #1e1e22;
+}
+
+tabbar .box {
+    background-color: #222226;
+    color: #ffffff;
+}
+
+tabbar .box:backdrop {
+    background-color: #1e1e22;
+}

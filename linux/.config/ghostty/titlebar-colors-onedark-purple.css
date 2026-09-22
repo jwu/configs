@@ -1,0 +1,49 @@
+/* 颜色预设：One Dark · 紫色标题栏 + 深色文字（当前使用）
+ *
+ *   titlebar 底色 = One Dark purple   #c678dd（你调色板的 color5 / color13）
+ *   文字/图标色   = 终端 background   #282c34
+ *   对比度 ≈ 4.75:1（WCAG 相对亮度计算），深色字在紫底上很清楚；
+ *   若文字改用终端前景 #abb2bf 只有 1.38:1，会发灰难认 —— 这里刻意没用它。
+ *
+ * 备份过的其它配色（改一个变量的值就能切）：
+ *   无缝同色     标题栏 #282c34 + 文字 #abb2bf   → titlebar-colors-onedark.css
+ *   原来的样子   标题栏 #222226 + 文字 #ffffff   → titlebar-colors-default.css
+ *   深紫不刺眼   标题栏 #5c3a6e + 文字 #abb2bf（4.31:1）
+ *
+ * 切换方式：~/.config/ghostty/config.ghostty 里颜色预设那行换成对应文件。
+ * 生效：Ctrl+Shift+, 重载配置（CSS 对已开窗口立即生效）。
+ *
+ * 说明：libadwaita 的 --headerbar-* 变量在用户样式表里覆盖无效（实测），
+ * 所以直接写属性，并补 :backdrop 让失焦时略暗。
+ * window.csd 的底色一起设成紫色，是为了消掉标题栏上方约 2px 的窗口底色色差
+ * （终端不透明时不外露；若以后开 background-opacity，紫色会从缝隙透出来）。
+ */
+
+/* 标题栏 */
+window headerbar {
+    background-color: #c678dd;
+    color: #282c34;
+}
+
+window headerbar:backdrop {
+    background-color: #b26cc7;      /* 失焦时略暗的紫（深色字仍有 ≈3.9:1） */
+}
+
+/* tab 栏（≥2 个 tab，或 window-show-tab-bar=always 时出现）跟着同色 */
+tabbar .box {
+    background-color: #c678dd;
+    color: #282c34;
+}
+
+tabbar .box:backdrop {
+    background-color: #b26cc7;
+}
+
+/* 窗口自身底色：让标题栏上方那条 2px 缝隙也是紫色 */
+window.csd,
+window.csd.background {
+    background-color: #c678dd;
+}
+
+/* 如果连最顶上那 1px 描边也不想要，解开下面这行： */
+/* window.csd { outline: none; } */

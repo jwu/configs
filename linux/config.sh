@@ -85,6 +85,20 @@ if command -v ghostty &> /dev/null; then
   mkdir -p "$HOME/.config/ghostty"
   backup_file "$HOME/.config/ghostty/config.ghostty"
   cp "$SCRIPT_DIR/.config/ghostty/config.ghostty" "$HOME/.config/ghostty/config.ghostty"
+  # GTK titlebar tweaks: slim headerbar + color presets
+  # (config.ghostty loads them via `gtk-custom-css = ~/.config/ghostty/...`)
+  for f in titlebar.css titlebar-colors-onedark.css titlebar-colors-onedark-purple.css titlebar-colors-default.css; do
+    backup_file "$HOME/.config/ghostty/$f"
+    cp "$SCRIPT_DIR/.config/ghostty/$f" "$HOME/.config/ghostty/$f"
+  done
+fi
+
+# GTK4 global tweaks (square CSD window corners; applies to all GTK4 apps)
+if [ -f "$SCRIPT_DIR/.config/gtk-4.0/gtk.css" ]; then
+  echo "Configuring GTK4..."
+  mkdir -p "$HOME/.config/gtk-4.0"
+  backup_file "$HOME/.config/gtk-4.0/gtk.css"
+  cp "$SCRIPT_DIR/.config/gtk-4.0/gtk.css" "$HOME/.config/gtk-4.0/gtk.css"
 fi
 
 # EZA

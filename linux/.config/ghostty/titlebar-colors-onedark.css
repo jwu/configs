@@ -1,0 +1,45 @@
+/* 颜色预设：One Dark —— 标题栏底色 = 终端底色（#282c34）
+ *
+ * 取色来自你的 ghostty 配置（theme = One Half Dark）：
+ *   background #282c34   foreground #abb2bf
+ * 标题栏用和终端面一样的 #282c34，配合 gtk-toolbar-style = flat（无分隔线），
+ * 看起来就是「一条」——不留边界。
+ *
+ * 为什么不用 libadwaita 的 --headerbar-bg-color 变量：
+ *   实测在用户样式表里覆盖这些变量无效（窗口顶部仍是默认的 #222226 / 白字），
+ *   所以这里直接写属性。直接写属性会盖住所有状态，因此额外补了 :backdrop，
+ *   让失焦时依然略暗一点，保持层次。
+ *   （如果想让「其它 chrome」也跟着变，比如菜单/气泡/总览，改用一行配置：
+ *      window-theme = ghostty
+ *    它会用终端 bg/fg 重算整套窗口配色，实测标题栏同样是 #282c34。）
+ */
+
+/* 标题栏 */
+window headerbar {
+    background-color: #282c34;
+    color: #abb2bf;
+}
+
+window headerbar:backdrop {
+    background-color: #24282f;      /* 失焦时略暗 */
+}
+
+/* tab 栏（≥2 个 tab，或 window-show-tab-bar=always 时出现）跟着同色 */
+tabbar .box {
+    background-color: #282c34;
+    color: #abb2bf;
+}
+
+tabbar .box:backdrop {
+    background-color: #24282f;
+}
+
+/* 窗口自身的底色：标题栏上方有约 2px 的窗口背景会露出来，
+ * 不改这里的话顶部会有一条比标题栏略深的细线（实测 #222226）。 */
+window.csd,
+window.csd.background {
+    background-color: #282c34;
+}
+
+/* 如果连最顶上那 1px 描边（#373b42）也不想要，解开下面这行： */
+/* window.csd { outline: none; } */

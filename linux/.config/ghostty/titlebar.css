@@ -1,0 +1,70 @@
+/* Ghostty GTK titlebar：中间档（扁但不挤）+ 窗口直角。
+ *
+ * 为什么需要动这么多：min-height 只是**容器的下限**，容器永远不会比内容矮。
+ * GTK 自带 Adwaita 里跟这一条高度有关的三层"地板"：
+ *
+ *   headerbar   { min-height: 46px }                                     ← 容器
+ *   button      { min-height: 24px; padding: 4px 9px }                   ← 图标按钮
+ *   windowcontrols button > image { min-height: 30px; min-width: 30px }  ← 窗口控制按钮的圆点
+ *
+ * 中间档的策略：容器收到 22px，圆点和按钮留 18px，仍保留 16px 原版图标和按钮内边距，
+ * 所以看不见的东西没动，只是把多余的高度去掉。
+ *
+ * 直角：Adwaita 是 window.csd { border-radius: $window_radius $window_radius 0 0 }
+ * （只有上面两个角是圆的），这里清零。全局那份在 ~/.config/gtk-4.0/gtk.css，
+ * ghostty 作为 libadwaita 应用两边都会命中，这里保留一份以便这份配置单独可用。
+ *
+ * 调试：GTK_DEBUG=interactive ghostty，选中 headerbar 看实际生效的规则。
+ */
+
+/* ---------- 容器 ---------- */
+
+window headerbar,
+window headerbar.default-decoration {
+    min-height: 22px;          /* Adwaita 默认 46/47px */
+}
+
+window headerbar > windowhandle > box {
+    padding: 0 6px 1px 6px;    /* Adwaita 默认 6px 7px 7px 7px */
+}
+
+/* ---------- 内容：窗口控制按钮（最小化 / 最大化 / 关闭）---------- */
+
+window headerbar windowcontrols > button {
+    min-width: 26px;           /* Adwaita 默认 34px */
+    padding: 0;
+}
+
+window headerbar windowcontrols > button > image {
+    min-height: 18px;          /* Adwaita 默认 30px —— 之前压不动就是它 */
+    min-width: 18px;
+    padding: 0;
+}
+
+/* ---------- 内容：新建标签 / 视图 / 菜单这些图标按钮 ---------- */
+
+window headerbar button {
+    min-height: 18px;          /* Adwaita 默认 24px */
+    padding: 1px 4px;          /* Adwaita 默认 4px 9px */
+}
+
+/* ---------- 窗口直角 ---------- */
+
+window.csd,
+window.csd.background {
+    border-radius: 0;
+}
+
+/* ---------- 想要更扁（极端档）就解开这段 ----------
+ *
+ * window headerbar,
+ * window headerbar.default-decoration { min-height: 8px; }
+ * window headerbar > windowhandle > box { padding: 0; }
+ * window headerbar windowcontrols > button { min-width: 4px; padding: 0; }
+ * window headerbar windowcontrols > button > image { min-height: 10px; min-width: 10px; }
+ * window headerbar button { min-height: 10px; padding: 0; }
+ * headerbar windowtitle .title { font-size: 8pt; }
+ *
+ * 实测极端档只能再省约 10px（那之后的地板是 16px 图标、WindowTitle 文字、
+ * SplitButton 的 16px 箭头）。图标尺寸不影响高度，所以这里没动它。
+ */

@@ -91,6 +91,20 @@ window-padding-x = 2
 window-padding-y = 2
 window-padding-balance = true
 
+# GTK tab/title bar look. "flat" makes the bar flush with the terminal
+# surface (no shadow, no separating line).
+# Other values: raised (upstream default), raised-border
+gtk-toolbar-style = flat
+
+# Slim the GTK titlebar (headerbar): geometry only, see the CSS file.
+gtk-custom-css = ~/.config/ghostty/titlebar.css
+
+# Titlebar colors: enable at most one preset (files live in ~/.config/ghostty):
+#   titlebar-colors-onedark.css        -> 标题栏 = 终端底色 #282c34（无缝，当前启用）
+#   titlebar-colors-onedark-purple.css -> 紫底 #c678dd + 深色文字 #282c34
+#   titlebar-colors-default.css        -> 原来的 Adwaita 观感 #222226 / 白字
+gtk-custom-css = ~/.config/ghostty/titlebar-colors-onedark.css
+
 # macOS: use native decorations
 macos-titlebar-style = tabs
 
@@ -127,9 +141,12 @@ macos-titlebar-proxy-icon = hidden
 # ------------------------------------------------------------
 # Key Bindings
 # ------------------------------------------------------------
-
-# clipboard
+# Paste from the Wayland clipboard. This also makes niri's Mod+V
+# binding behave as paste inside Ghostty instead of sending Ctrl+V to the PTY.
 keybind = ctrl+v=paste_from_clipboard
+
+# Pass Ctrl+Shift+V through to the application instead of Ghostty's built-in
+# paste, so pi's app.clipboard.pasteImage (ctrl+shift+v) can receive it.
 keybind = ctrl+shift+v=unbind
 
 # New window (CMD+N)
