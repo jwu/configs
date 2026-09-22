@@ -1,0 +1,4 @@
+# Static lock-screen background
+image=__SWAYLOCK_BACKGROUND_DIR__/vantablack-1-twisted-stairs.webp
+scaling=fill
+show-failed-attempts

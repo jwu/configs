@@ -48,6 +48,18 @@ if command -v niri &> /dev/null; then
   cp "$SCRIPT_DIR/.config/niri/config.kdl" "$HOME/.config/niri/config.kdl"
 fi
 
+# Swaylock
+if command -v swaylock &> /dev/null; then
+  echo "Configuring Swaylock..."
+  SWAYLOCK_BACKGROUND_DIR="$HOME/.config/swaylock/backgrounds"
+  mkdir -p "$SWAYLOCK_BACKGROUND_DIR"
+  cp -a "$SCRIPT_DIR/backgrounds/." "$SWAYLOCK_BACKGROUND_DIR/"
+  mkdir -p "$HOME/.config/swaylock"
+  backup_file "$HOME/.config/swaylock/config"
+  sed "s|__SWAYLOCK_BACKGROUND_DIR__|$SWAYLOCK_BACKGROUND_DIR|g" \\
+    "$SCRIPT_DIR/.config/swaylock/config" > "$HOME/.config/swaylock/config"
+fi
+
 # Hyprland
 if command -v hyprland &> /dev/null; then
   echo "Configuring Hyprland..."
