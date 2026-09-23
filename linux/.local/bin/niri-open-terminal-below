@@ -8,66 +8,57 @@ import sys
 import time
 
 
-def niri(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
+def niri(*args: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         ["niri", "msg", *args],
-        check=check,
+        check=True,
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
 
 
+windows = json.loads(niri("-j", "windows").stdout)
+existing_ids = {window["id"] for window in windows}
+
+events = subprocess.Popen(
+    ["niri", "msg", "-j", "event-stream"],
+    stdout=subprocess.PIPE,
+    stderr=subprocess.DEVNULL,
+    text=True,
+    bufsize=1,
+)
 try:
-    windows = json.loads(niri("-j", "windows").stdout)
-    existing_ids = {window["id"] for window in windows}
+    niri("action", "spawn", "--", "ghostty")
 
-    events = subprocess.Popen(
-        ["niri", "msg", "-j", "event-stream"],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        text=True,
-        bufsize=1,
-    )
-    try:
-        niri("action", "spawn", "--", "ghostty")
+    selector = selectors.DefaultSelector()
+    selector.register(events.stdout, selectors.EVENT_READ)
+    deadline = time.monotonic() + 10
 
-        selector = selectors.DefaultSelector()
-        selector.register(events.stdout, selectors.EVENT_READ)
-        deadline = time.monotonic() + 10
+    while time.monotonic() < deadline:
+        remaining = max(0, deadline - time.monotonic())
+        if not selector.select(remaining):
+            break
 
-        while time.monotonic() < deadline:
-            remaining = max(0, deadline - time.monotonic())
-            ready = selector.select(remaining)
-            if not ready:
-                break
+        line = events.stdout.readline()
+        if not line:
+            break
 
-            line = events.stdout.readline()
-            if not line:
-                break
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
 
-            try:
-                event = json.loads(line)
-            except json.JSONDecodeError:
-                continue
+        window = event.get("WindowOpenedOrChanged", {}).get("window")
+        if not window or window.get("app_id") != "com.mitchellh.ghostty":
+            continue
 
-            window = event.get("WindowOpenedOrChanged", {}).get("window")
-            if not window or window.get("app_id") != "com.mitchellh.ghostty":
-                continue
-
-            window_id = window.get("id")
-            if window_id not in existing_ids:
-                niri(
-                    "action",
-                    "consume-or-expel-window-left",
-                    "--id",
-                    str(window_id),
-                )
-                sys.exit(0)
-    finally:
-        events.terminate()
-        events.wait(timeout=2)
+        window_id = window.get("id")
+        if window_id not in existing_ids:
+            niri("action", "consume-or-expel-window-left", "--id", str(window_id))
+            sys.exit(0)
 finally:
-    pass
+    events.terminate()
+    events.wait(timeout=2)
 
 sys.exit(1)
