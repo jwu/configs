@@ -147,6 +147,12 @@ waybar `dlopen()` 之后一直把 `.so` 映射着，**就地覆盖这个文件�
 `install.sh` / `config.sh`（共用 `linux/waybar-niri-windows.sh`）和 fork 里的
 `build-and-install.sh` 都这么做；重启 waybar 仍然必要，但不再需要「先关 bar 再装」。
 
+2026-09-24 之前，活动状态那套（`procs/` + `module/activity.go`）只活在 fork 的
+`busy-state` 分支上，而这里构建追的是 **main HEAD**，于是 CSS 里的
+`.tile.light` / `.medium` / `.heavy` 从不命中，小窗一直只有灰 / 蓝 / 红。已把
+`busy-state` 合入 main（merge commit `c6dfc27`），main 重新成为唯一真源 —— 功能开发完就并回
+main，别让它长期只待在 side branch 上（那次唯一的冲突是两边各自实现的 rename 安装，取任一份即可）。
+
 fork 上目前比上游多的两个修复：
 
 - 只有标题变化的 `WindowOpenedOrChanged` 不再触发整块重建。原本终端或浏览器每 80ms 改一次

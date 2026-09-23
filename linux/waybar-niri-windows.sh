@@ -12,7 +12,7 @@ WNMW_DEST="${WNMW_DEST:-$HOME/.config/waybar/$WNMW_ASSET}"
 
 # Used only when the fork cannot be reached (offline install). Bump alongside
 # the last verified revision in docs/waybar.md.
-WNMW_FALLBACK_COMMIT="66239ac27441dd835ac9f766c0607946820b997f"
+WNMW_FALLBACK_COMMIT="c6dfc276341634ed042c9d56f70a7c7dc74f5b32"
 
 # The revision to build is the fork's main HEAD, so pushing a fix to the fork is
 # enough and nothing here has to be bumped by hand. Override for one build with
