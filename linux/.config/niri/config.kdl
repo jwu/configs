@@ -1,7 +1,11 @@
 // Niri configuration migrated from the active Hyprland Lua config.
 
 input {
-    focus-follows-mouse
+    // Focus-follows-mouse only when the view would scroll at most 25% of the
+    // working-area width. Small pans (neighbour already half revealed) are
+    // allowed; big pans that would shove the old column mostly off screen are
+    // refused. Lower it for a stricter feel, raise it for a jumpier one.
+    focus-follows-mouse max-scroll-amount="25%"
 
     keyboard {
         xkb {
