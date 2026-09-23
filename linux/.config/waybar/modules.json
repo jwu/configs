@@ -119,6 +119,25 @@
       }
     ]
   },
+  "bluetooth": {
+    "format": "<span size='15pt'>\u200b</span><span size='15pt' rise='-1536'>\u200b</span>{icon}",
+    "format-connected": "<span size='15pt'>\u200b</span><span size='15pt' rise='-1536'>\u200b</span>{icon} {num_connections}",
+    "format-icons": {
+      "connected": "<span size='14pt'>󰂱</span>",
+      "on": "<span size='14pt'>󰂯</span>",
+      "off": "<span size='14pt'>󰂲</span>",
+      "disabled": "<span size='14pt'>󰂲</span>",
+      "no-controller": "<span size='14pt'>󰂲</span>",
+      "default": "<span size='14pt'>󰂯</span>"
+    },
+    "interval": 5,
+    "tooltip": true,
+    "tooltip-format": "{controller_alias}\t{controller_address}",
+    "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{num_connections} 个已连接\n\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+    "on-click": "ghostty -e bluetuith",
+    "on-click-right": "bluetoothctl power toggle"
+  },
   "network": {
     "format-icons": {
       "wifi": [

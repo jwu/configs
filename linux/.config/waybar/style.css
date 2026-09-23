@@ -19,6 +19,7 @@ window#waybar > box {
 
 #cpu:hover,
 #memory:hover,
+#bluetooth:hover,
 #network:hover,
 #pulseaudio:hover,
 #pulseaudio.microphone:hover,
@@ -36,6 +37,7 @@ window#waybar > box {
 #mpris,
 #tray,
 #privacy,
+#bluetooth,
 #network,
 #pulseaudio,
 #pulseaudio.microphone {
@@ -134,6 +136,17 @@ window#waybar > box {
 }
 #network.ethernet {
   color: @color3;
+}
+
+/* Bluetooth: off / rfkill-blocked red, connected blue; "on" keeps the default.
+ * The GTK foreground fallback is nearly invisible on @ghostty_bg, so the module
+ * must stay in the colour list above. See docs/waybar.md. */
+#bluetooth.off,
+#bluetooth.disabled {
+  color: @color1;
+}
+#bluetooth.connected {
+  color: @color4;
 }
 
 #pulseaudio.sink-muted:not(.microphone) {
