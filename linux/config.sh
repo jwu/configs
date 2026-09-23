@@ -219,13 +219,6 @@ if command -v yazi &> /dev/null; then
   done
 fi
 
-if command -v lsd &> /dev/null; then
-  echo "Configuring LSD..."
-  mkdir -p "$HOME/.config/lsd"
-  backup_file "$HOME/.config/lsd/config.yaml"
-  cp "$ROOT_DIR/common/.config/lsd/config.yaml" "$HOME/.config/lsd/config.yaml"
-fi
-
 if command -v gitui &> /dev/null; then
   echo "Configuring GitUI..."
   mkdir -p "$HOME/.config/gitui"
