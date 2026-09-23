@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euo pipefail
+
+# Lock the screen with hyprlock; fall back to swaylock if it is not installed.
+#
+# The lock screen is ~/.config/hypr/hyprlock.conf: the Style-10 layout from
+# MrVivekRajan/Hyprlock-Styles over the same wallpaper swaylock uses, blurred.
+# hyprlock runs in the foreground; swayidle without -w double-forks the command,
+# so it does not block the `timeout 360` power-off-monitors step.
+#
+# A dead locker is recovered with niri's Mod+Alt+L (allow-when-locked), which
+# kills whatever holds the lock and starts swaylock directly (see
+# docs/lockscreen.md).
+
+if command -v hyprlock >/dev/null 2>&1; then
+  exec hyprlock --config "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprlock.conf"
+fi
+
+exec swaylock -f

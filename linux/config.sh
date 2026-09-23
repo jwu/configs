@@ -50,6 +50,16 @@ if command -v niri &> /dev/null; then
   mkdir -p "$HOME/.local/bin"
   cp "$SCRIPT_DIR/.local/bin/niri-open-terminal-below" "$HOME/.local/bin/niri-open-terminal-below"
   chmod +x "$HOME/.local/bin/niri-open-terminal-below"
+  cp "$SCRIPT_DIR/.local/bin/niri-lock" "$HOME/.local/bin/niri-lock"
+  chmod +x "$HOME/.local/bin/niri-lock"
+fi
+
+# Hyprlock (screen locker; see docs/lockscreen.md)
+if command -v hyprlock &> /dev/null; then
+  echo "Configuring hyprlock..."
+  mkdir -p "$HOME/.config/hypr"
+  backup_file "$HOME/.config/hypr/hyprlock.conf"
+  cp "$SCRIPT_DIR/.config/hypr/hyprlock.conf" "$HOME/.config/hypr/hyprlock.conf"
 fi
 
 # Waybar

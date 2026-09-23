@@ -59,7 +59,7 @@ layout {
 spawn-at-startup "waybar"
 spawn-at-startup "fcitx5"
 spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
-spawn-at-startup "swayidle" "timeout" "300" "swaylock -f" "timeout" "360" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors"
+spawn-at-startup "swayidle" "timeout" "300" "$HOME/.local/bin/niri-lock" "timeout" "360" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors"
 
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
@@ -89,7 +89,12 @@ binds {
     Mod+H     { focus-column-left; }
     Mod+J     { focus-window-down; }
     Mod+K     { focus-window-up; }
-    Mod+L { spawn "swaylock"; }
+    Mod+L { spawn "~/.local/bin/niri-lock"; }
+
+    // Recovery from a wedged/dead screen locker: niri keeps a red locked session
+    // when the locker dies (see niri FAQ). Kill whatever holds the lock and
+    // bring up the known-good locker; the flag makes it work while locked.
+    Mod+Alt+L allow-when-locked=true { spawn-sh "pkill -x hyprlock; pkill -x swaylock; sleep 0.3; swaylock -f"; }
 
     Mod+Ctrl+Left  { move-column-left; }
     Mod+Ctrl+Down  { move-window-down; }
