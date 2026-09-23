@@ -1,6 +1,6 @@
 # Terminal Configs
 
-开发环境配置方案 (Windows, Mac, Linux)。包含了 Alacritty, WezTerm, Neovim, Starship, Zsh/Fish 等工具的配置。
+开发环境配置方案 (Windows, Mac, Linux)。包含了 Alacritty, WezTerm, Neovim, Starship, Zsh 等工具的配置。
 
 ## Windows 配置方案
 
@@ -154,10 +154,7 @@ cd ~/bin/configs/linux
    - `linux/.config/starship.toml` -> `~/.config/starship.toml`
    - `linux/.zshrc` -> `~/.zshrc`
 
-4. **可选的 Fish 配置**:
-   - 仓库中还提供了 `linux/.config/fish/config.fish`，如果你使用 Fish，可按需手动拷贝到 `~/.config/fish/config.fish`。
-
-5. **桌面与输入法配置**:
+4. **桌面与输入法配置**:
    - `linux/.config/niri/config.kdl` -> `~/.config/niri/config.kdl`
    - `linux/.config/hypr/hyprland.lua` -> `~/.config/hypr/hyprland.lua`
    - `linux/.config/ghostty/config.ghostty` -> `~/.config/ghostty/config.ghostty`
@@ -282,4 +279,3 @@ cd ~/bin/configs/linux
     - [ohmyzsh](https://github.com/ohmyzsh/ohmyzsh)
     - [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
   - [nushell](https://github.com/nushell/nushell)
-  - [fish](https://fishshell.com/)

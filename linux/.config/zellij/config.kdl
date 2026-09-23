@@ -1,2 +1,2 @@
-default_shell "/usr/bin/fish"
+default_shell "/usr/bin/zsh"
 copy_command: "wl-copy"
