@@ -50,7 +50,7 @@ try:
             continue
 
         window = event.get("WindowOpenedOrChanged", {}).get("window")
-        if not window or window.get("app_id") != "com.mitchellh.ghostty":
+        if not window or "ghostty" not in (window.get("app_id") or ""):
             continue
 
         window_id = window.get("id")

@@ -21,9 +21,6 @@ if ! command -v pacman &> /dev/null; then
   exit 1
 fi
 
-echo ">>> Installing/Updating packages via pacman..."
-sudo pacman -Sy
-
 PACKAGES=(
   "zsh"
   "starship"
@@ -38,6 +35,7 @@ PACKAGES=(
   "otf-firamono-nerd"
   "niri"
   "hyprland"
+  "nautilus"
   "ghostty"
   "waybar"
   "swaylock"
@@ -55,8 +53,8 @@ PACKAGES=(
   "ttf-sarasa-gothic"
 )
 
-echo "Installing packages: ${PACKAGES[*]}"
-sudo pacman -S --needed --noconfirm "${PACKAGES[@]}"
+echo ">>> Installing/Updating packages via pacman: ${PACKAGES[*]}"
+sudo pacman -Syu --needed --noconfirm "${PACKAGES[@]}"
 
 # ==========================================
 # Set Default Shell
@@ -103,9 +101,9 @@ fi
 
 echo ">>> Installing Dracula Zsh Theme..."
 OH_MY_ZSH="$HOME/.oh-my-zsh"
-TEMP_DIR=$(mktemp -d)
 
 if [ ! -f "$OH_MY_ZSH/themes/dracula.zsh-theme" ]; then
+  TEMP_DIR=$(mktemp -d)
   curl -fsSL "https://github.com/dracula/zsh/archive/master.zip" -o "$TEMP_DIR/dracula.zip"
   bsdtar -xzf "$TEMP_DIR/dracula.zip" -C "$TEMP_DIR"
   cp "$TEMP_DIR/zsh-master/dracula.zsh-theme" "$OH_MY_ZSH/themes/dracula.zsh-theme"
@@ -146,9 +144,13 @@ if wnmw_is_installed; then
 elif [ "$WNMW_ARCH" = "x86_64" ]; then
   mkdir -p "$HOME/.config/waybar"
   WNMW_TMP_DIR="$(mktemp -d)"
-  curl -fsSL \
+  if ! curl -fsSL \
     "https://github.com/calico32/waybar-niri-windows/releases/download/$WNMW_VERSION/$WNMW_ASSET" \
-    -o "$WNMW_TMP_DIR/$WNMW_ASSET"
+    -o "$WNMW_TMP_DIR/$WNMW_ASSET"; then
+    echo "Error: download failed for $WNMW_ASSET"
+    rm -rf "$WNMW_TMP_DIR"
+    exit 1
+  fi
   if ! echo "$WNMW_SHA256  $WNMW_TMP_DIR/$WNMW_ASSET" | sha256sum -c --status -; then
     echo "Error: sha256 mismatch for $WNMW_ASSET"
     rm -rf "$WNMW_TMP_DIR"
@@ -161,6 +163,7 @@ else
   echo "  No prebuilt asset for $WNMW_ARCH, building from source..."
   sudo pacman -S --needed --noconfirm go gcc make pkgconf gtk3 git
   WNMW_TMP_DIR="$(mktemp -d)"
+  trap 'rm -rf "$WNMW_TMP_DIR"' EXIT
   git clone --depth 1 --branch "$WNMW_VERSION" \
     https://github.com/calico32/waybar-niri-windows "$WNMW_TMP_DIR/src"
   make -C "$WNMW_TMP_DIR/src"

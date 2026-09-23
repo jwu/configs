@@ -7,6 +7,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 echo ">>> Starting configuration setup..."
 echo "    Root Config Dir: $ROOT_DIR"
@@ -17,9 +18,9 @@ echo "    Linux Configs Dir: $SCRIPT_DIR"
 # ==========================================
 
 backup_file() {
-  if [ -f "$1" ] && [ ! -f "$1.bak" ]; then
-    echo "Backing up $1 to $1.bak"
-    cp "$1" "$1.bak"
+  if [ -f "$1" ]; then
+    echo "Backing up $1 to $1.bak.$TIMESTAMP"
+    cp "$1" "$1.bak.$TIMESTAMP"
   fi
 }
 
@@ -71,6 +72,9 @@ if command -v waybar &> /dev/null; then
     cp "$SCRIPT_DIR/.config/waybar/scripts/$f" "$HOME/.config/waybar/scripts/$f"
     chmod +x "$HOME/.config/waybar/scripts/$f"
   done
+  if [ ! -f "$HOME/.config/waybar/waybar-niri-windows.so" ]; then
+    echo "    Note: waybar-niri-windows.so missing; run install.sh to install the cffi/niri-windows module."
+  fi
 fi
 
 # Swaylock
@@ -98,6 +102,8 @@ if command -v cliphist &> /dev/null && command -v fuzzel &> /dev/null && command
   mkdir -p "$HOME/.local/bin"
   cp "$SCRIPT_DIR/.local/bin/niri-clipboard-history" "$HOME/.local/bin/niri-clipboard-history"
   chmod +x "$HOME/.local/bin/niri-clipboard-history"
+else
+  echo "    Note: clipboard helper not installed (missing cliphist/fuzzel/wl-clipboard/wtype); Mod+Shift+V will not work."
 fi
 
 # Ghostty
@@ -134,6 +140,9 @@ if command -v neovide &> /dev/null; then
   mkdir -p "$HOME/.config/neovide"
   backup_file "$HOME/.config/neovide/config.toml"
   cp "$ROOT_DIR/common/.config/neovide/config.toml" "$HOME/.config/neovide/config.toml"
+  mkdir -p "$HOME/.local/share/applications"
+  backup_file "$HOME/.local/share/applications/neovide.desktop"
+  cp "$SCRIPT_DIR/neovide.desktop" "$HOME/.local/share/applications/neovide.desktop"
 fi
 
 # Omnisharp
@@ -142,16 +151,55 @@ mkdir -p "$HOME/.omnisharp"
 backup_file "$HOME/.omnisharp/omnisharp.json"
 cp "$ROOT_DIR/common/.omnisharp/omnisharp.json" "$HOME/.omnisharp/omnisharp.json"
 
-# Git
+# Git (XDG path; leaves ~/.gitconfig and an existing identity alone)
 echo "Configuring Git..."
-backup_file "$HOME/.gitconfig"
-cp "$ROOT_DIR/common/.gitconfig" "$HOME/.gitconfig"
+mkdir -p "$HOME/.config/git"
+backup_file "$HOME/.config/git/config"
+cp "$ROOT_DIR/common/.gitconfig" "$HOME/.config/git/config"
 
 # Starship
 echo "Configuring Starship..."
 mkdir -p "$HOME/.config"
 backup_file "$HOME/.config/starship.toml"
 cp "$SCRIPT_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
+
+# Optional CLI tools: install configs only when the tool is present
+if command -v zellij &> /dev/null; then
+  echo "Configuring Zellij..."
+  mkdir -p "$HOME/.config/zellij"
+  backup_file "$HOME/.config/zellij/config.kdl"
+  cp "$SCRIPT_DIR/.config/zellij/config.kdl" "$HOME/.config/zellij/config.kdl"
+fi
+
+if command -v yazi &> /dev/null; then
+  echo "Configuring Yazi..."
+  mkdir -p "$HOME/.config/yazi"
+  for f in yazi.toml theme.toml; do
+    backup_file "$HOME/.config/yazi/$f"
+    cp "$ROOT_DIR/common/.config/yazi/$f" "$HOME/.config/yazi/$f"
+  done
+fi
+
+if command -v lsd &> /dev/null; then
+  echo "Configuring LSD..."
+  mkdir -p "$HOME/.config/lsd"
+  backup_file "$HOME/.config/lsd/config.yaml"
+  cp "$ROOT_DIR/common/.config/lsd/config.yaml" "$HOME/.config/lsd/config.yaml"
+fi
+
+if command -v gitui &> /dev/null; then
+  echo "Configuring GitUI..."
+  mkdir -p "$HOME/.config/gitui"
+  backup_file "$HOME/.config/gitui/theme.ron"
+  cp "$ROOT_DIR/common/.config/gitui/theme.ron" "$HOME/.config/gitui/theme.ron"
+fi
+
+if command -v glow &> /dev/null; then
+  echo "Configuring Glow..."
+  mkdir -p "$HOME/.config/glow"
+  backup_file "$HOME/.config/glow/one-dark.json"
+  cp "$ROOT_DIR/common/.config/glow/one-dark.json" "$HOME/.config/glow/one-dark.json"
+fi
 
 # .zshrc
 echo "Configuring .zshrc..."
@@ -160,6 +208,7 @@ cp "$SCRIPT_DIR/.zshrc" "$HOME/.zshrc"
 
 if command -v fcitx5 &> /dev/null; then
   echo "    Note: run desktop-settings/fcitx5/install-linux.sh to install the Fcitx5/Rime profile and theme."
+  echo "    Note: environment.d changes need a re-login to take effect."
 fi
 
 echo ">>> Configuration Complete!"

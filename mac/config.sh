@@ -7,6 +7,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 echo ">>> Starting configuration setup..."
 echo "    Root Config Dir: $ROOT_DIR"
@@ -17,9 +18,9 @@ echo "    Mac Configs Dir: $SCRIPT_DIR"
 # ==========================================
 
 backup_file() {
-  if [ -f "$1" ] && [ ! -f "$1.bak" ]; then
-    echo "Backing up $1 to $1.bak"
-    cp "$1" "$1.bak"
+  if [ -f "$1" ]; then
+    echo "Backing up $1 to $1.bak.$TIMESTAMP"
+    cp "$1" "$1.bak.$TIMESTAMP"
   fi
 }
 
@@ -55,10 +56,11 @@ mkdir -p "$HOME/.config"
 backup_file "$HOME/.config/starship.toml"
 cp "$SCRIPT_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
 
-# Git
+# Git (XDG path; leaves ~/.gitconfig and an existing identity alone)
 echo "Configuring Git..."
-backup_file "$HOME/.gitconfig"
-cp "$ROOT_DIR/common/.gitconfig" "$HOME/.gitconfig"
+mkdir -p "$HOME/.config/git"
+backup_file "$HOME/.config/git/config"
+cp "$ROOT_DIR/common/.gitconfig" "$HOME/.config/git/config"
 
 # .zshrc
 echo "Configuring .zshrc..."
