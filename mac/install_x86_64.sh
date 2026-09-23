@@ -195,10 +195,6 @@ backup_file() {
 
 echo ">>> Copying configuration files..."
 
-echo "Configuring WezTerm..."
-backup_file "$HOME/.wezterm.lua"
-cp "$ROOT_DIR/.wezterm.lua" "$HOME/.wezterm.lua"
-
 echo "Configuring EZA..."
 mkdir -p "$HOME/.config/eza"
 
@@ -238,6 +234,6 @@ echo "    Make sure to add ~/.local/bin to your PATH:"
 echo "      echo 'export PATH=\"~/.local/bin:\$PATH\"' >> ~/.zshrc"
 echo ""
 echo "    Installed CLI tools: starship, zoxide, neovim, fzf, eza, fd, bat, delta, ripgrep"
-echo "    Installed Fonts: FiraCode"
+echo "    Installed Fonts: FiraMono"
 echo "    Next Step:"
-echo "        Please Manually Install GUI apps: WezTerm, Neovide"
+echo "        Please Manually Install GUI apps: Neovide"

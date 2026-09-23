@@ -153,14 +153,6 @@ mkdir -p "$HOME/.config"
 backup_file "$HOME/.config/starship.toml"
 cp "$SCRIPT_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
 
-# Alacritty (optional for TTY systems, skip if not needed)
-if command -v alacritty &> /dev/null; then
-  echo "Configuring Alacritty..."
-  mkdir -p "$HOME/.config/alacritty"
-  backup_file "$HOME/.config/alacritty/alacritty.toml"
-  cp "$SCRIPT_DIR/.config/alacritty/alacritty.toml" "$HOME/.config/alacritty/alacritty.toml"
-fi
-
 # .zshrc
 echo "Configuring .zshrc..."
 backup_file "$HOME/.zshrc"

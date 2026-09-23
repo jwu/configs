@@ -65,7 +65,7 @@ When editing `mac/install.sh`, verify package/cask names:
 
 ```bash
 brew info --formula starship zoxide neovim fzf eza fd bat git-delta
-brew info --cask wezterm@nightly alacritty neovide font-fira-mono-nerd-font
+brew info --cask neovide font-fira-mono-nerd-font
 ```
 
 ### Download URL checks
@@ -87,7 +87,6 @@ For GitHub releases, prefer checking the latest release/API before changing vers
 
 ### macOS
 - `mac/install.sh` is the main path.
-- `wezterm@nightly` is the current validated cask name.
 - On Intel Macs, upstream projects may stop publishing latest `x86_64-apple-darwin` assets; if so, prefer Homebrew over pinning an old release.
 
 ### Linux

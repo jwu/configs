@@ -25,17 +25,6 @@ backup_file() {
 
 echo ">>> Copying configuration files..."
 
-# WezTerm
-echo "Configuring WezTerm..."
-backup_file "$HOME/.wezterm.lua"
-cp "$ROOT_DIR/common/.wezterm.lua" "$HOME/.wezterm.lua"
-
-# Alacritty
-echo "Configuring Alacritty..."
-mkdir -p "$HOME/.config/alacritty"
-backup_file "$HOME/.config/alacritty/alacritty.toml"
-cp "$SCRIPT_DIR/.config/alacritty/alacritty.toml" "$HOME/.config/alacritty/alacritty.toml"
-
 # EZA
 echo "Configuring EZA..."
 mkdir -p "$HOME/.config/eza"

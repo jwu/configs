@@ -100,7 +100,7 @@
    # 命令行工具
    brew install starship zoxide neovim fzf eza fd bat delta
    # GUI 应用
-   brew install --cask wezterm@nightly alacritty neovide font-fira-mono-nerd-font
+   brew install --cask neovide font-fira-mono-nerd-font
    ```
 
 3. **配置 Shell (Zsh)**:
@@ -109,13 +109,11 @@
    - 参考或直接使用 `mac/.zshrc` 的内容替换 `~/.zshrc`。
 
 4. **复制/链接配置文件**:
-   - `common/.wezterm.lua` -> `~/.wezterm.lua`
    - `common/.config/nvim/init.lua` -> `~/.config/nvim/init.lua`
    - `common/.config/neovide/config.toml` -> `~/.config/neovide/config.toml`
    - `common/.omnisharp/omnisharp.json` -> `~/.omnisharp/omnisharp.json`
    - `mac/.config/ghostty/config` -> `~/.config/ghostty/config`
    - `mac/.config/starship.toml` -> `~/.config/starship.toml`
-   - `mac/.config/alacritty/alacritty.toml` -> `~/.config/alacritty/alacritty.toml`
    - `mac/.zshrc` -> `~/.zshrc`
 
 ---
@@ -143,7 +141,6 @@ cd ~/bin/configs/linux
    使用你的发行版包管理器或参考官方文档安装：
    - `zsh`、`starship`、`zoxide`
    - `neovim`、`fzf`、`eza`、`fd`、`bat`、`git-delta`
-   - `alacritty`（可选）
    - 终端字体（Arch 下自动脚本使用 `terminus-font`）
 
 2. **配置 Shell (Zsh)**:
@@ -155,7 +152,6 @@ cd ~/bin/configs/linux
    - `common/.config/nvim/init.lua` -> `~/.config/nvim/init.lua`
    - `common/.omnisharp/omnisharp.json` -> `~/.omnisharp/omnisharp.json`
    - `linux/.config/starship.toml` -> `~/.config/starship.toml`
-   - `linux/.config/alacritty/alacritty.toml` -> `~/.config/alacritty/alacritty.toml`（如果使用 Alacritty）
    - `linux/.zshrc` -> `~/.zshrc`
 
 4. **可选的 Fish 配置**:

@@ -13,8 +13,5 @@ status --is-interactive; and . (pyenv init - | psub)
 # If you use pyenv virtualenv
 status --is-interactive; and . (pyenv virtualenv-init - | psub)
 
-# NOTE: in ubuntu, this doesn't work
-# set -x STARSHIP_CONFIG "~/alacritty-settings/settings.mac/starship.toml"
-
 starship init fish | source
 zoxide init fish | source

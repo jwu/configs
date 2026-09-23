@@ -38,8 +38,6 @@ PACKAGES=(
 )
 
 CASKS=(
-  "wezterm@nightly"
-  "alacritty"
   "neovide"
   "font-fira-mono-nerd-font"
 )
