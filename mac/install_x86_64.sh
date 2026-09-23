@@ -3,7 +3,6 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 BIN_DIR="$HOME/.local/bin"
 
 echo ">>> Starting x86_64 installation setup..."
@@ -186,52 +185,14 @@ else
   echo "  Dracula Zsh Theme already installed"
 fi
 
-backup_file() {
-  if [ -f "$1" ]; then
-    echo "  Backing up $1 to $1.bak.$TIMESTAMP"
-    cp "$1" "$1.bak.$TIMESTAMP"
-  fi
-}
+# ==========================================
+# Copy Configurations
+# ==========================================
 
-echo ">>> Copying configuration files..."
-
-echo "Configuring EZA..."
-mkdir -p "$HOME/.config/eza"
-
-echo "Configuring Neovim..."
-mkdir -p "$HOME/.config/nvim"
-backup_file "$HOME/.config/nvim/init.lua"
-cp "$ROOT_DIR/common/.config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
-
-echo "Configuring Neovide..."
-mkdir -p "$HOME/.config/neovide"
-backup_file "$HOME/.config/neovide/config.toml"
-cp "$ROOT_DIR/common/.config/neovide/config.toml" "$HOME/.config/neovide/config.toml"
-
-echo "Configuring Omnisharp..."
-mkdir -p "$HOME/.omnisharp"
-backup_file "$HOME/.omnisharp/omnisharp.json"
-cp "$ROOT_DIR/common/.omnisharp/omnisharp.json" "$HOME/.omnisharp/omnisharp.json"
-
-echo "Configuring Starship..."
-mkdir -p "$HOME/.config"
-backup_file "$HOME/.config/starship.toml"
-cp "$SCRIPT_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
-
-echo "Configuring .zshrc..."
-backup_file "$HOME/.zshrc"
-cp "$SCRIPT_DIR/.zshrc" "$HOME/.zshrc"
-
-echo "Configuring Git..."
-mkdir -p "$HOME/.config/git"
-backup_file "$HOME/.gitconfig"
-cp "$ROOT_DIR/common/.gitconfig" "$HOME/.gitconfig"
+bash "$SCRIPT_DIR/config.sh"
 
 echo ""
 echo ">>> x86_64 Installation Complete!"
-echo ""
-echo "    Make sure to add ~/.local/bin to your PATH:"
-echo "      echo 'export PATH=\"~/.local/bin:\$PATH\"' >> ~/.zshrc"
 echo ""
 echo "    Installed CLI tools: starship, zoxide, neovim, fzf, eza, fd, bat, delta, ripgrep"
 echo "    Installed Fonts: FiraMono"

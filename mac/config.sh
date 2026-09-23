@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 # ==========================================
 # Configuration and Paths
@@ -17,17 +17,13 @@ echo "    Mac Configs Dir: $SCRIPT_DIR"
 # ==========================================
 
 backup_file() {
-  if [ -f "$1" ]; then
+  if [ -f "$1" ] && [ ! -f "$1.bak" ]; then
     echo "Backing up $1 to $1.bak"
     cp "$1" "$1.bak"
   fi
 }
 
 echo ">>> Copying configuration files..."
-
-# EZA
-echo "Configuring EZA..."
-mkdir -p "$HOME/.config/eza"
 
 # Neovim
 echo "Configuring Neovim..."

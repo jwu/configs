@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 # ==========================================
 # Configuration and Paths
@@ -7,7 +7,6 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 echo ">>> Starting installation setup..."
 echo "    Root Config Dir: $ROOT_DIR"
@@ -46,9 +45,7 @@ echo "Installing packages: ${PACKAGES[*]}"
 brew install "${PACKAGES[@]}"
 
 echo "Installing casks: ${CASKS[*]}"
-# ensure font cask is available (fonts are now in main cask repo, but just in case for older brew setups)
-brew tap homebrew/cask-fonts 2>/dev/null || true
-brew install --cask "${CASKS[@]}" || echo "Some casks might already be installed."
+brew install --cask "${CASKS[@]}"
 
 # ==========================================
 # Oh My Zsh Setup
