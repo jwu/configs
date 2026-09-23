@@ -278,6 +278,7 @@ cmd /c win\config.bat  # Windows
   - [fd](https://github.com/sharkdp/fd)
   - [bat](https://github.com/sharkdp/bat)
   - [eza](https://github.com/eza-community/eza)
+    - [lsd](https://github.com/Peltoche/lsd)
   - [coreutils](https://github.com/uutils/coreutils)
   - [dust](https://github.com/bootandy/dust)
   - [delta](https://github.com/dandavison/delta)
