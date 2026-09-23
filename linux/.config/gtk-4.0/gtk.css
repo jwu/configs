@@ -1,24 +1,12 @@
-/* GTK4 / libadwaita 全局微调
- * （GTK4 在 settings_init_style() 里自动加载 $XDG_CONFIG_HOME/gtk-4.0/gtk.css，
- *   优先级是 GTK_STYLE_PROVIDER_PRIORITY_USER(800)，高于 libadwaita 自己
- *   用 PRIORITY_APPLICATION(600) 挂的基础样式表，所以这里的规则一定生效。）
- *
- * CSD 窗口的圆角来源：
- *   GTK 主题       window.csd { border-radius: $window_radius $window_radius 0 0 }
- *   libadwaita     window.csd { border-radius: var(--window-radius) }   // :root 里默认 12px
- * 两者都只在“窗口被平铺/最大化”（.tiled/.maximized/.fullscreen）时清零，
- * 所以 niri 不开 prefer-no-csd 时窗口上面两个角是圆的。
- *
- * 下面两条把圆角清零，窗口阴影 / 边框 / 其它装饰都不动。
- * 菜单、弹窗、tooltip 的圆角不受影响。
- */
+/* GTK4 / libadwaita: square CSD window corners. Loaded automatically at
+ * PRIORITY_USER, so it wins over libadwaita. See docs/gtk4.md. */
 
 window.csd,
 window.csd.background {
     border-radius: 0;
 }
 
-/* 顺手把 libadwaita 的变量也清零，避免有地方仍按变量画圆角 */
+/* Clear the variable too, in case something still draws corners from it. */
 :root {
     --window-radius: 0px;
 }

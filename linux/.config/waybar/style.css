@@ -1,22 +1,7 @@
 @import "./colors.css";
 
-/* 基线与行高约定（改 format 时务必遵守）：
- * waybar(GTK3) 把每个模块的 label 放进自己的格子做“垂直居中”，label 的行高只取决于
- * 它内容里最大的那个字形。只要有模块含 20px 铭牌、另一个只有 16px 文字，两者基线就会
- * 差 1~1.5px，看起来就“不在一条线上”。
- *
- * 做法：所有模块的 format 前面都放两段零宽撑高 span（U+200B 零宽空格，不占宽度）：
- *     <span size='15pt'>​</span>                  ← 撑 ascent 到 18.7px
- *     <span size='15pt' rise='-1536'>​</span>      ← 撑 descent 到 7.3px（-1536 = 下移 2px）
- * 这样每个模块的 line box 都是 18.7+7.3 = 26px，且 ascent 相同 → 基线一致。
- *
- * 铭牌本身再单独下移 2px（rise='-1536'），让「框」的中心和数字的中心重合：
- * 15pt 框字原本是「基线上方 15px / 下方 1px」，下移 2px 后变成上下各 3px，正好居中。
- *
- * 例外：clock 里的「月日」是中文字形，行高比 26px 更大且 ascent 不同，会整体低约 0.7px，
- * 所以用 #clock { margin-bottom: 1px }（GTK3 里 margin 只产生约一半位移）提回来。
- *
- * 20px = 15pt（Pango markup 的 size 只认 pt/%/关键字，不认 px；tray/privacy 走 icon-size 像素值）。*/
+/* Module baseline/line-height convention: see docs/waybar.md. Keep every
+ * module format prefixed with the two zero-width struts. */
 * {
   font-family: "FiraMono Nerd Font";
   font-size: 16px;
@@ -61,15 +46,8 @@ window#waybar > box {
 #workspaces button {
   color: @ghostty_fg;
   padding: 0;
-  /* 覆盖 GTK 主题（Adwaita）注入的按钮样式。
-   * 根因：waybar 只加载用户这一份样式表（见 src/client.cpp），官方默认样式里的
-   * `#workspaces button { background-color: transparent }` 不会生效，
-   * 于是 Adwaita 的 button 样式直接漏了进来。
-   * 离线解析 hover 态实测到的泄漏项：
-   *   background-image = 渐变图案（白底就是它，不是 background-color）
-   *   border-color = rgba(205,199,194) / border-width = 1px（近白描边）
-   * 只写 background: transparent 能清掉渐变，但清不掉那 1px 描边，
-   * 所以 border: none 也必须写。 */
+  /* Clear Adwaita's leaked button style: transparent background is not enough,
+   * the 1px border must go too. See docs/waybar.md. */
   background-color: transparent;
   background-image: none;
   border: none;
@@ -78,7 +56,7 @@ window#waybar > box {
   outline: none;
 }
 
-/* hover / 按下 / 激活都不给底色 */
+/* No background on hover / pressed / active. */
 #workspaces button:hover,
 #workspaces button:active,
 #workspaces button:checked {
@@ -100,11 +78,11 @@ window#waybar > box {
 
 #clock {
   color: @ghostty_blue;
-  margin-bottom: 1px;   /* 把时钟上提 0.5px，对齐其它模块基线 */
+  margin-bottom: 1px; /* CJK clock baseline, see docs/waybar.md */
 }
 
-/* 用量（CPU 󰘚 / 内存 󰍛 / GPU 󰚗）：低负载绿 → 告警黄 → 危急红
- * 阈值见 modules.json 的 states（custom/gpu 的阈值写在 scripts/gpu.sh 里）*/
+/* Usage: low green -> warning yellow -> critical red.
+ * Thresholds in modules.json / scripts (see docs/waybar.md). */
 #cpu,
 #memory,
 #custom-gpu {
@@ -121,8 +99,7 @@ window#waybar > box {
   color: @ghostty_red;
 }
 
-/* 温度：常温用中性色，过热才变色
- * CPU 阈值见 temperature#cpu 的 warning/critical-threshold；GPU/SSD 写在各自脚本里 */
+/* Temperature: neutral until hot. Thresholds in modules.json / scripts. */
 #temperature,
 #custom-gpu-temp,
 #custom-ssd {
@@ -139,7 +116,7 @@ window#waybar > box {
   color: @ghostty_red;
 }
 
-/* 温度紧贴所属组件，读起来是一组：CPU 4% 31°C ／ GPU 11% 40°C */
+/* Keep each reading attached to its component: CPU 4% 31°C / GPU 11% 40°C. */
 #temperature.cpu,
 #custom-gpu-temp {
   padding: 0 6px 0 0;
@@ -207,29 +184,9 @@ tooltip * {
   margin: -3px 0;
 }
 
-/* ---- cffi/niri-windows：当前工作区窗口小地图 ---------------------------
- * 这个模块自己往 waybar 的 GTK 容器里塞 widget，不走 format 字符串，
- * 所以吃不到上面那套「两段零宽撑高 span」的基线技巧，基线对齐对它不适用。
- *
- * 实测结论（都是量像素 + 强制 SIGUSR2 重建验过的，别凭直觉改）：
- *   - 命中它的选择器是 `.cffi-niri-windows`。这不是 waybar 按模块名给的名，
- *     是模块 init 里自己 AddClass 上去的；它还顺手用 SetProperty("name", 十六进制id)
- *     把 widget name 覆盖掉了，所以 `#cffi-niri-windows` 根本不存在。
- *   - margin / padding 对它的布局都无效：margin 6px 时竖条仍占满 y=0..33，
- *     padding-left/right 8px 重建后位置一字未动。
- *     原因：它是 GtkEventBox（继承 GtkBin），GTK3 的 GtkBin 分配子节点时
- *     只认 border-width，不认 CSS 的 padding/margin。
- *   - 后果：竖条默认占满整条栏高（上游自己的 screenshot 也是这个形态），所以别加
- *     纵向 padding/margin：它是拿「自己被分到的高度」去推算窗口像素尺寸的
- *     （module.go 里 allocatedHeight 只在首次 update 读一次），会反馈出怪值。
- *
- * 上下各留 1px：靠给 .column / .floating 加 1px 透明 border 实现，并同步把
- * options.column-borders / floating-borders 设成 2；背景用 background-clip:
- * padding-box 限制在 padding box 内，那 1px 就是真空出来的。
- * 为什么必须同步设 column-borders —— module.go:285：
- *     calculateWindowSizes(column, scale, maxHeight - ColumnBorders)
- * 它正是「把 container 的 border 占掉的高度从可用高度里扣掉」，不设就会撑破栏高。
- * 列给淡底、浮动给紫底，是为了让「一列」的边界看得出来——比数窗口直观。*/
+/* cffi/niri-windows: current-workspace window minimap. It inserts its own
+ * widgets, so the strut convention above does not apply and margin/padding are
+ * ignored. See docs/waybar.md before changing anything here. */
 .cffi-niri-windows .column {
   background-color: alpha(@ghostty_fg, 0.10);
   background-clip: padding-box;
@@ -237,7 +194,7 @@ tooltip * {
   border-bottom: 1px solid transparent;
 }
 
-/* 浮动窗口视图：淡紫，和下面 .tile 的灰底区分开 */
+/* Floating windows: translucent purple, distinct from the grey tiles. */
 .cffi-niri-windows .floating {
   background-color: alpha(@ghostty_purple, 0.15);
   background-clip: padding-box;
@@ -253,12 +210,12 @@ tooltip * {
   background-color: alpha(@ghostty_fg, 0.65);
 }
 
-/* :active = 当前聚焦的那个窗口 */
+/* :active = focused window. */
 .cffi-niri-windows .tile:active {
   background-color: @ghostty_blue;
 }
 
-/* niri 标记 urgent 的窗口（2.2.0 起支持）*/
+/* niri urgent windows (2.2.0+). */
 .cffi-niri-windows .tile.urgent {
   background-color: @ghostty_red;
 }

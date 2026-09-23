@@ -121,10 +121,10 @@ fi
 # ==========================================
 
 # https://github.com/calico32/waybar-niri-windows
-# 图形模式小地图（CFFI 模块，wbcffi ABI v2），需要 niri >= 25.08。
-# 上游只发 x86_64 预编译包：x86_64 下下来先校 sha256 再落盘；其它架构按同一 tag
-# 从源码构建（go buildmode=c-shared，需要 go/gcc/gtk3），并用 .version 标记已构建版本。
-# 升级版本时同时改 WNMW_VERSION 和 WNMW_SHA256（取自同 tag 的 checksums.txt）。
+# Window minimap CFFI module (wbcffi ABI v2), needs niri >= 25.08. See docs/waybar.md.
+# Upstream only ships a prebuilt x86_64: download + sha256 check on x86_64,
+# otherwise build from source at the same tag (go c-shared, needs go/gcc/gtk3) and
+# stamp the built version in .version. Bump WNMW_VERSION and WNMW_SHA256 together.
 WNMW_VERSION="v2.3.1"
 WNMW_SHA256="6ae40a7ac277a1a46a823933213a5e0585b2c2a16374c225c66e17730304e533"
 WNMW_ASSET="waybar-niri-windows.so"

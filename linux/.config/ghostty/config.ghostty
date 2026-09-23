@@ -91,21 +91,18 @@ window-padding-x = 2
 window-padding-y = 2
 window-padding-balance = true
 
-# GTK tab/title bar look. "flat" makes the bar flush with the terminal
-# surface (no static shadow/separating line). Trade-off: flat instead lets
-# libadwaita draw the scroll-triggered "undershoot" line under the bar
-# (1px + 4px gradient, appears as soon as the terminal has scrollback);
-# that one is disabled in titlebar.css.
-# Other values: raised (upstream default), raised-border
+# Flush titlebar, no static shadow/separator. Flat lets libadwaita draw the
+# scroll-triggered undershoot line instead; that one is disabled in titlebar.css.
+# Other values: raised (upstream default), raised-border. See docs/ghostty-titlebar.md.
 gtk-toolbar-style = flat
 
-# Slim the GTK titlebar (headerbar): geometry only, see the CSS file.
+# Slim the GTK titlebar (headerbar): geometry only. See docs/ghostty-titlebar.md.
 gtk-custom-css = ~/.config/ghostty/titlebar.css
 
-# Titlebar colors: enable at most one preset (files live in ~/.config/ghostty):
-#   titlebar-colors-onedark.css        -> 标题栏 = 终端底色 #282c34（无缝，当前启用）
-#   titlebar-colors-onedark-purple.css -> 紫底 #c678dd + 深色文字 #282c34
-#   titlebar-colors-default.css        -> 原来的 Adwaita 观感 #222226 / 白字
+# Titlebar colors: enable at most one preset (files in ~/.config/ghostty):
+#   titlebar-colors-onedark.css        -> terminal bg #282c34 (seamless, current)
+#   titlebar-colors-onedark-purple.css -> purple #c678dd + dark text #282c34
+#   titlebar-colors-default.css        -> original Adwaita look #222226 / white
 gtk-custom-css = ~/.config/ghostty/titlebar-colors-onedark.css
 
 # macOS: use native decorations
@@ -178,8 +175,7 @@ keybind = global:ctrl+backquote=toggle_quick_terminal
 # ------------------------------------------------------------
 # Misc
 # ------------------------------------------------------------
-# Auto reload config
-# Auto reload config (Ghostty watches config automatically, no extra config needed)
+# Auto reload config (Ghostty watches the config file automatically).
 
 # Confirm close
 confirm-close-surface = false

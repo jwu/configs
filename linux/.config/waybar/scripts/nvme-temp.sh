@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# 两块 NVMe 取更热的那块，输出 waybar 的 json 格式。
-# 用设备级路径（/sys/devices/pci…/nvme/nvmeN）+ 通配 hwmon*，
-# 这样重启后 hwmon 序号变化也不影响。
+# Hottest of the two NVMe drives, as waybar JSON.
+# Uses device paths (/sys/devices/pci.../nvme/nvmeN) with a hwmon* glob,
+# so a changed hwmon index after reboot is harmless.
 
-# 标签用 MDI 带框字母（md-alpha_*_box）拼出来：“SSD” = 󰬚󰬚󰬋
-label_ssd="<span size='15pt' rise='-1536'>󰬚󰬚󰬋</span>"   # 15pt = 20px（Pango 的 size 只认 pt/%/关键字，不认 px）
-# 两段零宽撑高（U+200B，不占宽度）：让本模块的 line box 和其它模块一致（基线对齐），
-# 第二段下移 2px 是为了把 descent 也撑到 7.3px——详见 style.css 顶部“基线与行高约定”。
+# Labels are MDI box letters (md-alpha_*_box), "SSD" = 󰬚󰬚󰬋
+label_ssd="<span size='15pt' rise='-1536'>󰬚󰬚󰬋</span>"   # 15pt = 20px (Pango size has no px); see docs/waybar.md
+# Zero-width struts keep this module's line box aligned with the others
+# (see docs/waybar.md).
 zwsp=$'\u200b'
 strut="<span size='15pt'>${zwsp}</span><span size='15pt' rise='-1536'>${zwsp}</span>"
 

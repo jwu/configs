@@ -1,83 +1,42 @@
-/* Ghostty GTK titlebar：中间档（扁但不挤）+ 窗口直角。
- *
- * 为什么需要动这么多：min-height 只是**容器的下限**，容器永远不会比内容矮。
- * GTK 自带 Adwaita 里跟这一条高度有关的三层"地板"：
- *
- *   headerbar   { min-height: 46px }                                     ← 容器
- *   button      { min-height: 24px; padding: 4px 9px }                   ← 图标按钮
- *   windowcontrols button > image { min-height: 30px; min-width: 30px }  ← 窗口控制按钮的圆点
- *
- * 中间档的策略：容器收到 22px，圆点和按钮留 18px，仍保留 16px 原版图标和按钮内边距，
- * 所以看不见的东西没动，只是把多余的高度去掉。
- *
- * 直角：Adwaita 是 window.csd { border-radius: $window_radius $window_radius 0 0 }
- * （只有上面两个角是圆的），这里清零。全局那份在 ~/.config/gtk-4.0/gtk.css，
- * ghostty 作为 libadwaita 应用两边都会命中，这里保留一份以便这份配置单独可用。
- *
- * 调试：GTK_DEBUG=interactive ghostty，选中 headerbar 看实际生效的规则。
- */
+/* Ghostty GTK titlebar: slimmer bar (geometry only) + square window corners.
+ * Colors live in titlebar-colors-*.css. See docs/ghostty-titlebar.md. */
 
-/* ---------- 容器 ---------- */
-
+/* Container. */
 window headerbar,
 window headerbar.default-decoration {
-    min-height: 22px;          /* Adwaita 默认 46/47px */
+    min-height: 22px;          /* Adwaita: 46/47px */
 }
 
 window headerbar > windowhandle > box {
-    padding: 0 6px 1px 6px;    /* Adwaita 默认 6px 7px 7px 7px */
+    padding: 0 6px 1px 6px;    /* Adwaita: 6px 7px 7px 7px */
 }
 
-/* ---------- 内容：窗口控制按钮（最小化 / 最大化 / 关闭）---------- */
-
+/* Window controls (minimize / maximize / close). */
 window headerbar windowcontrols > button {
-    min-width: 26px;           /* Adwaita 默认 34px */
+    min-width: 26px;           /* Adwaita: 34px */
     padding: 0;
 }
 
 window headerbar windowcontrols > button > image {
-    min-height: 18px;          /* Adwaita 默认 30px —— 之前压不动就是它 */
+    min-height: 18px;          /* Adwaita: 30px -- this is the floor that blocked shrinking */
     min-width: 18px;
     padding: 0;
 }
 
-/* ---------- 内容：新建标签 / 视图 / 菜单这些图标按钮 ---------- */
-
+/* Header icon buttons (new tab, split, menu). */
 window headerbar button {
-    min-height: 18px;          /* Adwaita 默认 24px */
-    padding: 1px 4px;          /* Adwaita 默认 4px 9px */
+    min-height: 18px;          /* Adwaita: 24px */
+    padding: 1px 4px;          /* Adwaita: 4px 9px */
 }
 
-/* ---------- 窗口直角 ---------- */
-
+/* Square corners. */
 window.csd,
 window.csd.background {
     border-radius: 0;
 }
 
-/* ---------- 干掉「内容已滚动」的顶部指示线 ----------
- *
- * gtk-toolbar-style = flat 时（本配置用的就是 flat），libadwaita 会给
- * AdwToolbarView 加上 .undershoot-top 类（adw-toolbar-view.c 的
- * update_undershoots()，条件是 style == FLAT 且顶栏高度 > 0），于是终端那块
- * GtkScrolledWindow 顶部的 undershoot 节点被上色成：
- *
- *   toolbarview.undershoot-top scrolledwindow > undershoot.top {
- *     box-shadow: inset 0 1px color-mix(in srgb, var(--shade-color) 75%, transparent);
- *     background: linear-gradient(to bottom, color-mix(in srgb, var(--shade-color) 75%, transparent), transparent 4px);
- *   }
- *
- * 也就是 1px 硬线 + 4px 渐变 —— 肉眼看到的就是标题栏下面那条黑线。
- * 它不是标题栏的边框，所以：
- *   - 新窗口（终端还没滚出过一行）看不到它；
- *   - 一旦有行滚出屏幕、或往回翻，线就出现（ghostty 把 scrollback 位置塞进这个
- *     GtkScrolledWindow 的 vadjustment，GTK 只在 value > lower 时画顶部 undershoot）；
- *     Ctrl+Shift+Home 滚到 scrollback 最顶端，线又消失。
- *   - 换成 raised 只是把它换成常亮的同款阴影，scrollbar = never 也没用。
- *
- * 排查：GTK_DEBUG=interactive ghostty → 选中 AdwToolbarView 看 classes。
- */
-
+/* Remove the scrolled-content top indicator line (libadwaita undershoot with
+ * gtk-toolbar-style=flat). See docs/ghostty-titlebar.md. */
 toolbarview.undershoot-top scrolledwindow > undershoot.top,
 toolbarview.undershoot-bottom scrolledwindow > undershoot.bottom,
 scrolledwindow.undershoot-top > undershoot.top,
@@ -86,7 +45,7 @@ scrolledwindow.undershoot-bottom > undershoot.bottom {
     background: none;
 }
 
-/* ---------- 想要更扁（极端档）就解开这段 ----------
+/* Optional: even slimmer bar (saves ~10px more). See docs/ghostty-titlebar.md.
  *
  * window headerbar,
  * window headerbar.default-decoration { min-height: 8px; }
@@ -95,7 +54,4 @@ scrolledwindow.undershoot-bottom > undershoot.bottom {
  * window headerbar windowcontrols > button > image { min-height: 10px; min-width: 10px; }
  * window headerbar button { min-height: 10px; padding: 0; }
  * headerbar windowtitle .title { font-size: 8pt; }
- *
- * 实测极端档只能再省约 10px（那之后的地板是 16px 图标、WindowTitle 文字、
- * SplitButton 的 16px 箭头）。图标尺寸不影响高度，所以这里没动它。
  */

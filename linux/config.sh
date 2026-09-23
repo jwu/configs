@@ -59,13 +59,13 @@ if command -v waybar &> /dev/null; then
     backup_file "$HOME/.config/waybar/$f"
     cp "$SCRIPT_DIR/.config/waybar/$f" "$HOME/.config/waybar/$f"
   done
-  # modules.json 里的 module_path 必须落成绝对路径：waybar 是直接
-  # dlopen() 这个值，不会展开 ~ / $HOME。照 swaylock 的做法把占位符换掉。
+  # waybar dlopen()s module_path and does not expand ~/$HOME, so substitute an
+  # absolute path (same as swaylock below). See docs/waybar.md.
   WAYBAR_MODULE_DIR="$HOME/.config/waybar"
   backup_file "$HOME/.config/waybar/modules.json"
   sed "s|__WAYBAR_MODULE_DIR__|$WAYBAR_MODULE_DIR|g" \
     "$SCRIPT_DIR/.config/waybar/modules.json" > "$HOME/.config/waybar/modules.json"
-  # 取值脚本（GPU 占用/温度；两块 NVMe 取更热的一块）
+  # Metric scripts: GPU usage/temp; the hotter of the two NVMe drives.
   for f in gpu.sh nvme-temp.sh; do
     backup_file "$HOME/.config/waybar/scripts/$f"
     cp "$SCRIPT_DIR/.config/waybar/scripts/$f" "$HOME/.config/waybar/scripts/$f"

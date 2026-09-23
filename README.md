@@ -204,6 +204,18 @@ cd ~/bin/configs/linux
 
 ---
 
+## Docs
+
+Design notes and pitfalls that used to live in config comments:
+
+- [`docs/waybar.md`](docs/waybar.md) — module baseline convention, colors, `cffi/niri-windows`, `module_path` placeholder.
+- [`docs/ghostty-titlebar.md`](docs/ghostty-titlebar.md) — GTK titlebar geometry, undershoot line, color presets.
+- [`docs/gtk4.md`](docs/gtk4.md) — global GTK4 CSD corner tweak.
+
+Source comments are kept short; the reasoning lives in these docs.
+
+---
+
 ## Reference
 
 - Terminal
