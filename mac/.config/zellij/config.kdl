@@ -1,0 +1,2 @@
+default_shell "/bin/zsh"
+copy_command "pbcopy"
