@@ -40,6 +40,31 @@ Waybar 只加载用户这一份样式表（见 `src/client.cpp`），它自带�
 
 温度模块的 padding 让读数紧贴所属组件，读起来是一组：`CPU 4% 31°C / GPU 11% 40°C`。
 
+## bluetooth
+
+`modules-right` 里排在 `network` 和 `pulseaudio#microphone` 之间（network 的图标在 IP 后面，
+所以蓝牙落在网口图标右侧、麦克风左侧）。format 走上面的撑高约定，图标是 14pt 铭牌。
+
+左键 `ghostty -e bluetuith`，右键 `bluetoothctl power toggle`。图标和颜色都按状态切——状态是
+模块自己加到 widget 上的 CSS 类（源码里是 `update_style_context(state, true)`）：
+
+| state | 触发条件 | 图标 | 颜色 |
+| --- | --- | --- | --- |
+| `on` | 适配器已开、无连接 | 󰂯 | 默认前景色 |
+| `connected` | 至少 1 个设备已连接 | 󰂱 | `@color4` |
+| `off` | 适配器 `Powered=false` | 󰂲 | `@color1` |
+| `disabled` | 被 rfkill 屏蔽 | 󰂲 | `@color1` |
+| `no-controller` | 系统没有适配器 | 󰂲 | 默认前景色 |
+
+`format-icons` 写成对象时按 state 取，取不到才回退 `default`（`ALabel::getIcon`），所以每个
+state 都显式写了键。
+
+`#bluetooth` 必须待在 `color: @ghostty_fg` 那个选择器列表里。漏掉的话它会用 GTK 默认前景色
+`#2e3436`，叠在 `@ghostty_bg`（`#282c34`）上肉眼等于隐形——实测该模块的字形像素确实是
+`#2e3436`，加进列表后才变成 `#abb2bf`。
+
+OBEX / blueman / bluetuith 那一侧见 `bluetooth.md`。
+
 ## cffi/niri-windows
 
 模块来自我们自己的 fork（`jwu/waybar-niri-windows`，基线是上游 `v2.3.1` = `17828f9`），

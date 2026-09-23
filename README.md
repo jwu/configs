@@ -211,6 +211,7 @@ cd ~/bin/configs/linux
 - [`docs/waybar.md`](docs/waybar.md) — 模块基线与行高约定、配色、`cffi/niri-windows`、`module_path` 占位符。
 - [`docs/ghostty-titlebar.md`](docs/ghostty-titlebar.md) — GTK 标题栏几何、undershoot 线、配色预设。
 - [`docs/gtk4.md`](docs/gtk4.md) — GTK4 全局 CSD 直角微调。
+- [`docs/bluetooth.md`](docs/bluetooth.md) — BlueZ OBEX agent 单槽位、blueman / bluetuith 冲突与诊断命令。
 
 源码注释保持简短，详细推导见以上文档。
 
