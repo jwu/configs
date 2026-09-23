@@ -187,6 +187,11 @@ cmd /c win\config.bat  # Windows
 
 `install.sh` / `install.bat` 除了同步配置还会安装软件包或下载便携工具，日常更新只需要执行上面的 `config.sh` / `config.bat`。
 
+Linux 侧 `config.sh` 还会顺手检查 Waybar 的 `cffi/niri-windows` 模块：它是我们 fork 的
+`jwu/waybar-niri-windows` 从源码构建的产物，`.so.version` 与 fork main HEAD 不一致时会自动
+重建（需要网络 + Go/gtk3 工具链，几分钟；工具链缺失则只提示）。细节见
+[`docs/waybar.md`](docs/waybar.md)。
+
 ## Neovim + NeoVide 手动安装手册
 
 ### Windows

@@ -18,6 +18,7 @@ Only remember these entry points:
 - `mac/install.sh` — primary macOS installer (Homebrew-based)
 - `mac/install_x86_64.sh` — Intel Mac fallback installer
 - `linux/install.sh` / `linux/config.sh` — Linux install/config scripts
+- `linux/waybar-niri-windows.sh` — helpers for the Waybar niri-windows CFFI module, sourced by both Linux scripts
 - `common/` — shared configs used by multiple platforms
 
 Useful shared configs:
@@ -44,6 +45,7 @@ bash -n mac/install.sh
 bash -n mac/install_x86_64.sh
 bash -n linux/install.sh
 bash -n linux/config.sh
+bash -n linux/waybar-niri-windows.sh
 ```
 
 ### Batch validation
@@ -58,6 +60,7 @@ shellcheck mac/install.sh
 shellcheck mac/install_x86_64.sh
 shellcheck linux/install.sh
 shellcheck linux/config.sh
+shellcheck linux/waybar-niri-windows.sh
 ```
 
 ### Homebrew checks

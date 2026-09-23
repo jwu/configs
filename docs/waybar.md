@@ -111,10 +111,29 @@ OBEX / blueman / bluetuith 那一侧见 `bluetooth.md`。
 ## cffi/niri-windows
 
 模块来自我们自己的 fork（`jwu/waybar-niri-windows`，基线是上游 `v2.3.1` = `17828f9`），
-不是上游 release。上游的 x86_64 预编译包会把补丁覆盖掉，所以 `install.sh` 固定到某个
-commit 从源码构建，并把该 commit 写进 `~/.config/waybar/waybar-niri-windows.so.version`，
-作为「是否已安装」的判据（不像上游那样比 sha256：不同 Go / gtk3 版本编不出同一个字节）。
-补丁 push 到 fork 之后，要同步更新 `install.sh` 里的 `WNMW_COMMIT`。
+不是上游 release。上游的 x86_64 预编译包会把补丁覆盖掉，所以总是从源码构建，并把构建的
+commit 写进 `~/.config/waybar/waybar-niri-windows.so.version`，作为「装的是哪一版」的判据
+（不像上游那样比 sha256：不同 Go / gtk3 版本编不出同一个字节）。
+
+目标版本是 **fork main 的 HEAD**，由 `linux/waybar-niri-windows.sh` 里的 `wnmw_want_commit`
+解析（`git ls-remote`），所以把补丁 push 到 fork 之后不需要改任何 pin：
+
+- `install.sh`（新机器）构建 HEAD 并写下 `.version`；
+- `config.sh`（已有机器）拿 `.version` 和 HEAD 比对，不一致就从源码重建 —— 这就是
+  「更新了 dotfiles 但模块还是旧的」不再发生的原因。2026-09-23 就是这么漏掉的：当时只跑了
+  `config.sh`，而它的旧版只检查 `.so` **是否存在**，文件在就永远不提示。
+
+`WNMW_COMMIT=<sha> ./install.sh` 可以显式覆盖（复现旧版本）。GitHub 不可达时 15 秒超时后
+回退到脚本里的 `WNMW_FALLBACK_COMMIT`；此时 `.version` 若已等于 fallback 就直接跳过，离线
+不会误重建（fork 未推送时记得同步 bump 这个常量）。
+
+本机直连 GitHub 常常不通（mihomo 在 7890，见 `.zshrc` 里的 `proxy` 别名），要让重建走代理就
+带上环境变量，或让 `WNMW_REPO` 走 SSH：
+
+```bash
+https_proxy=http://127.0.0.1:7890 bash linux/config.sh
+WNMW_REPO=git@github.com:jwu/waybar-niri-windows.git bash linux/config.sh
+```
 
 ### 别就地覆盖 `.so`
 
@@ -125,8 +144,8 @@ waybar `dlopen()` 之后一直把 `.so` 映射着，**就地覆盖这个文件�
 没有旁的证据）。
 
 做法：先装到 `.new` 再 `mv -f` 顶上去（rename 换 inode，老映射继续有效）。
-`build-and-install.sh` 和 `install.sh` 都已经这么改了；重启 waybar 仍然必要，但不再需要
-「先关 bar 再装」。
+`install.sh` / `config.sh`（共用 `linux/waybar-niri-windows.sh`）和 fork 里的
+`build-and-install.sh` 都这么做；重启 waybar 仍然必要，但不再需要「先关 bar 再装」。
 
 fork 上目前比上游多的两个修复：
 

@@ -9,6 +9,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
+# Waybar niri-windows module helpers (also sourced by install.sh).
+source "$SCRIPT_DIR/waybar-niri-windows.sh"
+
 echo ">>> Starting configuration setup..."
 echo "    Root Config Dir: $ROOT_DIR"
 echo "    Linux Configs Dir: $SCRIPT_DIR"
@@ -85,8 +88,29 @@ if command -v waybar &> /dev/null; then
     cp "$SCRIPT_DIR/.config/waybar/scripts/$f" "$HOME/.config/waybar/scripts/$f"
     chmod +x "$HOME/.config/waybar/scripts/$f"
   done
-  if [ ! -f "$HOME/.config/waybar/waybar-niri-windows.so" ]; then
-    echo "    Note: waybar-niri-windows.so missing; run install.sh to install the cffi/niri-windows module."
+  # The module is built from our fork, so syncing configs is not enough: a stale
+  # .so keeps working silently, with none of the fork's fixes. Compare the
+  # stamped commit with the fork's main HEAD and rebuild when they differ.
+  # See linux/waybar-niri-windows.sh and docs/waybar.md.
+  WNMW_WANT="$(wnmw_want_commit)"
+  if wnmw_is_installed "$WNMW_WANT"; then
+    echo "    cffi/niri-windows module up to date (${WNMW_WANT:0:7})"
+  else
+    WNMW_HAVE="$(wnmw_stamp_commit)"
+    if [ -n "$WNMW_HAVE" ]; then
+      echo "    cffi/niri-windows module is stale: installed ${WNMW_HAVE:0:7}, fork main is ${WNMW_WANT:0:7}"
+    else
+      echo "    cffi/niri-windows module has no version stamp (installed by hand, or before stamping)"
+    fi
+    WNMW_MISSING="$(wnmw_missing_tools)"
+    if [ -n "$WNMW_MISSING" ]; then
+      echo "    Cannot rebuild without: $WNMW_MISSING -- run install.sh to install the toolchain"
+    elif wnmw_build_and_install "$WNMW_WANT"; then
+      echo "    Rebuilt cffi/niri-windows module at ${WNMW_WANT:0:7}"
+      wnmw_restart_hint
+    else
+      echo "    Rebuild failed; keeping the installed module (see docs/waybar.md)"
+    fi
   fi
   if [ ! -x "$HOME/.local/bin/gpu-watch" ]; then
     echo "    Note: gpu-watch missing; run install.sh to build it (the GPU modules show 'off' without it)."

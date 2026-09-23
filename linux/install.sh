@@ -8,6 +8,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
+# Waybar niri-windows module helpers (also sourced by config.sh).
+source "$SCRIPT_DIR/waybar-niri-windows.sh"
+
 echo ">>> Starting installation setup..."
 echo "    Root Config Dir: $ROOT_DIR"
 echo "    Linux Configs Dir: $SCRIPT_DIR"
@@ -159,46 +162,20 @@ fi
 #   - PR #20: don't run state callbacks while holding the niri state lock
 #     (waybar could deadlock and freeze permanently)
 # Upstream ships a prebuilt x86_64 asset, but installing that would silently
-# overwrite these patches, so we always build from source. Pinned to a commit:
-# after pushing to the fork, bump WNMW_COMMIT and re-run this script.
-# Window minimap CFFI module (wbcffi ABI v2), needs niri >= 25.08. See docs/waybar.md.
-WNMW_REPO="https://github.com/jwu/waybar-niri-windows"
-WNMW_COMMIT="66239ac27441dd835ac9f766c0607946820b997f"
-WNMW_ASSET="waybar-niri-windows.so"
-WNMW_DEST="$HOME/.config/waybar/$WNMW_ASSET"
+# overwrite these patches, so we always build from source. The revision is the
+# fork's main HEAD, so pushing a fix to the fork is enough -- nothing here has
+# to be bumped by hand. See linux/waybar-niri-windows.sh and docs/waybar.md.
+# Window minimap CFFI module (wbcffi ABI v2), needs niri >= 25.08.
+WNMW_WANT="$(wnmw_want_commit)"
 
-# The stamped commit is the only reliable marker: the built .so is not
-# reproducible byte-for-byte across Go / gtk3 versions.
-wnmw_is_installed() {
-  [ -f "$WNMW_DEST" ] || return 1
-  [ "$(cat "$WNMW_DEST.version" 2>/dev/null)" = "$WNMW_COMMIT" ]
-}
-
-echo ">>> Installing Waybar niri-windows module (${WNMW_COMMIT:0:7})..."
-if wnmw_is_installed; then
+echo ">>> Installing Waybar niri-windows module (${WNMW_WANT:0:7})..."
+if wnmw_is_installed "$WNMW_WANT"; then
   echo "  Already installed, skipping."
 else
   sudo pacman -S --needed --noconfirm go gcc make pkgconf gtk3 git
-  WNMW_TMP_DIR="$(mktemp -d)"
-  trap 'rm -rf "$WNMW_TMP_DIR"' EXIT
-  mkdir -p "$WNMW_TMP_DIR/src"
-  # Fetch exactly the pinned commit: a depth-1 clone of a branch would silently
-  # follow the fork's branch instead of staying on the pinned revision.
-  git -C "$WNMW_TMP_DIR/src" init -q
-  git -C "$WNMW_TMP_DIR/src" remote add origin "$WNMW_REPO"
-  git -C "$WNMW_TMP_DIR/src" fetch --depth 1 origin "$WNMW_COMMIT"
-  git -C "$WNMW_TMP_DIR/src" checkout -q FETCH_HEAD
-  make -C "$WNMW_TMP_DIR/src"
-  mkdir -p "$HOME/.config/waybar"
-  # Install by rename, never by overwriting $WNMW_DEST in place: waybar has the
-  # module mapped, and replacing the bytes it is executing kills it within
-  # seconds (SIGSEGV or SIGILL, with a core dump). Renaming a fresh inode in
-  # keeps the old one alive for the running process. See docs/waybar.md.
-  cp "$WNMW_TMP_DIR/src/$WNMW_ASSET" "$WNMW_DEST.new"
-  mv -f "$WNMW_DEST.new" "$WNMW_DEST"
-  printf '%s' "$WNMW_COMMIT" > "$WNMW_DEST.version"
-  rm -rf "$WNMW_TMP_DIR"
+  wnmw_build_and_install "$WNMW_WANT"
   echo "  Built and installed to $WNMW_DEST"
+  wnmw_restart_hint
 fi
 
 # ==========================================
