@@ -86,6 +86,18 @@ commit 从源码构建，并把该 commit 写进 `~/.config/waybar/waybar-niri-w
 作为「是否已安装」的判据（不像上游那样比 sha256：不同 Go / gtk3 版本编不出同一个字节）。
 补丁 push 到 fork 之后，要同步更新 `install.sh` 里的 `WNMW_COMMIT`。
 
+### 别就地覆盖 `.so`
+
+waybar `dlopen()` 之后一直把 `.so` 映射着，**就地覆盖这个文件（`cp` / `install` 到同一个
+路径）会在 1~2 秒内把它打死**：`SIGSEGV` 或 `SIGILL (ILL_ILLOPN)`，同时留一个 core。
+2026-09-23 晚上当场复现过（覆盖后 2 秒死），当晚 6 个 waybar core 都是这么来的；
+09-23 15:02 / 15:03 那两个也正好对上写备份的那几次构建（09-21、09-22 各一个，大概率同理，
+没有旁的证据）。
+
+做法：先装到 `$out.new` 再 `mv -f` 顶上去（rename 换 inode，老映射继续有效），
+`build-and-install.sh` 已经这么改了。重启 waybar 仍然必要，但不再需要「先关 bar 再装」。
+`install.sh` 里那句 `cp ... "$WNMW_DEST"` 还是就地覆盖。
+
 fork 上目前比上游多的两个修复：
 
 - 只有标题变化的 `WindowOpenedOrChanged` 不再触发整块重建。原本终端或浏览器每 80ms 改一次
@@ -110,6 +122,53 @@ fork 上目前比上游多的两个修复：
   `ColumnBorders`，不设就会撑破栏高。
 - 颜色：列淡底（前景色 10%）、浮动紫底（15%）、tile 前景色 38% / hover 65%，
   `:active` 是聚焦窗口（蓝），`.urgent` 红。
+
+### 窗口活动状态（busy / warm）
+
+tile 底色还会表示「这个窗口在干活还是在闲着」，三档：
+
+| 类名 | 含义 | 颜色 |
+| --- | --- | --- |
+| （无） | 空闲：整棵进程树安静了 6 秒以上 | 前景色 38%（原来的灰） |
+| `warm` | 刚干过：最近 ~5 秒内有过负载 | `@ghostty_green` 45% |
+| `busy` | 正在干（或 1 秒前还在干） | `@ghostty_green` 实色 |
+
+信号来自 `/proc`，不是 niri：niri 只说得出窗口的 `pid`，模块拿这个 pid 把整棵进程树
+（含 zsh 里的编译器、Chrome 的 renderer 进程）1 秒采样一次，CPU 时间（`utime+stime`）
+和块设备 I/O（`read_bytes+write_bytes`）一起进一个封顶、带衰减的分数；阈值和衰减常数在
+`procs/procs.go` 顶部，三档的具体行为在 `procs/procs_test.go` 里钉死。
+
+不用 `rchar/wchar`：那算的是 syscall 流量，而 pty 流量也是 syscall 流量——一个只是在刷
+spinner 的闲置终端会有稳定几十 KB/s，而实测 waybar 自己是全场最大的读者（115 KB/s）。
+
+不用「标题最近变过」：`State.Update` 故意丢弃 title-only 事件（就是上面那个修复），靠它
+等于把 hover 闪烁放回来。
+
+CSS 顺序有讲究：`.tile.warm` / `.tile.busy` 必须写在 `.tile:hover` 之后、`.tile:active`
+之前。GTK3 同特异性取后一条，于是 `hover < warm/busy < 聚焦 < urgent`——聚焦的窗口永远是
+蓝的，即使它正忙（量过像素：`97,175,239` 正是 `@ghostty_blue`）。
+
+开销（20 线程机器，45 秒窗口、两种 .so 交错各测 3 次）：
+
+| | waybar 自身 |
+| --- | --- |
+| 不带采样器 | 1.24% 核 |
+| 带采样器（1 Hz） | 1.82% 核 |
+| 差 | **+0.58% 核** |
+
+大头是采样本身：一次 `Update` 是 2.4~5.8 ms（中位 3.5 ms），几乎全花在给 400 个进程各开
+一次 `/proc/<pid>/stat`（12.9 µs/进程），而真正关心的只有窗口那 20~30 个进程。省不掉——
+拿 ppid 必须扫全表，改用 `/proc/<pid>/task/<tid>/children` 从窗口根往下走并不更快（Chrome
+一个进程上百个线程）。等级没变时模块不碰 GTK（不遍历、不发 idle），稳态下代价就是那次扫描。
+
+已知漏报 / 误报（都接受，别当 bug 修）：
+
+- **pid 是进程粒度**：同一进程的多个窗口一起亮，两个 ghostty 窗口、一个 Chrome 的全部窗口
+  都是这样。
+- **CPU 和块 I/O 都不动就算空闲**：`sleep 100`、GPU 硬解视频（nvidia 上拿不到 per-process
+  GPU 利用率，`nvidia-smi pmon` 的 sm/mem 列在 GeForce 上是 `-`）、纯等网络都是 0。
+- **Xwayland 会串味**：它是某些 X11 客户端的子进程，别的 X11 应用一忙，那棵子树也跟着涨。
+- 第二个 bar 会再起一份采样器（tracker 属于实例），开销翻倍。
 
 ## module_path 占位符
 

@@ -226,6 +226,20 @@ tooltip * {
   background-color: alpha(@ghostty_fg, 0.65);
 }
 
+/* Window activity, sampled from /proc once a second by the module: green while
+ * the window's process tree is working, fainter while it only worked recently.
+ *
+ * This block has to stay before `.tile:active`. GTK3 picks the later rule when
+ * specificity ties, so focus (blue) still wins over activity, and activity
+ * still wins over the hover shade above. See docs/waybar.md. */
+.cffi-niri-windows .tile.warm {
+  background-color: alpha(@ghostty_green, 0.45);
+}
+
+.cffi-niri-windows .tile.busy {
+  background-color: @ghostty_green;
+}
+
 /* :active = focused window. */
 .cffi-niri-windows .tile:active {
   background-color: @ghostty_blue;
