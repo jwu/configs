@@ -122,17 +122,28 @@ fi
 
 # https://github.com/calico32/waybar-niri-windows
 # 图形模式小地图（CFFI 模块，wbcffi ABI v2），需要 niri >= 25.08。
-# 上游只发 amd64 预编译包，所以下完先校 sha256 再落盘；
+# 上游只发 x86_64 预编译包：x86_64 下下来先校 sha256 再落盘；其它架构按同一 tag
+# 从源码构建（go buildmode=c-shared，需要 go/gcc/gtk3），并用 .version 标记已构建版本。
 # 升级版本时同时改 WNMW_VERSION 和 WNMW_SHA256（取自同 tag 的 checksums.txt）。
 WNMW_VERSION="v2.3.1"
 WNMW_SHA256="6ae40a7ac277a1a46a823933213a5e0585b2c2a16374c225c66e17730304e533"
 WNMW_ASSET="waybar-niri-windows.so"
 WNMW_DEST="$HOME/.config/waybar/$WNMW_ASSET"
+WNMW_ARCH="$(uname -m)"
+
+wnmw_is_installed() {
+  [ -f "$WNMW_DEST" ] || return 1
+  if [ "$WNMW_ARCH" = "x86_64" ]; then
+    echo "$WNMW_SHA256  $WNMW_DEST" | sha256sum -c --status -
+  else
+    [ "$(cat "$WNMW_DEST.version" 2>/dev/null)" = "$WNMW_VERSION" ]
+  fi
+}
 
 echo ">>> Installing Waybar niri-windows module ($WNMW_VERSION)..."
-if [ -f "$WNMW_DEST" ] && echo "$WNMW_SHA256  $WNMW_DEST" | sha256sum -c --status -; then
-  echo "  Already installed and checksum matches, skipping."
-else
+if wnmw_is_installed; then
+  echo "  Already installed, skipping."
+elif [ "$WNMW_ARCH" = "x86_64" ]; then
   mkdir -p "$HOME/.config/waybar"
   WNMW_TMP_DIR="$(mktemp -d)"
   curl -fsSL \
@@ -146,6 +157,18 @@ else
   cp "$WNMW_TMP_DIR/$WNMW_ASSET" "$WNMW_DEST"
   rm -rf "$WNMW_TMP_DIR"
   echo "  Installed to $WNMW_DEST"
+else
+  echo "  No prebuilt asset for $WNMW_ARCH, building from source..."
+  sudo pacman -S --needed --noconfirm go gcc make pkgconf gtk3 git
+  WNMW_TMP_DIR="$(mktemp -d)"
+  git clone --depth 1 --branch "$WNMW_VERSION" \
+    https://github.com/calico32/waybar-niri-windows "$WNMW_TMP_DIR/src"
+  make -C "$WNMW_TMP_DIR/src"
+  mkdir -p "$HOME/.config/waybar"
+  cp "$WNMW_TMP_DIR/src/$WNMW_ASSET" "$WNMW_DEST"
+  printf '%s' "$WNMW_VERSION" > "$WNMW_DEST.version"
+  rm -rf "$WNMW_TMP_DIR"
+  echo "  Built and installed to $WNMW_DEST"
 fi
 
 # ==========================================
