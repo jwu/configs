@@ -98,7 +98,7 @@
 2. **安装软件包**:
    ```bash
    # 命令行工具
-   brew install starship zoxide neovim fzf eza fd bat delta
+   brew install starship zoxide neovim fzf eza fd bat delta yazi lsd gitui glow zellij
    # GUI 应用
    brew install --cask neovide font-fira-mono-nerd-font
    ```
@@ -112,9 +112,17 @@
    - `common/.config/nvim/init.lua` -> `~/.config/nvim/init.lua`
    - `common/.config/neovide/config.toml` -> `~/.config/neovide/config.toml`
    - `common/.omnisharp/omnisharp.json` -> `~/.omnisharp/omnisharp.json`
+   - `common/.gitconfig` -> `~/.config/git/config`
    - `mac/.config/ghostty/config` -> `~/.config/ghostty/config`
    - `mac/.config/starship.toml` -> `~/.config/starship.toml`
+   - `mac/.config/zellij/config.kdl` -> `~/.config/zellij/config.kdl`
+   - `common/.config/yazi/` -> `~/.config/yazi/`（`yazi.toml`、`theme.toml`）
+   - `common/.config/lsd/config.yaml` -> `~/.config/lsd/config.yaml`
+   - `common/.config/gitui/theme.ron` -> `~/.config/gitui/theme.ron`
+   - `common/.config/glow/one-dark.json` -> `~/.config/glow/one-dark.json`
    - `mac/.zshrc` -> `~/.zshrc`
+
+   `mac/config.sh` 会按顺序完成以上复制，其中 zellij / yazi / lsd / gitui / glow 只在对应命令已安装时同步，git 配置写入 XDG 路径（`~/.config/git/config`），不会动 `~/.gitconfig` 里已有的身份信息。
 
 ---
 
