@@ -87,6 +87,25 @@ if command -v waybar &> /dev/null; then
   fi
 fi
 
+# Fcitx5 tray icons. The tray items are drawn by waybar, but the icon names come
+# from fcitx5 (Rime's Chinese/Latin states, and the keyboard layout), so they are
+# overridden by name under XDG_DATA_HOME. The keyboard-layout one has to mirror
+# the Adwaita theme path to win the lookup; see docs/ime-icons.md.
+if command -v fcitx5 &> /dev/null; then
+  echo "Configuring Fcitx5 tray icons..."
+  RIME_ICON_DIR="$HOME/.local/share/icons/hicolor/scalable/apps"
+  mkdir -p "$RIME_ICON_DIR"
+  for f in fcitx-rime.svg fcitx_rime_latin.svg fcitx_rime_latin_upper.svg; do
+    backup_file "$RIME_ICON_DIR/$f"
+    cp "$SCRIPT_DIR/.local/share/icons/hicolor/scalable/apps/$f" "$RIME_ICON_DIR/$f"
+  done
+  KEYBOARD_ICON_DIR="$HOME/.local/share/icons/Adwaita/symbolic/devices"
+  mkdir -p "$KEYBOARD_ICON_DIR"
+  backup_file "$KEYBOARD_ICON_DIR/input-keyboard-symbolic.svg"
+  cp "$SCRIPT_DIR/.local/share/icons/Adwaita/symbolic/devices/input-keyboard-symbolic.svg" \
+    "$KEYBOARD_ICON_DIR/input-keyboard-symbolic.svg"
+fi
+
 # Wallpapers: shared by swaylock and hyprlock, which references one of these
 # files directly (see docs/lockscreen.md), so copy them whichever locker ends up
 # installed.

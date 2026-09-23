@@ -160,6 +160,7 @@ cd ~/bin/configs/linux
    - `linux/.config/ghostty/config.ghostty` -> `~/.config/ghostty/config.ghostty`
    - `linux/.config/waybar/` -> `~/.config/waybar/`（`config.jsonc`、`modules.json`、`style.css`、`colors.css`，以及 `scripts/` 下的 GPU / NVMe 取值脚本）
    - `linux/.config/environment.d/fcitx5.conf` -> `~/.config/environment.d/fcitx5.conf`
+   - `linux/.local/share/icons/` -> `~/.local/share/icons/`（Fcitx5 托盘图标：`hicolor/scalable/apps/` 下三张 Rime 状态图，加 `Adwaita/symbolic/devices/input-keyboard-symbolic.svg`，见 `docs/ime-icons.md`）
    - 运行 `desktop-settings/fcitx5/install-linux.sh` 同步 Fcitx5、Rime 和候选窗主题
 
 ---
@@ -213,6 +214,7 @@ cd ~/bin/configs/linux
 - [`docs/gtk4.md`](docs/gtk4.md) — GTK4 全局 CSD 直角微调。
 - [`docs/bluetooth.md`](docs/bluetooth.md) — BlueZ OBEX agent 单槽位、blueman / bluetuith 冲突与诊断命令。
 - [`docs/xwayland-satellite.md`](docs/xwayland-satellite.md) — X11 override-redirect 弹窗的焦点判据、Steam 顶栏菜单闪退、AUR `-git` 包的取舍与拆除条件。
+- [`docs/ime-icons.md`](docs/ime-icons.md) — Fcitx5 托盘图标的同名覆盖规则（含键盘布局那张必须放 Adwaita 目录的原因）、SNI `IconName` 与状态的对应、大小写为何在 Wayland 下失效、重启 waybar 的时机。
 
 源码注释保持简短，详细推导见以上文档。
 

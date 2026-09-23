@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Fcitx5 / Rime tray icon - Latin (English) mode of the Rime input method,
+       SNI IconName "fcitx_rime_latin".
+
+       Plain glyph, no plate: same style and same font size as the sibling "Aa"
+       (fcitx_rime_latin_upper.svg) and the keyboard-layout "EN" icon, so the
+       three tray icons read as a set. Which of the two Latin names fcitx5 reports
+       depends on CapsLock, which Wayland cannot deliver (see docs/ime-icons.md),
+       so both variants are deliberately identical.
+
+       The colour is hardcoded because this name is not a "-symbolic" name, so GTK
+       does not recolour it: it has to match waybar's `#tray { color: @ghostty_fg }`
+       (= #abb2bf) by hand.
+
+       Keep this comment INSIDE <svg>: gdk-pixbuf sniffs the first bytes for
+       "<svg", and a long prolog makes GTK load the missing-image placeholder. -->
+  <text x="8" y="8.6" fill="#abb2bf" font-family="Sarasa Mono SC, Noto Sans CJK SC, sans-serif"
+        font-size="11.5" font-weight="bold" text-anchor="middle" dominant-baseline="central">Aa</text>
+</svg>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Tray icon for the keyboard-layout input method (English/US), shown instead
+       of the stock keyboard glyph.
+
+       fcitx5 does not use a per-layout icon here: the notification-item addon
+       hardcodes "input-keyboard" and, on non-KDE desktops, swaps it for
+       "input-keyboard-symbolic" (fcitx5: src/modules/notificationitem/
+       notificationitem.cpp, keyboardIconName()). That symbolic name resolves to
+       Adwaita, so the override has to mirror Adwaita's path - a copy under
+       hicolor/scalable/devices loses to it (Adwaita's own dirs are searched
+       first, since Adwaita is the selected theme).
+
+       Symbolic icons are recoloured by GTK to the widget colour, which in waybar's
+       tray is `#tray { color: @ghostty_fg }`, so only the glyph shape matters and
+       the fill below is just a fallback. See docs/ime-icons.md. -->
+  <text x="8" y="8.6" fill="#abb2bf" font-family="Sarasa Mono SC, Noto Sans CJK SC, sans-serif"
+        font-size="11.5" font-weight="bold" text-anchor="middle" dominant-baseline="central">EN</text>
+</svg>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Fcitx5 / Rime tray icon - Chinese state (SNI IconName "fcitx-rime").
+
+       Plain glyph, no plate: matches the style of the keyboard-layout icon
+       (Adwaita/symbolic/devices/input-keyboard-symbolic.svg = "EN"). 16x16 viewBox
+       with the same font stack as that one, so the three tray icons read as a set.
+
+       The colour is hardcoded because this name is not a "-symbolic" name, so GTK
+       does not recolour it: it has to match waybar's `#tray { color: @ghostty_fg }`
+       (= #abb2bf) by hand. Change both together. See docs/ime-icons.md.
+
+       Keep this comment INSIDE <svg>: gdk-pixbuf sniffs the first bytes for
+       "<svg", and a long prolog makes GTK load the missing-image placeholder. -->
+  <text x="8" y="8.6" fill="#abb2bf" font-family="Sarasa Mono SC, Noto Sans CJK SC, sans-serif"
+        font-size="12.5" font-weight="bold" text-anchor="middle" dominant-baseline="central">中</text>
+</svg>
