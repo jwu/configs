@@ -170,7 +170,9 @@ keybind = cmd+shift+up=goto_split:up
 keybind = cmd+shift+down=goto_split:down
 
 # quick terminal
-keybind = global:ctrl+backquote=toggle_quick_terminal
+# Upstream's `global:ctrl+backquote=toggle_quick_terminal` is dropped here:
+# `global:` needs the portal GlobalShortcuts interface, which niri has no
+# backend for. See docs/ghostty.md.
 
 # ------------------------------------------------------------
 # Misc
@@ -180,8 +182,9 @@ keybind = global:ctrl+backquote=toggle_quick_terminal
 # Confirm close
 confirm-close-surface = false
 
-# Bold text uses bright colors
-bold-is-bright = true
+# Bold text uses bright colors. `bold-is-bright` is deprecated since 1.2.0;
+# `bold-color = bright` is the documented replacement. See docs/ghostty.md.
+bold-color = bright
 
 # make left option as Alt/Meta, this help nvim hotkey works in ghostty
 macos-option-as-alt = left

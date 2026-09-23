@@ -210,6 +210,7 @@ cd ~/bin/configs/linux
 以下文档记录了原先写在配置注释里的设计与踩坑：
 
 - [`docs/waybar.md`](docs/waybar.md) — 模块基线与行高约定、配色、`cffi/niri-windows`、`module_path` 占位符。
+- [`docs/ghostty.md`](docs/ghostty.md) — quick terminal 的 `global:` 绑定为何在 niri 下删掉、`bold-is-bright` → `bold-color` 的迁移。
 - [`docs/ghostty-titlebar.md`](docs/ghostty-titlebar.md) — GTK 标题栏几何、undershoot 线、配色预设。
 - [`docs/gtk4.md`](docs/gtk4.md) — GTK4 全局 CSD 直角微调。
 - [`docs/bluetooth.md`](docs/bluetooth.md) — BlueZ OBEX agent 单槽位、blueman / bluetuith 冲突与诊断命令。
