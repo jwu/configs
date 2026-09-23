@@ -50,6 +50,7 @@ PACKAGES=(
   "wtype"
   "wl-clipboard"
   "noto-fonts-cjk"
+  "noto-fonts-emoji"
   "ttf-sarasa-gothic"
 )
 
