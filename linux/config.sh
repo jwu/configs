@@ -127,6 +127,14 @@ if command -v swaylock &> /dev/null; then
     "$SCRIPT_DIR/.config/swaylock/config" > "$HOME/.config/swaylock/config"
 fi
 
+# Hyprland
+if command -v hyprland &> /dev/null; then
+  echo "Configuring Hyprland..."
+  mkdir -p "$HOME/.config/hypr"
+  backup_file "$HOME/.config/hypr/hyprland.lua"
+  cp "$SCRIPT_DIR/.config/hypr/hyprland.lua" "$HOME/.config/hypr/hyprland.lua"
+fi
+
 # Clipboard history helper
 if command -v cliphist &> /dev/null && command -v fuzzel &> /dev/null && command -v wl-copy &> /dev/null && command -v wl-paste &> /dev/null && command -v wtype &> /dev/null; then
   echo "Configuring clipboard history helper..."

@@ -34,6 +34,7 @@ PACKAGES=(
   "terminus-font"
   "otf-firamono-nerd"
   "niri"
+  "hyprland"
   "nautilus"
   "ghostty"
   "waybar"
