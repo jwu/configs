@@ -118,6 +118,10 @@ binds {
     Mod+U         { focus-workspace-down; }
     Mod+I         { focus-workspace-up; }
 
+    // Move the focused column to the workspace below/above.
+    Mod+Ctrl+Page_Down { move-column-to-workspace-down; }
+    Mod+Ctrl+Page_Up   { move-column-to-workspace-up; }
+
     Mod+R { switch-preset-column-width; }
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
