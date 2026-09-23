@@ -234,6 +234,7 @@ cmd /c win\config.bat  # Windows
 - [`docs/waybar.md`](docs/waybar.md) — 模块基线与行高约定、配色、`cffi/niri-windows`、`module_path` 占位符。
 - [`docs/ghostty.md`](docs/ghostty.md) — quick terminal 的 `global:` 绑定为何在 niri 下删掉、`bold-is-bright` → `bold-color` 的迁移。
 - [`docs/ghostty-titlebar.md`](docs/ghostty-titlebar.md) — GTK 标题栏几何、undershoot 线、配色预设。
+- [`docs/ghostty-gl-version.md`](docs/ghostty-gl-version.md) — Intel HD 4000 只到 GL 4.2 时，如何用 MESA override 保住硬件渲染、三个注入点与验证命令。
 - [`docs/gtk4.md`](docs/gtk4.md) — GTK4 全局 CSD 直角微调。
 - [`docs/bluetooth.md`](docs/bluetooth.md) — BlueZ OBEX agent 单槽位、blueman / bluetuith 冲突与诊断命令。
 - [`docs/xwayland-satellite.md`](docs/xwayland-satellite.md) — X11 override-redirect 弹窗的焦点判据、Steam 顶栏菜单闪退、AUR `-git` 包的取舍与拆除条件。
