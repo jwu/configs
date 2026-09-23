@@ -190,11 +190,38 @@ else
   git -C "$WNMW_TMP_DIR/src" checkout -q FETCH_HEAD
   make -C "$WNMW_TMP_DIR/src"
   mkdir -p "$HOME/.config/waybar"
-  cp "$WNMW_TMP_DIR/src/$WNMW_ASSET" "$WNMW_DEST"
+  # Install by rename, never by overwriting $WNMW_DEST in place: waybar has the
+  # module mapped, and replacing the bytes it is executing kills it within
+  # seconds (SIGSEGV or SIGILL, with a core dump). Renaming a fresh inode in
+  # keeps the old one alive for the running process. See docs/waybar.md.
+  cp "$WNMW_TMP_DIR/src/$WNMW_ASSET" "$WNMW_DEST.new"
+  mv -f "$WNMW_DEST.new" "$WNMW_DEST"
   printf '%s' "$WNMW_COMMIT" > "$WNMW_DEST.version"
   rm -rf "$WNMW_TMP_DIR"
   echo "  Built and installed to $WNMW_DEST"
 fi
+
+# ==========================================
+# Waybar: NVIDIA GPU metrics (gpu-watch)
+# ==========================================
+
+# src/gpu-watch.c replaces scripts/gpu.sh, which spawned bash and nvidia-smi
+# every two seconds: 16.8 ms of CPU per call, and with the usage and the
+# temperature module both running that was 1.68% of one core, more than waybar
+# itself uses. Almost all of it was nvidia-smi's startup, which a long-lived
+# process pays once: the same two device queries in-process cost 0.017 ms.
+#
+# It opens libnvidia-ml with dlopen, so it needs no headers and links against
+# nothing; gcc is the only build dependency. On a machine without the driver it
+# prints the module's "off" line and exits, and waybar restarts it.
+# See docs/waybar.md.
+echo ">>> Building gpu-watch..."
+if ! command -v gcc &> /dev/null; then
+  sudo pacman -S --needed --noconfirm gcc
+fi
+mkdir -p "$HOME/.local/bin"
+gcc -O2 -o "$HOME/.local/bin/gpu-watch" "$SCRIPT_DIR/src/gpu-watch.c" -ldl
+echo "  Installed to $HOME/.local/bin/gpu-watch"
 
 # ==========================================
 # Copy Configurations

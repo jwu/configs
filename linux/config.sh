@@ -76,14 +76,20 @@ if command -v waybar &> /dev/null; then
   backup_file "$HOME/.config/waybar/modules.json"
   sed "s|__WAYBAR_MODULE_DIR__|$WAYBAR_MODULE_DIR|g" \
     "$SCRIPT_DIR/.config/waybar/modules.json" > "$HOME/.config/waybar/modules.json"
-  # Metric scripts: GPU usage/temp; the hotter of the two NVMe drives.
-  for f in gpu.sh nvme-temp.sh; do
+  # Metric script: the hotter of the two NVMe drives. The GPU metrics come from
+  # gpu-watch instead, which install.sh compiles into ~/.local/bin -- it has to
+  # be a long-lived process, not something waybar re-runs every 2s. See
+  # docs/waybar.md.
+  for f in nvme-temp.sh; do
     backup_file "$HOME/.config/waybar/scripts/$f"
     cp "$SCRIPT_DIR/.config/waybar/scripts/$f" "$HOME/.config/waybar/scripts/$f"
     chmod +x "$HOME/.config/waybar/scripts/$f"
   done
   if [ ! -f "$HOME/.config/waybar/waybar-niri-windows.so" ]; then
     echo "    Note: waybar-niri-windows.so missing; run install.sh to install the cffi/niri-windows module."
+  fi
+  if [ ! -x "$HOME/.local/bin/gpu-watch" ]; then
+    echo "    Note: gpu-watch missing; run install.sh to build it (the GPU modules show 'off' without it)."
   fi
 fi
 

@@ -35,10 +35,40 @@ Waybar 只加载用户这一份样式表（见 `src/client.cpp`），它自带�
 
 ## 用量与温度配色
 
-低负载绿、告警黄、危急红。阈值在 `modules.json` 的 `states`；`custom/gpu` 的阈值写在
-`scripts/gpu.sh`，`custom/gpu-temp` 和 `custom-ssd` 在各自脚本里。
+低负载绿、告警黄、危急红。阈值在 `modules.json` 的 `states`；`custom/gpu` 和 `custom/gpu-temp`
+的阈值写在 `src/gpu-watch.c` 顶部（util 70/90，temp 75/85），`custom/ssd` 在 `nvme-temp.sh` 里。
 
 温度模块的 padding 让读数紧贴所属组件，读起来是一组：`CPU 4% 31°C / GPU 11% 40°C`。
+
+## GPU 模块（gpu-watch）
+
+两个 GPU 模块背后是 `~/.local/bin/gpu-watch`，由 `linux/src/gpu-watch.c` 编出来（`install.sh`
+里一句 `gcc -O2 ... -ldl`）。它用 **dlopen 打开 `libnvidia-ml.so.1`**：不链驱动、不需要
+`nvml.h`、没有构建期依赖。驱动不在时它打一行 `class: off` 就退出，`modules.json` 里的
+`restart-interval: 10` 会再把它拉起来（驱动重载/休眠回来后也是这么恢复的）。
+
+**为什么不再用 `scripts/gpu.sh`**（已删）：那个脚本每次 spawn 一个 bash + nvidia-smi，实测
+16.8 ms CPU / 21.5 ms 墙钟；两个模块每 2 秒各一次，waybar 含子进程的用量是 **4.60% 个核**
+（waybar 自己才 ~1.2%）。贵的主要是 nvidia-smi 的启动：`nvmlInit` 一次 9.9 ms，每个样本都
+重付一遍；同样的两个设备查询在进程内只要 **0.017 ms**。
+
+实测对比（同一台机器，`utime+stime+cutime+cstime` 算 20 秒）：
+
+| 方案 | 每 2 秒采样 | waybar 含子进程 |
+| --- | --- | --- |
+| `gpu.sh`（bash + nvidia-smi ×2） | 2 × 16.8 ms | **4.60% 个核** |
+| 零代码：常驻 `nvidia-smi -lms 2000` | 5.38 ms（它每个样本仍然要 5.38 ms） | ~2.7% |
+| **常驻 `gpu-watch`，两个进程** | 2 × 0.017 ms | **2.15% 个核** |
+
+省下 2.45% 个核，剩下的 2.15% 基本就是 waybar 自己和 cffi 模块的 `/proc` 采样 —— 现在
+`ps --ppid $(pgrep -x waybar)` 里只剩这两个常驻进程。启动时每个进程一次性付 ~15 ms
+（dlopen + nvmlInit），之后每个样本低于 10 ms 的时钟粒度。
+
+机制：waybar 的 `custom` 模块在**没有 `interval` / `signal`** 时假定脚本自己循环（man page：
+*“If no `interval` or `signal` is defined, it is assumed that the out script loops itself.”*），
+按行读 stdout。所以这两个模块里没有 `interval`，只有 `restart-interval`；`gpu-watch` 每次
+采样后 `fflush`，否则管道缓冲会让 waybar 一直看不到新行。（调试用 `gpu-watch util -once`
+打一行就退出。）
 
 ## bluetooth
 
@@ -94,9 +124,9 @@ waybar `dlopen()` 之后一直把 `.so` 映射着，**就地覆盖这个文件�
 09-23 15:02 / 15:03 那两个也正好对上写备份的那几次构建（09-21、09-22 各一个，大概率同理，
 没有旁的证据）。
 
-做法：先装到 `$out.new` 再 `mv -f` 顶上去（rename 换 inode，老映射继续有效），
-`build-and-install.sh` 已经这么改了。重启 waybar 仍然必要，但不再需要「先关 bar 再装」。
-`install.sh` 里那句 `cp ... "$WNMW_DEST"` 还是就地覆盖。
+做法：先装到 `.new` 再 `mv -f` 顶上去（rename 换 inode，老映射继续有效）。
+`build-and-install.sh` 和 `install.sh` 都已经这么改了；重启 waybar 仍然必要，但不再需要
+「先关 bar 再装」。
 
 fork 上目前比上游多的两个修复：
 

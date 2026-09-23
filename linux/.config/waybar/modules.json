@@ -65,15 +65,15 @@
     "tooltip-format": "CPU Package (i7-12700KF): {temperatureC}°C"
   },
   "custom/gpu": {
-    "exec": "~/.config/waybar/scripts/gpu.sh util",
+    "exec": "~/.local/bin/gpu-watch util",
     "return-type": "json",
-    "interval": 2,
+    "restart-interval": 10,
     "tooltip": true
   },
   "custom/gpu-temp": {
-    "exec": "~/.config/waybar/scripts/gpu.sh temp",
+    "exec": "~/.local/bin/gpu-watch temp",
     "return-type": "json",
-    "interval": 2,
+    "restart-interval": 10,
     "tooltip": true
   },
   "custom/ssd": {
