@@ -7,7 +7,6 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 echo ">>> Starting installation setup..."
 echo "    Root Config Dir: $ROOT_DIR"
@@ -64,9 +63,9 @@ sudo pacman -S --needed --noconfirm "${PACKAGES[@]}"
 # ==========================================
 
 echo ">>> Setting zsh as default shell..."
-if [ "$SHELL" != "$(which zsh)" ]; then
+if [ "$SHELL" != "$(command -v zsh)" ]; then
   echo "Changing default shell to zsh..."
-  chsh -s "$(which zsh)"
+  chsh -s "$(command -v zsh)"
 else
   echo "zsh is already the default shell."
 fi
@@ -95,7 +94,7 @@ if [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
   git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
 else
   echo "zsh-autosuggestions already exists, pulling latest..."
-  cd "$ZSH_CUSTOM/plugins/zsh-autosuggestions" && git pull && cd - > /dev/null
+  git -C "$ZSH_CUSTOM/plugins/zsh-autosuggestions" pull
 fi
 
 # ==========================================

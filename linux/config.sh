@@ -17,7 +17,7 @@ echo "    Linux Configs Dir: $SCRIPT_DIR"
 # ==========================================
 
 backup_file() {
-  if [ -f "$1" ]; then
+  if [ -f "$1" ] && [ ! -f "$1.bak" ]; then
     echo "Backing up $1 to $1.bak"
     cp "$1" "$1.bak"
   fi
@@ -79,7 +79,6 @@ if command -v swaylock &> /dev/null; then
   SWAYLOCK_BACKGROUND_DIR="$HOME/.config/swaylock/backgrounds"
   mkdir -p "$SWAYLOCK_BACKGROUND_DIR"
   cp -a "$SCRIPT_DIR/backgrounds/." "$SWAYLOCK_BACKGROUND_DIR/"
-  mkdir -p "$HOME/.config/swaylock"
   backup_file "$HOME/.config/swaylock/config"
   sed "s|__SWAYLOCK_BACKGROUND_DIR__|$SWAYLOCK_BACKGROUND_DIR|g" \
     "$SCRIPT_DIR/.config/swaylock/config" > "$HOME/.config/swaylock/config"
@@ -123,10 +122,6 @@ if [ -f "$SCRIPT_DIR/.config/gtk-4.0/gtk.css" ]; then
   cp "$SCRIPT_DIR/.config/gtk-4.0/gtk.css" "$HOME/.config/gtk-4.0/gtk.css"
 fi
 
-# EZA
-echo "Configuring EZA..."
-mkdir -p "$HOME/.config/eza"
-
 # Neovim
 echo "Configuring Neovim..."
 mkdir -p "$HOME/.config/nvim"
@@ -143,26 +138,20 @@ cp "$ROOT_DIR/common/.omnisharp/omnisharp.json" "$HOME/.omnisharp/omnisharp.json
 echo "Configuring Starship..."
 mkdir -p "$HOME/.config"
 backup_file "$HOME/.config/starship.toml"
-if [ -f "$SCRIPT_DIR/.config/starship.toml" ]; then
-  cp "$SCRIPT_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
-fi
+cp "$SCRIPT_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
 
 # Alacritty (optional for TTY systems, skip if not needed)
 if command -v alacritty &> /dev/null; then
   echo "Configuring Alacritty..."
   mkdir -p "$HOME/.config/alacritty"
   backup_file "$HOME/.config/alacritty/alacritty.toml"
-  if [ -f "$SCRIPT_DIR/.config/alacritty/alacritty.toml" ]; then
-    cp "$SCRIPT_DIR/.config/alacritty/alacritty.toml" "$HOME/.config/alacritty/alacritty.toml"
-  fi
+  cp "$SCRIPT_DIR/.config/alacritty/alacritty.toml" "$HOME/.config/alacritty/alacritty.toml"
 fi
 
 # .zshrc
 echo "Configuring .zshrc..."
 backup_file "$HOME/.zshrc"
-if [ -f "$SCRIPT_DIR/.zshrc" ]; then
-  cp "$SCRIPT_DIR/.zshrc" "$HOME/.zshrc"
-fi
+cp "$SCRIPT_DIR/.zshrc" "$HOME/.zshrc"
 
 echo ">>> Configuration Complete!"
 echo "    Please restart your terminal or run 'source ~/.zshrc' to apply changes."
