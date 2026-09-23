@@ -70,12 +70,12 @@ window#waybar > box {
 }
 
 #workspaces button.active {
-  color: @color2;
+  color: @ghostty_green;
 }
 
 #privacy {
   margin: 4px;
-  color: @color3;
+  color: @ghostty_yellow;
 }
 
 #clock {
@@ -125,17 +125,20 @@ window#waybar > box {
 }
 
 #mpris {
-  color: @color3;
+  color: @ghostty_yellow;
 }
 
+/* Wired blue, wireless green, rfkill-disabled red. There is deliberately no
+ * `disconnected` rule: it falls back to the @ghostty_fg of the colour list
+ * above. See docs/waybar.md. */
 #network.disabled {
-  color: @color1;
+  color: @ghostty_red;
 }
 #network.wifi {
-  color: @color2;
+  color: @ghostty_green;
 }
 #network.ethernet {
-  color: @color3;
+  color: @ghostty_blue;
 }
 
 /* Bluetooth: off / rfkill-blocked red, connected blue; "on" keeps the default.
@@ -143,17 +146,17 @@ window#waybar > box {
  * must stay in the colour list above. See docs/waybar.md. */
 #bluetooth.off,
 #bluetooth.disabled {
-  color: @color1;
+  color: @ghostty_red;
 }
 #bluetooth.connected {
-  color: @color4;
+  color: @ghostty_blue;
 }
 
 #pulseaudio.sink-muted:not(.microphone) {
-  color: @color3;
+  color: @ghostty_yellow;
 }
 #pulseaudio.microphone.source-muted {
-  color: @color1;
+  color: @ghostty_red;
 }
 
 tooltip {
@@ -174,7 +177,7 @@ tooltip * {
 #pulseaudio-slider trough {
   min-height: 5px;
   border-radius: 99px;
-  background: @color0;
+  background: @ghostty_grey;
   border: none;
   box-shadow: none;
 }
@@ -182,7 +185,7 @@ tooltip * {
 #pulseaudio-slider highlight {
   min-height: 5px;
   border-radius: 99px;
-  background: @color4;
+  background: @ghostty_blue;
   border: none;
   box-shadow: none;
 }

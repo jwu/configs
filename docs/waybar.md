@@ -51,9 +51,9 @@ Waybar 只加载用户这一份样式表（见 `src/client.cpp`），它自带�
 | state | 触发条件 | 图标 | 颜色 |
 | --- | --- | --- | --- |
 | `on` | 适配器已开、无连接 | 󰂯 | 默认前景色 |
-| `connected` | 至少 1 个设备已连接 | 󰂱 | `@color4` |
-| `off` | 适配器 `Powered=false` | 󰂲 | `@color1` |
-| `disabled` | 被 rfkill 屏蔽 | 󰂲 | `@color1` |
+| `connected` | 至少 1 个设备已连接 | 󰂱 | `@ghostty_blue` |
+| `off` | 适配器 `Powered=false` | 󰂲 | `@ghostty_red` |
+| `disabled` | 被 rfkill 屏蔽 | 󰂲 | `@ghostty_red` |
 | `no-controller` | 系统没有适配器 | 󰂲 | 默认前景色 |
 
 `format-icons` 写成对象时按 state 取，取不到才回退 `default`（`ALabel::getIcon`），所以每个
@@ -64,6 +64,19 @@ state 都显式写了键。
 `#2e3436`，加进列表后才变成 `#abb2bf`。
 
 OBEX / blueman / bluetuith 那一侧见 `bluetooth.md`。
+
+## network
+
+状态同样是模块自己加的 CSS 类（`update_style_context`），配色是「有线蓝、无线绿、屏蔽红」：
+
+| state | 触发条件 | 颜色 |
+| --- | --- | --- |
+| `ethernet` | 活动接口是有线且已连上 | `@ghostty_blue` |
+| `wifi` | 活动接口是无线且已连上 | `@ghostty_green` |
+| `disabled` | 接口被 rfkill 屏蔽 / 没有可用接口 | `@ghostty_red` |
+| `disconnected` | 有接口但链路没起来 | 无规则，回退到色彩列表里的 `@ghostty_fg` |
+
+有线拿蓝色，所以蓝牙 `connected` 也留在蓝色上，两者只靠图标区分（`󰈀` / `󰂱`）。
 
 ## cffi/niri-windows
 
@@ -106,5 +119,9 @@ Waybar 直接 `dlopen()` `module_path`，不展开 `~` / `$HOME`，所以 `confi
 
 ## 配色
 
-`colors.css` 定义了基础调色板，以及取自 `config.ghostty` 中 Ghostty One Half Dark 的
-`ghostty_*` 强调色。
+`colors.css` 只有一套调色板：`ghostty_*`，值一一对应 `config.ghostty` 里的
+`palette = N=...`（当前主题 One Half Dark），命名就是 ANSI 槽位的语义
+（`ghostty_red` = palette 1）。没有第二套颜色，所以终端里的红和状态栏里的红是同一个 hex；
+换 ghostty 主题时这里要跟着改。
+
+`ghostty_grey`（palette 8）留给滑条槽道这类「非强调」的灰。
