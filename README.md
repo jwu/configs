@@ -165,6 +165,22 @@ cd ~/bin/configs/linux
 
 ---
 
+## 更新配置
+
+仓库只保存配置源文件，`git pull` 之后需要重新同步到用户目录：
+
+```bash
+cd ~/bin/configs
+git pull
+
+# 按平台重新同步（覆盖同名文件，旧文件备份为 *.bak.<时间戳>）
+bash mac/config.sh     # macOS
+bash linux/config.sh   # Linux
+cmd /c win\config.bat  # Windows
+```
+
+`install.sh` / `install.bat` 除了同步配置还会安装软件包或下载便携工具，日常更新只需要执行上面的 `config.sh` / `config.bat`。
+
 ## Neovim + NeoVide 手动安装手册
 
 ### Windows
