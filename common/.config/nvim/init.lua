@@ -45,12 +45,12 @@ end
 local indent_char = '▏'
 local snacks_scroll = true
 
-if is_color16 then
-  indent_char = '|'
-end
-
 -- neovide settings
 if vim.g.neovide then
+  -- neovide is a GUI with true color support: never use the 16-color console setup, even
+  -- when TERM is inherited as 'linux' from the session that launched neovide
+  is_color16 = false
+
   -- rendering
   vim.g.neovide_no_idle = true
   vim.g.neovide_refresh_rate = 60
@@ -104,6 +104,11 @@ if vim.g.neovide then
   --   pattern = '[/\\?]',
   --   callback = set_ime
   -- })
+end
+
+-- 16-color console fallback (is_color16 may have been forced off for neovide above)
+if is_color16 then
+  indent_char = '|'
 end
 
 -- ssh settings
