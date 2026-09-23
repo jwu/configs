@@ -34,6 +34,11 @@ PACKAGES=(
   "fd"
   "bat"
   "delta"
+  "zellij"
+  "yazi"
+  "lsd"
+  "gitui"
+  "glow"
 )
 
 CASKS=(
