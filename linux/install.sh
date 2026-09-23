@@ -40,6 +40,7 @@ PACKAGES=(
   "waybar"
   "swaylock"
   "swayidle"
+  "hyprlock"
   "fcitx5"
   "fcitx5-gtk"
   "fcitx5-qt"
@@ -51,6 +52,7 @@ PACKAGES=(
   "wl-clipboard"
   "noto-fonts-cjk"
   "noto-fonts-emoji"
+  "adwaita-fonts"
   "ttf-sarasa-gothic"
 )
 

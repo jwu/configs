@@ -18,6 +18,15 @@ Linux 侧锁屏统一走 `linux/.local/bin/niri-lock`：默认用 **hyprlock**�
 
 时间/日期走 `label { text = cmd[update:1000] ... }`，**本来就是实时的**。
 
+## 装什么、拷什么
+
+- `linux/install.sh` 的 `PACKAGES` 里有 `hyprlock`（`extra`）和 `adwaita-fonts`（星期/日期/
+  时间那几行用 `Adwaita Sans Bold`）；图标字体的 `otf-firamono-nerd`、🔒 用的
+  `noto-fonts-emoji` 本来就在列表里。
+- `linux/config.sh`：把 `backgrounds/` 拷到 `~/.config/swaylock/backgrounds/`（swaylock 和
+  hyprlock 共用，所以这段从 `command -v swaylock` 的 guard 里提出来了），再拷
+  `.config/hypr/hyprlock.conf` 和 `.local/bin/niri-lock`。
+
 ## 图标右边被切掉（坑）
 
 hyprgraphics 的 `TextResource.cpp` 按 **logical extents** 开纹理再画：

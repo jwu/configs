@@ -87,12 +87,16 @@ if command -v waybar &> /dev/null; then
   fi
 fi
 
-# Swaylock
+# Wallpapers: shared by swaylock and hyprlock, which references one of these
+# files directly (see docs/lockscreen.md), so copy them whichever locker ends up
+# installed.
+SWAYLOCK_BACKGROUND_DIR="$HOME/.config/swaylock/backgrounds"
+mkdir -p "$SWAYLOCK_BACKGROUND_DIR"
+cp -a "$SCRIPT_DIR/backgrounds/." "$SWAYLOCK_BACKGROUND_DIR/"
+
+# Swaylock (the fallback locker; hyprlock is the primary one)
 if command -v swaylock &> /dev/null; then
   echo "Configuring Swaylock..."
-  SWAYLOCK_BACKGROUND_DIR="$HOME/.config/swaylock/backgrounds"
-  mkdir -p "$SWAYLOCK_BACKGROUND_DIR"
-  cp -a "$SCRIPT_DIR/backgrounds/." "$SWAYLOCK_BACKGROUND_DIR/"
   backup_file "$HOME/.config/swaylock/config"
   sed "s|__SWAYLOCK_BACKGROUND_DIR__|$SWAYLOCK_BACKGROUND_DIR|g" \
     "$SCRIPT_DIR/.config/swaylock/config" > "$HOME/.config/swaylock/config"
