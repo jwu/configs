@@ -42,6 +42,20 @@ Waybar 只加载用户这一份样式表（见 `src/client.cpp`），它自带�
 
 ## cffi/niri-windows
 
+模块来自我们自己的 fork（`jwu/waybar-niri-windows`，基线是上游 `v2.3.1` = `17828f9`），
+不是上游 release。上游的 x86_64 预编译包会把补丁覆盖掉，所以 `install.sh` 固定到某个
+commit 从源码构建，并把该 commit 写进 `~/.config/waybar/waybar-niri-windows.so.version`，
+作为「是否已安装」的判据（不像上游那样比 sha256：不同 Go / gtk3 版本编不出同一个字节）。
+补丁 push 到 fork 之后，要同步更新 `install.sh` 里的 `WNMW_COMMIT`。
+
+fork 上目前比上游多的两个修复：
+
+- 只有标题变化的 `WindowOpenedOrChanged` 不再触发整块重建。原本终端或浏览器每 80ms 改一次
+  窗口标题就会让模块销毁重建光标下的 tile，丢掉 GTK 的 `:hover` prelight —— 看起来就是
+  鼠标悬停时小地图在闪。
+- PR #20（尚未被上游合并）：`State.Update()` 不再持着 state 锁调用回调。原来它和模块
+  `Deinit()` 的锁序相反，waybar 会永久冻结。
+
 当前工作区的窗口小地图。它自己往 waybar 的 GTK 容器里塞 widget，不走 `format` 字符串，
 所以上面那套撑高技巧对它不适用。
 

@@ -118,58 +118,48 @@ fi
 # Waybar: niri window minimap (CFFI module)
 # ==========================================
 
-# https://github.com/calico32/waybar-niri-windows
+# Built from our fork of https://github.com/calico32/waybar-niri-windows
+# (base: upstream v2.3.1 = 17828f9) because the fork carries fixes that are not
+# upstream yet:
+#   - title-only WindowOpenedOrChanged events no longer rebuild every tile, so a
+#     program that animates its window title (a terminal spinner, ...) no longer
+#     makes the tile under the cursor flicker
+#   - PR #20: don't run state callbacks while holding the niri state lock
+#     (waybar could deadlock and freeze permanently)
+# Upstream ships a prebuilt x86_64 asset, but installing that would silently
+# overwrite these patches, so we always build from source. Pinned to a commit:
+# after pushing to the fork, bump WNMW_COMMIT and re-run this script.
 # Window minimap CFFI module (wbcffi ABI v2), needs niri >= 25.08. See docs/waybar.md.
-# Upstream only ships a prebuilt x86_64: download + sha256 check on x86_64,
-# otherwise build from source at the same tag (go c-shared, needs go/gcc/gtk3) and
-# stamp the built version in .version. Bump WNMW_VERSION and WNMW_SHA256 together.
-WNMW_VERSION="v2.3.1"
-WNMW_SHA256="6ae40a7ac277a1a46a823933213a5e0585b2c2a16374c225c66e17730304e533"
+WNMW_REPO="https://github.com/jwu/waybar-niri-windows"
+WNMW_COMMIT="66239ac27441dd835ac9f766c0607946820b997f"
 WNMW_ASSET="waybar-niri-windows.so"
 WNMW_DEST="$HOME/.config/waybar/$WNMW_ASSET"
-WNMW_ARCH="$(uname -m)"
 
+# The stamped commit is the only reliable marker: the built .so is not
+# reproducible byte-for-byte across Go / gtk3 versions.
 wnmw_is_installed() {
   [ -f "$WNMW_DEST" ] || return 1
-  if [ "$WNMW_ARCH" = "x86_64" ]; then
-    echo "$WNMW_SHA256  $WNMW_DEST" | sha256sum -c --status -
-  else
-    [ "$(cat "$WNMW_DEST.version" 2>/dev/null)" = "$WNMW_VERSION" ]
-  fi
+  [ "$(cat "$WNMW_DEST.version" 2>/dev/null)" = "$WNMW_COMMIT" ]
 }
 
-echo ">>> Installing Waybar niri-windows module ($WNMW_VERSION)..."
+echo ">>> Installing Waybar niri-windows module (${WNMW_COMMIT:0:7})..."
 if wnmw_is_installed; then
   echo "  Already installed, skipping."
-elif [ "$WNMW_ARCH" = "x86_64" ]; then
-  mkdir -p "$HOME/.config/waybar"
-  WNMW_TMP_DIR="$(mktemp -d)"
-  if ! curl -fsSL \
-    "https://github.com/calico32/waybar-niri-windows/releases/download/$WNMW_VERSION/$WNMW_ASSET" \
-    -o "$WNMW_TMP_DIR/$WNMW_ASSET"; then
-    echo "Error: download failed for $WNMW_ASSET"
-    rm -rf "$WNMW_TMP_DIR"
-    exit 1
-  fi
-  if ! echo "$WNMW_SHA256  $WNMW_TMP_DIR/$WNMW_ASSET" | sha256sum -c --status -; then
-    echo "Error: sha256 mismatch for $WNMW_ASSET"
-    rm -rf "$WNMW_TMP_DIR"
-    exit 1
-  fi
-  cp "$WNMW_TMP_DIR/$WNMW_ASSET" "$WNMW_DEST"
-  rm -rf "$WNMW_TMP_DIR"
-  echo "  Installed to $WNMW_DEST"
 else
-  echo "  No prebuilt asset for $WNMW_ARCH, building from source..."
   sudo pacman -S --needed --noconfirm go gcc make pkgconf gtk3 git
   WNMW_TMP_DIR="$(mktemp -d)"
   trap 'rm -rf "$WNMW_TMP_DIR"' EXIT
-  git clone --depth 1 --branch "$WNMW_VERSION" \
-    https://github.com/calico32/waybar-niri-windows "$WNMW_TMP_DIR/src"
+  mkdir -p "$WNMW_TMP_DIR/src"
+  # Fetch exactly the pinned commit: a depth-1 clone of a branch would silently
+  # follow the fork's branch instead of staying on the pinned revision.
+  git -C "$WNMW_TMP_DIR/src" init -q
+  git -C "$WNMW_TMP_DIR/src" remote add origin "$WNMW_REPO"
+  git -C "$WNMW_TMP_DIR/src" fetch --depth 1 origin "$WNMW_COMMIT"
+  git -C "$WNMW_TMP_DIR/src" checkout -q FETCH_HEAD
   make -C "$WNMW_TMP_DIR/src"
   mkdir -p "$HOME/.config/waybar"
   cp "$WNMW_TMP_DIR/src/$WNMW_ASSET" "$WNMW_DEST"
-  printf '%s' "$WNMW_VERSION" > "$WNMW_DEST.version"
+  printf '%s' "$WNMW_COMMIT" > "$WNMW_DEST.version"
   rm -rf "$WNMW_TMP_DIR"
   echo "  Built and installed to $WNMW_DEST"
 fi
