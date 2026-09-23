@@ -116,6 +116,7 @@ Ask before:
 - Quote variables properly
 - Prefer symlinks on Unix-like systems when the script already follows that pattern
 - Prefer copying/linking from existing files in `common/`, `mac/`, `linux/`, `win/`
+- Keep source comments short and in English; put the reasoning/gotchas in `docs/` (Chinese)
 
 ## References
 

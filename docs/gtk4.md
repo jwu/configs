@@ -1,14 +1,13 @@
-# GTK4 / libadwaita tweaks
+# GTK4 / libadwaita 微调
 
-`linux/.config/gtk-4.0/gtk.css` is loaded automatically by GTK4 at
-`GTK_STYLE_PROVIDER_PRIORITY_USER` (800), above libadwaita's
-`PRIORITY_APPLICATION` (600), so its rules win.
+`linux/.config/gtk-4.0/gtk.css` 由 GTK4 自动加载，优先级是
+`GTK_STYLE_PROVIDER_PRIORITY_USER`(800)，高于 libadwaita 自带的
+`PRIORITY_APPLICATION`(600)，所以这里的规则一定生效。
 
-CSD windows get rounded corners from either the GTK theme
-(`window.csd { border-radius: $window_radius $window_radius 0 0 }`, top corners
-only) or libadwaita (`var(--window-radius)`, 12px by default). Both clear the
-radius only when the window is tiled/maximized/fullscreen, so a niri window
-without `prefer-no-csd` shows rounded top corners.
+CSD 窗口的圆角有两个来源：GTK 主题
+（`window.csd { border-radius: $window_radius $window_radius 0 0 }`，只圆上面两个角），
+或 libadwaita（`var(--window-radius)`，默认 12px）。两者都只在窗口平铺/最大化/全屏时清零，
+所以 niri 不开 `prefer-no-csd` 时窗口上面两个角是圆的。
 
-The file zeroes the radius (and the `--window-radius` variable) without touching
-shadows, borders or other decorations. Menus, popups and tooltips are unaffected.
+这个文件把圆角（以及 `--window-radius` 变量）清零，不动阴影、边框和其它装饰；菜单、弹窗、
+tooltip 的圆角不受影响。
