@@ -57,6 +57,35 @@ echo ">>> Installing/Updating packages via pacman: ${PACKAGES[*]}"
 sudo pacman -Syu --needed --noconfirm "${PACKAGES[@]}"
 
 # ==========================================
+# xwayland-satellite (AUR: carries upstream fix #494)
+# ==========================================
+
+# extra's xwayland-satellite 0.8.2-1 hands the X input focus to override-redirect
+# popups on their first configure, so an X11 dropdown is dismissed the moment it
+# appears: Steam's top bar (Store / Library / Community) and its context menus
+# only flash. Upstream fixed the focus rules in #494 (commit add2795, 2026-09-09)
+# but cut no release, and extra has not rebuilt since 0.8.2-1, so the fix only
+# exists on master. The AUR -git package tracks master, which is the trade-off we
+# accept here: drop this section once extra ships a release newer than 0.8.2.
+# See docs/xwayland-satellite.md.
+XWS_PKG="xwayland-satellite"
+XWS_AUR_PKG="xwayland-satellite-git"
+
+echo ">>> Installing $XWS_AUR_PKG (AUR)..."
+if pacman -Q "$XWS_AUR_PKG" &> /dev/null; then
+  echo "  Already installed: $(pacman -Q "$XWS_AUR_PKG")"
+elif ! command -v yay &> /dev/null; then
+  echo "  Note: yay is required to install $XWS_AUR_PKG; skipping. X11 menus under Steam will keep closing instantly."
+else
+  # The -git package provides/conflicts $XWS_PKG, so drop the repo package first
+  # rather than let pacman hit its conflict prompt under --noconfirm.
+  if pacman -Q "$XWS_PKG" &> /dev/null; then
+    sudo pacman -R --noconfirm "$XWS_PKG"
+  fi
+  yay -S --needed --noconfirm "$XWS_AUR_PKG"
+fi
+
+# ==========================================
 # Set Default Shell
 # ==========================================
 
