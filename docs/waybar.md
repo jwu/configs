@@ -123,20 +123,29 @@ fork 上目前比上游多的两个修复：
 - 颜色：列淡底（前景色 10%）、浮动紫底（15%）、tile 前景色 38% / hover 65%，
   `:active` 是聚焦窗口（蓝），`.urgent` 红。
 
-### 窗口活动状态（busy / warm）
+### 窗口活动状态（灰 / 绿 / 黄 / 红）
 
-tile 底色还会表示「这个窗口在干活还是在闲着」，三档：
+tile 底色表示「这个窗口在干活，干得有多猛」，四档，外加一个正交的聚焦：
 
-| 类名 | 含义 | 颜色 |
-| --- | --- | --- |
-| （无） | 空闲：整棵进程树安静了 6 秒以上 | 前景色 38%（原来的灰） |
-| `warm` | 刚干过：最近 ~5 秒内有过负载 | `@ghostty_green` 45% |
-| `busy` | 正在干（或 1 秒前还在干） | `@ghostty_green` 实色 |
+| 类名 | 含义 | 颜色 | 触发区间（1 单位 = 1 个核 或 20 MiB/s） |
+| --- | --- | --- | --- |
+| （无） | 闲着 | 前景色 38%，实测 `(98,102,113)` | < 0.03：3% 核 / 0.6 MB/s 以下 |
+| `light` | 一点点忙 | `@ghostty_green` `(152,195,121)` | 0.03–0.2：3% ~ 20% 个核 |
+| `medium` | 较忙 | `@ghostty_yellow` `(229,192,123)` | 0.2–1.5：20% 个核 ~ 1.5 个核 |
+| `heavy` | 很忙 | `@ghostty_red` `(232,102,113)` | ≥ 1.5：超过 1.5 个核，或 30 MB/s 磁盘 |
+| （聚焦） | 你在看它 | `@ghostty_blue` `(97,175,239)` | 与活动无关，压过上面四档 |
+
+三个边界都故意取在小数上（1.5 个核，而不是 1 或 2），因为真实负载就停在整数核上：单线程
+任务正好是 1.0 个核，边界放在那里会红黄来回闪。踩过：边界设 0.9 时，97% 核的终端确实在
+红黄之间跳，截屏抓到的是过渡中的 `(229,102,113)`，而不是纯红 `(232,102,113)`。
+
+灰的界线（3% 个核）也是踩出来的：原来定在 1.2%，结果一个什么都不干的后台标签页、加上
+开了几个终端，整条小地图绿成一片。
 
 信号来自 `/proc`，不是 niri：niri 只说得出窗口的 `pid`，模块拿这个 pid 把整棵进程树
-（含 zsh 里的编译器、Chrome 的 renderer 进程）1 秒采样一次，CPU 时间（`utime+stime`）
-和块设备 I/O（`read_bytes+write_bytes`）一起进一个封顶、带衰减的分数；阈值和衰减常数在
-`procs/procs.go` 顶部，三档的具体行为在 `procs/procs_test.go` 里钉死。
+（含 zsh 里的编译器、Chrome 的 renderer 进程）1 秒采样一次，CPU 时间（`utime+stime`）和
+块设备 I/O（`read_bytes+write_bytes`）各除以自己的单位再取 max，进一个封顶、上升快下降慢
+的分数。各档的具体行为钉在 `procs/procs_test.go` 里，常数在 `procs/procs.go` 顶部。
 
 不用 `rchar/wchar`：那算的是 syscall 流量，而 pty 流量也是 syscall 流量——一个只是在刷
 spinner 的闲置终端会有稳定几十 KB/s，而实测 waybar 自己是全场最大的读者（115 KB/s）。
@@ -144,9 +153,10 @@ spinner 的闲置终端会有稳定几十 KB/s，而实测 waybar 自己是全�
 不用「标题最近变过」：`State.Update` 故意丢弃 title-only 事件（就是上面那个修复），靠它
 等于把 hover 闪烁放回来。
 
-CSS 顺序有讲究：`.tile.warm` / `.tile.busy` 必须写在 `.tile:hover` 之后、`.tile:active`
-之前。GTK3 同特异性取后一条，于是 `hover < warm/busy < 聚焦 < urgent`——聚焦的窗口永远是
-蓝的，即使它正忙（量过像素：`97,175,239` 正是 `@ghostty_blue`）。
+CSS 顺序有讲究：`.tile.light` / `.tile.medium` / `.tile.heavy` 必须写在 `.tile:hover`
+之后、`.tile:active` 之前。GTK3 同特异性取后一条，于是 `hover < 三档活动 < 聚焦 < urgent`
+——聚焦的窗口永远是蓝的，即使它正忙（量过像素：`97,175,239` 正是 `@ghostty_blue`）。三档
+之间互斥，彼此顺序无所谓；`.tile.urgent` 排在最后，所以它压过 `heavy` 的红。
 
 开销（20 线程机器，45 秒窗口、两种 .so 交错各测 3 次）：
 
@@ -163,12 +173,29 @@ CSS 顺序有讲究：`.tile.warm` / `.tile.busy` 必须写在 `.tile:hover` 之
 
 已知漏报 / 误报（都接受，别当 bug 修）：
 
-- **pid 是进程粒度**：同一进程的多个窗口一起亮，两个 ghostty 窗口、一个 Chrome 的全部窗口
-  都是这样。
-- **CPU 和块 I/O 都不动就算空闲**：`sleep 100`、GPU 硬解视频（nvidia 上拿不到 per-process
-  GPU 利用率，`nvidia-smi pmon` 的 sm/mem 列在 GeForce 上是 `-`）、纯等网络都是 0。
+- **pid 是进程粒度**：同一进程的多个窗口一起亮。实测 5 个 ghostty 窗口共用 pid 1939，
+  一个终端里在跑任务，5 块砖一起黄；一个 Chrome 的全部窗口同理。
+- **CPU 和块 I/O 都不动就算闲着**：`sleep 100`、纯等网络都是 0。
 - **Xwayland 会串味**：它是某些 X11 客户端的子进程，别的 X11 应用一忙，那棵子树也跟着涨。
 - 第二个 bar 会再起一份采样器（tracker 属于实例），开销翻倍。
+
+### GPU 还没参与判档
+
+本来是「cpu + gpu + io」三个信号，现在只接了 CPU 和块 I/O，GPU 那一路要单独说：
+
+- nvidia 专有驱动**不给** `/proc/<pid>/fdinfo` 里的 `drm-engine-*`（那是 amdgpu/i915 的
+  做法），这台机器上实测 0 个 fdinfo 带引擎统计。
+- 但 `nvidia-smi pmon` 的 sm/mem/enc/dec 列在这里是**真的 per-process**：1474 niri 和
+  1939 ghostty 各自变动且和 ≈ 全局 utilization；起一个 nvenc 任务，`enc=64` 正好落在
+  ffmpeg 的**编码子进程**上——所以仍然要按进程树求和。
+- 代价差两个数量级：`nvidia-smi pmon -d 1` 常驻流式 18.8 ms/样本（≈1.9% 个核，比整个功能
+  还贵三倍），而直接 `dlopen("libnvidia-ml.so.1")` 调
+  `nvmlDeviceGetProcessUtilization` 只要 **0.02 ms/次**（≈0.002% 个核）。
+
+所以正确做法是 NVML：布局是 `{u32 pid, u32 vgpu, u64 ts_ns, u32 sm, mem, enc, dec}`（32
+字节，系统里没装 `nvml.h`，是从原始字读出来的）；dlopen 失败就整路关掉，非 nvidia 机器上
+本来也没有这个文件。两个坑：驱动会往缓冲里填 `pid=0` 的填充行，而且返回的计数**可能超过
+你给的容量**（实测传 64 返回 72），所以缓冲要给足、计数要夹紧。
 
 ## module_path 占位符
 
