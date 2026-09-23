@@ -128,11 +128,24 @@ mkdir -p "$HOME/.config/nvim"
 backup_file "$HOME/.config/nvim/init.lua"
 cp "$ROOT_DIR/common/.config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
 
+# Neovide
+if command -v neovide &> /dev/null; then
+  echo "Configuring Neovide..."
+  mkdir -p "$HOME/.config/neovide"
+  backup_file "$HOME/.config/neovide/config.toml"
+  cp "$ROOT_DIR/common/.config/neovide/config.toml" "$HOME/.config/neovide/config.toml"
+fi
+
 # Omnisharp
 echo "Configuring Omnisharp..."
 mkdir -p "$HOME/.omnisharp"
 backup_file "$HOME/.omnisharp/omnisharp.json"
 cp "$ROOT_DIR/common/.omnisharp/omnisharp.json" "$HOME/.omnisharp/omnisharp.json"
+
+# Git
+echo "Configuring Git..."
+backup_file "$HOME/.gitconfig"
+cp "$ROOT_DIR/common/.gitconfig" "$HOME/.gitconfig"
 
 # Starship
 echo "Configuring Starship..."
@@ -152,6 +165,10 @@ fi
 echo "Configuring .zshrc..."
 backup_file "$HOME/.zshrc"
 cp "$SCRIPT_DIR/.zshrc" "$HOME/.zshrc"
+
+if command -v fcitx5 &> /dev/null; then
+  echo "    Note: run desktop-settings/fcitx5/install-linux.sh to install the Fcitx5/Rime profile and theme."
+fi
 
 echo ">>> Configuration Complete!"
 echo "    Please restart your terminal or run 'source ~/.zshrc' to apply changes."

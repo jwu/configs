@@ -70,6 +70,11 @@ mkdir -p "$HOME/.config"
 backup_file "$HOME/.config/starship.toml"
 cp "$SCRIPT_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
 
+# Git
+echo "Configuring Git..."
+backup_file "$HOME/.gitconfig"
+cp "$ROOT_DIR/common/.gitconfig" "$HOME/.gitconfig"
+
 # .zshrc
 echo "Configuring .zshrc..."
 backup_file "$HOME/.zshrc"
