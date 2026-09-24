@@ -1,0 +1,202 @@
+# ============================================================
+# Alacritty Configuration
+# ============================================================
+# 以 ~/.config/ghostty/config.ghostty 为基准对齐：字体、色板、光标、
+# padding、滚动、bell、键位语义。ghostty 有而 Alacritty 没有的特性
+# 集中在文件末尾说明。
+
+[env]
+# ghostty: term = xterm-256color
+TERM = "xterm-256color"
+
+# ------------------------------------------------------------
+# Font
+# ------------------------------------------------------------
+[font]
+# ghostty: font-size = 13.5
+size = 13.5
+normal = { family = "FiraMono Nerd Font", style = "Medium" }
+bold = { family = "FiraMono Nerd Font", style = "Bold" }
+italic = { family = "FiraMono Nerd Font", style = "Italic" }
+bold_italic = { family = "FiraMono Nerd Font", style = "Bold Italic" }
+# ghostty 的中文回退列表（Sarasa Mono SC → Noto Sans CJK SC）在 Alacritty 里
+# 由 fontconfig 决定。本机 fc-match 对 "monospace:lang=zh-cn" 的首选就是
+# Sarasa Mono SC，与 ghostty 的顺序一致，所以此处不重复声明。
+
+# ------------------------------------------------------------
+# Colors (One Half Dark / OneDark)
+# ------------------------------------------------------------
+[colors]
+# ghostty: bold-color = bright
+draw_bold_text_with_bright_colors = true
+
+[colors.primary]
+background = "#282c34"
+foreground = "#abb2bf"
+
+# ghostty: palette 0-7
+[colors.normal]
+black = "#181a1f"
+red = "#e86671"
+green = "#98c379"
+yellow = "#e5c07b"
+blue = "#61afef"
+magenta = "#c678dd"
+cyan = "#56b6c2"
+white = "#abb2bf"
+
+# ghostty: palette 8-15
+[colors.bright]
+black = "#5c6370"
+red = "#e06c75"
+green = "#98c379"
+yellow = "#e5c07b"
+blue = "#61afef"
+magenta = "#c678dd"
+cyan = "#56b6c2"
+white = "#abb2bf"
+
+# ghostty: cursor-color / cursor-text
+[colors.cursor]
+cursor = "#dcdfe4"
+text = "#282c34"
+
+# ghostty: selection-background = 3b3f4c, selection-foreground = cell-foreground
+[colors.selection]
+background = "#3b3f4c"
+text = "CellForeground"
+
+# ghostty: search-background / search-foreground
+[colors.search.matches]
+background = "#ebd09c"
+foreground = "#282c34"
+
+# ghostty: search-selected-background / search-selected-foreground
+[colors.search.focused_match]
+background = "#d19a66"
+foreground = "#282c34"
+
+# Alacritty 独有的界面元素（搜索输入栏、hint 标签、vi 模式指示），
+# ghostty 没有对应项，沿用同一套主题色。
+[colors.footer_bar]
+background = "#282c34"
+foreground = "#abb2bf"
+
+[colors.hints.start]
+background = "#d19a66"
+foreground = "#282c34"
+
+[colors.hints.end]
+background = "#282c34"
+foreground = "#d19a66"
+
+[colors.line_indicator]
+foreground = "None"
+background = "None"
+
+[colors.vi_mode_cursor]
+cursor = "CellForeground"
+text = "CellBackground"
+
+# ------------------------------------------------------------
+# Cursor
+# ------------------------------------------------------------
+[cursor]
+# ghostty: cursor-style = block, cursor-style-blink = true
+style = { shape = "Block", blinking = "On" }
+blink_interval = 750
+# 0 = 一直闪烁，不超时停止（ghostty 的 cursor-style-blink 也是持续闪烁）
+blink_timeout = 0
+# ghostty 失焦时不会把光标变空心（它用 unfocused-split-opacity 表达失焦）
+unfocused_hollow = false
+
+# ------------------------------------------------------------
+# Window
+# ------------------------------------------------------------
+[window]
+# ghostty: window-padding-x = 2 / window-padding-y = 2
+padding = { x = 2, y = 2 }
+# 无装饰/全屏时把 padding 收窄，行为与 ghostty 的 padding-balance 接近
+dynamic_padding = true
+# ghostty: background-opacity = 1.0
+opacity = 1.0
+startup_mode = "Windowed"
+# CSD 标题栏（winit/sctk-adwaita）用暗色变体。本机 color-scheme = 'default'、
+# gtk-theme = 'Adwaita'，不显式设置的话标题栏是浅色的，和 #282c34 的内容反差明显。
+decorations_theme_variant = "Dark"
+# 未设置 decorations：它在 Wayland 下不生效。niri 不提供服务端装饰，Alacritty
+# 会走 winit/sctk-adwaita 的客户端装饰（Adwaita 风格标题栏 + 阴影）。实测把
+# decorations 设为 "None" 仍会创建 CSD frame（WAYLAND_DEBUG 里照样出现 5 个
+# subsurface），所以这里不写它。可调的只有 decorations_theme_variant
+# （Dark/Light）——按钮布局与标题字体读的是 org.gnome.desktop.wm.preferences
+# 的 button-layout / titlebar-font（本机：'appmenu:close' / 'Adwaita Sans Bold 11'）。
+
+# ------------------------------------------------------------
+# Scrollback
+# ------------------------------------------------------------
+[scrolling]
+# ghostty: scrollback-limit = 10000000 bytes（约 15,000 行）
+history = 15000
+multiplier = 3
+
+# ------------------------------------------------------------
+# Mouse
+# ------------------------------------------------------------
+[mouse]
+# ghostty: mouse-hide-while-typing = false
+hide_when_typing = false
+
+# ------------------------------------------------------------
+# Clipboard
+# ------------------------------------------------------------
+[selection]
+# ghostty: copy-on-select = clipboard
+save_to_clipboard = true
+
+# OSC 52 未显式设置，保持 Alacritty 默认的 OnlyCopy：允许远端写入剪贴板，
+# 但不允许读取。ghostty 的 clipboard-read = ask 需要弹窗确认，Alacritty
+# 没有这个中间态。
+
+# ------------------------------------------------------------
+# Bell
+# ------------------------------------------------------------
+# ghostty: bell-features = false
+# Alacritty 的默认值已经等价：visual bell duration = 0（不闪）、
+# bell.command = None（不发声），因此不需要 [bell] 段。
+
+# ------------------------------------------------------------
+# Key Bindings
+# ------------------------------------------------------------
+[keyboard]
+# ghostty: ctrl+v=paste_from_clipboard
+#          ctrl+shift+v=unbind（透传给应用，供 pi 的 pasteImage 使用）
+# Ctrl+V 在这里触发终端粘贴。Ctrl+Shift+V 无法真正「透传」：Alacritty 尚未
+# 实现 kitty 键盘协议，发不出带 Shift 修饰的 CSI-u 序列，只能把 Ctrl+V 的
+# 编码 (0x16) 送给应用。
+bindings = [
+  { key = "V", mods = "Control", action = "Paste" },
+  { key = "V", mods = "Control|Shift", chars = "\u0016" },
+]
+
+# ------------------------------------------------------------
+# Misc
+# ------------------------------------------------------------
+[general]
+# 与 ghostty 一样自动重载配置
+live_config_reload = true
+
+# ------------------------------------------------------------
+# 与 ghostty 的已知差异（无法在此文件中消除）
+# ------------------------------------------------------------
+# - 无原生分屏/标签：ghostty 的 cmd+d / cmd+shift+d / cmd+shift+方向键、
+#   split-divider-color、unfocused-split-opacity 都没有对应能力。
+# - 标题栏不可用 CSS 定制：ghostty 的标题栏是 GTK headerbar，可用
+#   gtk-toolbar-style / gtk-custom-css 改几何与配色（见
+#   docs/ghostty-titlebar.md）。Alacritty 的标题栏由 winit/sctk-adwaita 绘制，
+#   只有 decorations_theme_variant 可调，没有配色/高度/圆角/按钮形状的配置项。
+# - 无字体 fallback 列表、font-thicken、window-title-font-family。
+# - 无 shell-integration-features（no-cursor / ssh-env / ssh-terminfo）。
+# - 无 clipboard-trim-trailing-spaces。
+# - 关闭窗口无确认：两边一致（ghostty confirm-close-surface = false）。
+# - macOS 专属键位（cmd+n / cmd+w / cmd+shift+arrow）不适用于 Linux。
+# - workdir/shell 未固定，沿用 $SHELL，与 ghostty 相同。

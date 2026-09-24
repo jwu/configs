@@ -40,6 +40,7 @@ PACKAGES=(
   "hyprland"
   "nautilus"
   "ghostty"
+  "alacritty"
   "waybar"
   "swaylock"
   "swayidle"

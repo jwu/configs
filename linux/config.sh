@@ -185,6 +185,14 @@ if command -v ghostty &> /dev/null; then
   done
 fi
 
+# Alacritty (mirrors the Ghostty config)
+if command -v alacritty &> /dev/null; then
+  echo "Configuring Alacritty..."
+  mkdir -p "$HOME/.config/alacritty"
+  backup_file "$HOME/.config/alacritty/alacritty.toml"
+  cp "$SCRIPT_DIR/.config/alacritty/alacritty.toml" "$HOME/.config/alacritty/alacritty.toml"
+fi
+
 # GTK4 global tweaks (square CSD window corners; applies to all GTK4 apps)
 if [ -f "$SCRIPT_DIR/.config/gtk-4.0/gtk.css" ]; then
   echo "Configuring GTK4..."

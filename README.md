@@ -130,7 +130,7 @@
 
 当前 `linux/install.sh` 面向 Arch Linux / pacman 环境，会自动：
 - 安装 `zsh`, `starship`, `zoxide`, `neovim`, `fzf`, `eza`, `fd`, `bat`, `git-delta`, `terminus-font` 和 `otf-firamono-nerd`
-- 安装 Niri、Hyprland、Ghostty、Waybar、Swaylock、Swayidle、Fcitx5/Rime、Noto CJK、Noto Emoji 和 `ttf-sarasa-gothic` 字体
+- 安装 Niri、Hyprland、Ghostty、Alacritty、Waybar、Swaylock、Swayidle、Fcitx5/Rime、Noto CJK、Noto Emoji 和 `ttf-sarasa-gothic` 字体
 - 设置默认 shell 为 `zsh`
 - 安装 Oh My Zsh、`zsh-autosuggestions`、Dracula 主题
 - 运行 `linux/config.sh` 同步配置文件
@@ -164,6 +164,7 @@ cd ~/bin/configs/linux
    - `linux/.config/niri/config.kdl` -> `~/.config/niri/config.kdl`
    - `linux/.config/hypr/hyprland.lua` -> `~/.config/hypr/hyprland.lua`
    - `linux/.config/ghostty/config.ghostty` -> `~/.config/ghostty/config.ghostty`
+   - `linux/.config/alacritty/alacritty.toml` -> `~/.config/alacritty/alacritty.toml`（对齐 Ghostty 的主题/字体/键位，差异见文件末尾注释）
    - `linux/.config/waybar/` -> `~/.config/waybar/`（`config.jsonc`、`modules.json`、`style.css`、`colors.css`，以及 `scripts/` 下的 GPU / NVMe 取值脚本）
    - `linux/.config/environment.d/fcitx5.conf` -> `~/.config/environment.d/fcitx5.conf`
    - `linux/.local/share/icons/` -> `~/.local/share/icons/`（Fcitx5 托盘图标：`hicolor/scalable/apps/` 下三张 Rime 状态图，加 `Adwaita/symbolic/devices/input-keyboard-symbolic.svg`，见 `docs/ime-icons.md`）
