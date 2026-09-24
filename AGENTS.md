@@ -113,7 +113,9 @@ Ask before:
 
 ## Preferred patterns
 
-- Bash: prefer `#!/bin/bash` + `set -euo pipefail`
+- Bash: prefer `#!/bin/bash` + `set -euo pipefail`. Exception: `linux/install.sh`
+  runs its steps through a best-effort `step` runner (no `-e`) so one failure
+  cannot skip the steps after it; see the comment at the top of that file.
 - Batch: use `setlocal enabledelayedexpansion`
 - Use clear progress output like `>>> ...`
 - Quote variables properly

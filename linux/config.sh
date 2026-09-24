@@ -286,6 +286,8 @@ if command -v fcitx5 &> /dev/null; then
     echo "    Note: $FCITX_INSTALL not found; clone desktop-settings to sync the Fcitx5/Rime profile and theme."
   fi
   echo "    Note: environment.d changes need a re-login to take effect."
+else
+  echo "    Note: fcitx5 is not installed; the Fcitx5/Rime profile and theme were not synced."
 fi
 
 echo ">>> Configuration Complete!"
