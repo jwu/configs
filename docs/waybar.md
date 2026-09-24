@@ -124,8 +124,9 @@ commit 写进 `~/.config/waybar/waybar-niri-windows.so.version`，作为「装�
   `config.sh`，而它的旧版只检查 `.so` **是否存在**，文件在就永远不提示。
 
 `WNMW_COMMIT=<sha> ./install.sh` 可以显式覆盖（复现旧版本）。GitHub 不可达时 15 秒超时后
-回退到脚本里的 `WNMW_FALLBACK_COMMIT`（当前 `b34176a`，即带 shell 自报 pid 的那版）；此时
-`.version` 若已等于 fallback 就直接跳过，离线不会误重建（fork 未推送时记得同步 bump 这个常量）。
+回退到脚本里的 `WNMW_FALLBACK_COMMIT`（当前 `3f30472`，即切 focus 不再重建、活动色建砖时
+就上的那版）；此时 `.version` 若已等于 fallback 就直接跳过，离线不会误重建（fork 未推送时
+记得同步 bump 这个常量）。
 
 本机直连 GitHub 常常不通（mihomo 在 7890，见 `.zshrc` 里的 `proxy` 别名），要让重建走代理就
 带上环境变量，或让 `WNMW_REPO` 走 SSH：
