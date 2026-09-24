@@ -69,7 +69,9 @@ fi
 if command -v waybar &> /dev/null; then
   echo "Configuring Waybar..."
   mkdir -p "$HOME/.config/waybar/scripts"
-  for f in config.jsonc style.css colors.css; do
+  # zsh-announce.zsh is the module's shell side, not a waybar config file: the
+  # .zshrc block below sources it from ~/.config/waybar/. See docs/waybar.md.
+  for f in config.jsonc style.css colors.css zsh-announce.zsh; do
     backup_file "$HOME/.config/waybar/$f"
     cp "$SCRIPT_DIR/.config/waybar/$f" "$HOME/.config/waybar/$f"
   done

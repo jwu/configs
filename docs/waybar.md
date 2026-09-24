@@ -153,13 +153,15 @@ waybar `dlopen()` 之后一直把 `.so` 映射着，**就地覆盖这个文件�
 `busy-state` 合入 main（merge commit `c6dfc27`），main 重新成为唯一真源 —— 功能开发完就并回
 main，别让它长期只待在 side branch 上（那次唯一的冲突是两边各自实现的 rename 安装，取任一份即可）。
 
-fork 上目前比上游多的两个修复：
+fork 上目前比上游多的三个修复：
 
 - 只有标题变化的 `WindowOpenedOrChanged` 不再触发整块重建。原本终端或浏览器每 80ms 改一次
   窗口标题就会让模块销毁重建光标下的 tile，丢掉 GTK 的 `:hover` prelight —— 看起来就是
   鼠标悬停时小地图在闪。
 - PR #20（尚未被上游合并）：`State.Update()` 不再持着 state 锁调用回调。原来它和模块
   `Deinit()` 的锁序相反，waybar 会永久冻结。
+- 窗口活跃度按窗口测：shell 把自己的 pid 写进窗口标题（不可见 tag 字符），单实例终端的几个
+  窗口不再一起亮。见下面「每窗口独立测量：shell 在标题里自报 pid」。
 
 当前工作区的窗口小地图。它自己往 waybar 的 GTK 容器里塞 widget，不走 `format` 字符串，
 所以上面那套撑高技巧对它不适用。
@@ -242,11 +244,74 @@ idle），稳态下代价就是那次扫描。
 已知漏报 / 误报（都接受，别当 bug 修）：
 
 - **pid 是进程粒度**：同一进程的多个窗口一起亮。实测 5 个 ghostty 窗口共用 pid 1939，
-  一个终端里在跑任务，5 块砖一起黄；一个 Chrome 的全部窗口同理。
+  一个终端里在跑任务，5 块砖一起黄；一个 Chrome 的全部窗口同理。**终端这类已经修掉**（见
+  下面「每窗口独立测量」）：窗口的 shell 宣告过就按它自己的子树算；Chrome、
+  `ghostty -e <TUI>`、没有 shell 片段的 bash 仍然是进程粒度。
 - **CPU 不动就算闲着**：`sleep 100`、纯等网络、GPU 硬解视频都是 0；反过来，一个纯粹在搬
   文件的窗口（`cp` 大文件、同步）大部分时间在等 I/O，CPU 不高，所以看起来只是「一点点忙」。
 - **Xwayland 会串味**：它是某些 X11 客户端的子进程，别的 X11 应用一忙，那棵子树也跟着涨。
 - 第二个 bar 会再起一份采样器（tracker 属于实例），开销翻倍。
+
+### 每窗口独立测量：shell 在标题里自报 pid
+
+上面那条「pid 是进程粒度」的漏报，对单实例终端最扎眼（ghostty 默认单实例，5 个窗口共用
+pid 1939）：一个终端里编译，5 块砖一起黄。修法是让 **shell 自己报身份**。
+
+niri 每个窗口只给一个 pid，能按窗口区分的只有 `title`（客户端随便设，niri 原样透传）。而
+shell 知道自己在哪个窗口里 —— 终端显示的标题就是这个窗口的标题 —— 所以让 shell 把自己的
+pid 写进标题，模块从标题里读出来，就得到「窗口 ↔ 这棵子树」的精确对应，不需要猜。
+
+协议在 `module/marker.go`：标题末尾追加 `U+E0001` + 十进制 pid 的 TAG DIGIT + `U+E007F`。
+全是 Unicode 的 format 字符（default-ignorable），没有任何渲染器会画出来；实测用
+`pango-view` 分别渲染带标记和不带标记的标题，两张 PNG 逐字节相同。模块只认完整形态
+（开 + 至少一位数字 + 闭），所以 emoji 的 tag 序列（旗帜末尾也是 `U+E007F`）不会被误读。
+
+shell 侧是 `linux/.config/waybar/zsh-announce.zsh`（`config.sh` 拷到
+`~/.config/waybar/zsh-announce.zsh`，`linux/.zshrc` 末尾 source 它），只做一件事：注册一个
+`precmd` hook，在每个提示符前把标题重写成「prompt 自己会写的那个 idle 标题」+ 标记 ——
+文本取自 `ZSH_THEME_TERM_TITLE_IDLE`（oh-my-zsh 和多数主题都会设它），没有这个变量则退回
+ghostty 那套截断工作目录。实测和 oh-my-zsh 自己写的那串剥掉标记后**逐字节相同**，所以窗口
+名字不变。几条刻意的取舍：
+
+- 只在 `precmd` 写，不碰命令行标题（`preexec`）；命令运行期间标题里没有标记，模块用上一次
+  提示符学到的 pid。
+- 如果以后有别的插件也写标题、且注册得比我们晚，它会盖掉我们：那个窗口退化成下面的回退
+  行为，标题本身不受影响。
+- 写之前剥掉控制字符，目录名里带控制字符时不会打断 OSC 序列。
+
+模块侧取 pid 的优先级（`module/announcement.go`）：
+
+| 情况 | 测什么 |
+| --- | --- |
+| 标题里有合法标记，且该 pid 仍是**这个窗口 pid 的后代** | 那个 pid 的整棵子树（通常是这个窗口的 shell） |
+| 标题没有标记，但记得它上次宣告过的 pid（同样过校验） | 同上 |
+| 从来没宣告过 / 标记不可信 | 退回这个窗口的 pid（应用整棵树）；**但如果同一应用里已经有窗口宣告过**，这一格干脆不给色 —— 那棵树里混着兄弟窗口的负载，报出来就是假的亮 |
+
+「后代校验」每次采样都做（沿父链读几个 `/proc/<pid>/stat`），挡的是 pid 回收、以及某个程序
+把别的窗口的标记抄进自己标题的情况。
+
+**缓存**：`~/.cache/waybar-niri-windows/announced.json`，内容是「窗口 id → 应用 pid + 宣告的
+pid」。存在的理由有两个：TUI（pi / vim）会占住标题、把标记盖掉；bar 重启时内存里的映射会
+丢。两个 pi 窗口即使在 pi 跑着、甚至 bar 重启之后仍然各自独立，靠的就是它。条目在使用前都
+用 `/proc` 校验（应用 pid 要对得上、宣告的 pid 要是它的后代），下次写文件时清掉进程已经不
+在的条目；只在真有 shell 宣告过之后才会创建这个文件。
+
+已知边界（都不会误报，最多是「这一格没颜色」）：
+
+- `ghostty -e <TUI>` 没有交互 shell，从来不会宣告；`bash` 没有等价片段（目前只有 zsh 版）。
+- 非交互 shell（`zsh -c`、脚本）不读 `.zshrc`，自然不宣告。
+- 窗口被手动设过标题（ghostty 命令面板 *Change Terminal Title…*）时是 title override，会压过
+  所有 OSC 标题写入 —— 那个窗口没有标记，走回退；你的手动标题也不会被改掉。
+- 标题字符串里确实带着不可见字符：做**精确匹配**的东西会看到它。niri 自己的 `title=` 窗口
+  规则是非锚定正则（`niri-config` 的 `RegexEq` 就是 `Regex`），不受影响；显式写 `^...$`
+  才需要留意。模块自己的 window rule 和 tooltip 用的是剥掉标记的标题。
+- `hidepid=2` 或 root shell 会让后代校验失败 → 优雅退回应用树。
+
+调试：`-tags debug` 的构建会打 `window N is measured by announced pid M`（以及「同应用已有
+宣告所以不给色」）；`-tags trace` 每次采样打一行「窗口 → pid」。跨语言那一跳（zsh 写出的字节
+和 Go 解析的语法是否一致）由 `module/marker_test.go` 真跑一次 zsh 校验，脚本按
+`$WNW_ANNOUNCE` → `~/.config/waybar/zsh-announce.zsh` → `../contrib/`（旧 checkout）查找，
+都不在就 skip。
 
 ### 为什么 GPU 和块 I/O 都不看
 

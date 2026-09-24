@@ -161,6 +161,9 @@ fi
 #     makes the tile under the cursor flicker
 #   - PR #20: don't run state callbacks while holding the niri state lock
 #     (waybar could deadlock and freeze permanently)
+#   - window activity is measured per window: a shell announces its pid in the
+#     window title (invisible tag characters), so the windows of a
+#     single-instance terminal stop lighting up together. See docs/waybar.md.
 # Upstream ships a prebuilt x86_64 asset, but installing that would silently
 # overwrite these patches, so we always build from source. The revision is the
 # fork's main HEAD, so pushing a fix to the fork is enough -- nothing here has

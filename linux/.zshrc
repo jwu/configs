@@ -135,3 +135,11 @@ export PATH=~/.opencode/bin:$PATH
 
 # Android SDK
 export PATH=~/Library/Android/sdk/platform-tools:$PATH
+
+# ------------------------------
+# waybar niri-windows module
+# ------------------------------
+
+# Announce this shell's pid in the window title, so the module measures this
+# window on its own instead of the whole terminal process. See docs/waybar.md.
+[ -r ~/.config/waybar/zsh-announce.zsh ] && source ~/.config/waybar/zsh-announce.zsh
