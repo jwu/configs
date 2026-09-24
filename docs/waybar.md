@@ -153,11 +153,16 @@ waybar `dlopen()` 之后一直把 `.so` 映射着，**就地覆盖这个文件�
 `busy-state` 合入 main（merge commit `c6dfc27`），main 重新成为唯一真源 —— 功能开发完就并回
 main，别让它长期只待在 side branch 上（那次唯一的冲突是两边各自实现的 rename 安装，取任一份即可）。
 
-fork 上目前比上游多的三个修复：
+fork 上目前比上游多的四个修复：
 
 - 只有标题变化的 `WindowOpenedOrChanged` 不再触发整块重建。原本终端或浏览器每 80ms 改一次
   窗口标题就会让模块销毁重建光标下的 tile，丢掉 GTK 的 `:hover` prelight —— 看起来就是
   鼠标悬停时小地图在闪。
+- 切 focus 不再触发整块重建。原来 `WindowFocusChanged` 也会把整个小地图推倒重建，而重建
+  之后每一块**带活动色的**砖都要把类重新加一遍，那是一次样式变化，CSS 的 75ms `transition`
+  于是把每块砖从灰色淡回本色 —— 看着就是「每次切窗口小地图闪一下」。现在 `niri.State` 分开
+  记 `layoutVersion` / `focusVersion`，只有布局变了才重建，focus 只改 `:active`；活动色也
+  改成建砖时（`add` 之前）就上。细节和实测数字见下面「重建与闪烁」。
 - PR #20（尚未被上游合并）：`State.Update()` 不再持着 state 锁调用回调。原来它和模块
   `Deinit()` 的锁序相反，waybar 会永久冻结。
 - 窗口活跃度按窗口测：shell 把自己的 pid 写进窗口标题（不可见 tag 字符），单实例终端的几个
@@ -179,6 +184,34 @@ fork 上目前比上游多的三个修复：
   `ColumnBorders`，不设就会撑破栏高。
 - 颜色：列淡底（前景色 10%）、浮动紫底（15%）、tile 前景色 38% / hover 65%，
   `:active` 是聚焦窗口（蓝），`.urgent` 红。
+
+### 重建与闪烁
+
+`niri.State` 记两个计数器：`layoutVersion` 只在「砖本身要重排」的事件上 +1（开/关窗口、
+布局变化、切换工作区、urgent……），`focusVersion` 在这些事件上一起 +1，另外在「只是聚焦变
+了」的事件上单独 +1（`WindowFocusChanged`，以及 `WindowOpenedOrChanged` 里那个「新聚焦」
+分支）。模块记住上次画完时的那一对，只有 layout 变了才重建；只动 focus 时走一遍
+`markFocusedTiles()`，改砖（连同列、浮动层）的 `:active`。哪个事件算哪一类钉在
+`niri/niri_state_test.go` 里。
+
+两条用 wlr-screencopy 抓帧量出来的结论（约 600 fps 抓栏上 `2100..2400 × 0..34`，看砖心
+像素；一次抓 `1200` 帧左右就够覆盖一次切换）：
+
+- **重建本身不闪**：`Update()` 在一个 GTK 回调里把所有砖 `Destroy()` 再重建，重建后那一帧
+  砖就在、尺寸也对，中间不漏空帧。会闪的是下一条。
+- **activity 类必须赶在 `add` 之前加**：GTK3 在 widget realize 时算样式，而**把 widget add
+  进已经 realize 的容器就等于 realize 它**（`gtk_widget_get_realized()` 立刻为真，哪怕
+  `visible` 还是 0）。所以「先 `ShowAll()` 再 `applyActivityLocked()`」是错的：那成了样式
+  变化，75ms 过渡把砖从灰淡到本色。同一块 medium 砖的像素：重建帧 `(98,102,113)`，69ms 后
+  `(229,192,123)`，中段是过渡色。改成建砖时在 `colBox.Add()` / `floatingFixed.Put()` 之前
+  调 `colorTile()` 之后，重建帧就是本色，之后不动。
+
+前后对比（同一份抓帧）：修之前每次切 focus，所有带活动色的砖一起「灰一下再淡回来」；修之后
+只有真正换了聚焦的**两块**砖在 75ms 里交叉淡入淡出（一块蓝→本色、一块本色→蓝），其余砖逐个
+像素不变 —— 那个交叉淡入本来就是 `transition` 的本意，不算闪。
+
+`i.box.ShowAll()` 只在 `Update()` 末尾调一次；`drawFloating()` 里那次 `ShowAll()` 是多余的
+（末尾那次会递归到），但留着无害，没动。
 
 ### 窗口活动状态（灰 / 绿 / 黄 / 红）
 
