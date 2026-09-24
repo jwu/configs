@@ -77,9 +77,9 @@
     "tooltip": true
   },
   "custom/ssd": {
-    "exec": "~/.config/waybar/scripts/nvme-temp.sh",
+    "exec": "~/.config/waybar/scripts/disk-temp.sh",
     "return-type": "json",
-    "interval": 5,
+    "interval": 30,
     "tooltip": true
   },
   "clock": {

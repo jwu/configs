@@ -81,15 +81,24 @@ if command -v waybar &> /dev/null; then
   backup_file "$HOME/.config/waybar/modules.json"
   sed "s|__WAYBAR_MODULE_DIR__|$WAYBAR_MODULE_DIR|g" \
     "$SCRIPT_DIR/.config/waybar/modules.json" > "$HOME/.config/waybar/modules.json"
-  # Metric script: the hotter of the two NVMe drives. The GPU metrics come from
-  # gpu-watch instead, which install.sh compiles into ~/.local/bin -- it has to
-  # be a long-lived process, not something waybar re-runs every 2s. See
+  # Metric script: the hottest disk in the machine. It discovers disks from
+  # /sys/block, so it follows what the machine actually has (NVMe SSD, SATA
+  # HDD) instead of hardcoded PCI paths. The GPU metrics come from gpu-watch
+  # instead, which install.sh compiles into ~/.local/bin -- it has to be a
+  # long-lived process, not something waybar re-runs every 2s. See
   # docs/waybar.md.
-  for f in nvme-temp.sh; do
+  for f in disk-temp.sh; do
     backup_file "$HOME/.config/waybar/scripts/$f"
     cp "$SCRIPT_DIR/.config/waybar/scripts/$f" "$HOME/.config/waybar/scripts/$f"
     chmod +x "$HOME/.config/waybar/scripts/$f"
   done
+  # Drop the stale hardcoded-NVMe version, so nobody edits the wrong script.
+  rm -f "$HOME/.config/waybar/scripts/nvme-temp.sh"
+  # SATA/HDD temperatures exist only while drivetemp is loaded, and the module
+  # is not autoloaded: a machine without NVMe would just show --°C. Persist it.
+  # See docs/waybar.md.
+  sudo modprobe drivetemp 2>/dev/null || true
+  echo drivetemp | sudo tee /etc/modules-load.d/drivetemp.conf > /dev/null
   # The module is built from our fork, so syncing configs is not enough: a stale
   # .so keeps working silently, with none of the fork's fixes. Compare the
   # stamped commit with the fork's main HEAD and rebuild when they differ.

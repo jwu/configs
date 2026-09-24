@@ -36,9 +36,30 @@ Waybar 只加载用户这一份样式表（见 `src/client.cpp`），它自带�
 ## 用量与温度配色
 
 低负载绿、告警黄、危急红。阈值在 `modules.json` 的 `states`；`custom/gpu` 和 `custom/gpu-temp`
-的阈值写在 `src/gpu-watch.c` 顶部（util 70/90，temp 75/85），`custom/ssd` 在 `nvme-temp.sh` 里。
+的阈值写在 `src/gpu-watch.c` 顶部（util 70/90，temp 75/85），`custom/ssd` 在 `disk-temp.sh` 里。
 
 温度模块的 padding 让读数紧贴所属组件，读起来是一组：`CPU 4% 31°C / GPU 11% 40°C`。
+
+## 磁盘模块（disk-temp.sh）
+
+`custom/ssd` 背后是 `~/.config/waybar/scripts/disk-temp.sh`，取**全机最热的那块盘**。它扫
+`/sys/block`，再用 hwmon 的 `device` 符号链接把每块盘对上自己的传感器，所以没有写死的 PCI
+地址和盘数：只有 SATA 机械盘的机器显示 `HDD`（󰬏󰬋󰬋），有 NVMe 的显示 `SSD`（󰬚󰬚󰬋），混合机器
+按最热那块决定图标。机械还是固态看 `/sys/block/*/queue/rotational`（1 = HDD）。
+
+SATA 盘的读数来自 `drivetemp` 内核模块，它**不会自动加载**，没有它那些盘只显示 `--°C`。
+`config.sh` 会 `modprobe` 一次，并写 `/etc/modules-load.d/drivetemp.conf` 让它开机加载。
+
+阈值不是写死的：每块盘用自己的 `temp1_max` / `temp1_crit`（NVMe 来自标准字段 WCTEMP/CCTEMP，
+SATA 由 drivetemp 报出，本机 HDD 是 60/65），盘不报或报 0 时回退 60/75。因为阈值逐盘不同，
+模块显示的盘是**状态最严重的那块**（critical > warning > 正常，同级取更热），而不是单纯最热的
+那块；tooltip 每行带该盘自己的上限：`sda: 37°C  (HDD, max 60 / crit 65)`。和 GPU 一样只输出
+`class`，颜色由 `style.css` 决定。
+
+阈值之外的另一个数：`modules.json` 里 `interval: 30`。硬盘热容大，温度是分钟级变化，5 秒采样
+纯属过采样——这里省下的是每 5 秒 9 次进程创建的调度器唤醒。脚本本身也全用 bash 内建：
+`$(<file)` 读 `/sys`、参数扩展处理型号、`cd` + `pwd -P` 解析符号链接，每次运行 **0 个外部进程**
+（带 `cat`/`sed`/`readlink` 时约 19ms，现在约 9ms）。
 
 ## GPU 模块（gpu-watch）
 
