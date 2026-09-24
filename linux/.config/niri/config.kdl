@@ -138,6 +138,9 @@ binds {
     Mod+Ctrl+Page_Up   { move-column-to-workspace-up; }
 
     Mod+R { switch-preset-column-width; }
+    Mod+Shift+R { switch-preset-column-width-back; }
+    Mod+Equal { set-column-width "+10%"; }
+    Mod+Minus { set-column-width "-10%"; }
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
     Mod+M { maximize-window-to-edges; }
