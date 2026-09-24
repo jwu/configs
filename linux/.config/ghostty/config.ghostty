@@ -117,7 +117,9 @@ scrollback-limit = 10000000
 # ------------------------------------------------------------
 # Mouse
 # ------------------------------------------------------------
-mouse-hide-while-typing = false
+# niri's cursor.hide-when-typing covers the whole session; this covers Ghostty
+# surfaces on their own. See docs/niri.md.
+mouse-hide-while-typing = true
 
 # ------------------------------------------------------------
 # clipboard

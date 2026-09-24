@@ -249,6 +249,7 @@ Linux 侧 `config.sh` 还会顺手检查 Waybar 的 `cffi/niri-windows` 模块�
 - [`docs/bluetooth.md`](docs/bluetooth.md) — BlueZ OBEX agent 单槽位、blueman / bluetuith 冲突与诊断命令。
 - [`docs/xwayland-satellite.md`](docs/xwayland-satellite.md) — X11 override-redirect 弹窗的焦点判据、Steam 顶栏菜单闪退、AUR `-git` 包的取舍与拆除条件。
 - [`docs/ime-icons.md`](docs/ime-icons.md) — Fcitx5 托盘图标的同名覆盖规则（含键盘布局那张必须放 Adwaita 目录的原因）、SNI `IconName` 与状态的对应、大小写为何在 Wayland 下失效、重启 waybar 的时机。
+- [`docs/niri.md`](docs/niri.md) — focus-follows-mouse 为何只在跨窗口时触发、`warp-mouse-to-focus` 的三种模式与不生效的场合、光标隐藏的两个开关。
 
 源码注释保持简短，详细推导见以上文档。
 

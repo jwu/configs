@@ -7,6 +7,11 @@ input {
     // refused. Lower it for a stricter feel, raise it for a jumpier one.
     focus-follows-mouse max-scroll-amount="25%"
 
+    // niri only re-focuses focus-follows-mouse when pointer motion crosses into
+    // a new window, so a pointer parked on another window never gets focus. Warp
+    // the pointer to the focused window to keep the two in sync. See docs/niri.md.
+    warp-mouse-to-focus
+
     keyboard {
         xkb {
             layout "us"
@@ -19,6 +24,12 @@ input {
       accel-speed -0.6
       accel-profile "flat"
     }
+}
+
+// Hide the pointer while typing and once it has been idle. See docs/niri.md.
+cursor {
+    hide-when-typing
+    hide-after-inactive-ms 2000
 }
 
 // DP-3 is the Dell U2722DX.
