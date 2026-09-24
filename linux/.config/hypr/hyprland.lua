@@ -152,5 +152,5 @@ hl.monitor({
   mode = "preferred",
   position = "auto",
   scale = 1,
-  transform = 3,
+  transform = 0,
 })

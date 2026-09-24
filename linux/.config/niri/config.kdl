@@ -21,12 +21,11 @@ input {
     }
 }
 
-// DP-3 is the Dell U2722DX detected by Hyprland.
-// Hyprland transform 3 maps to Niri's 270-degree transform.
+// DP-3 is the Dell U2722DX.
 output "DP-3" {
     mode "2560x1440@59.951"
     scale 1
-    transform "270"
+    transform "normal"
 }
 
 // prefer-no-csd
