@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -uo pipefail
 
 # ==========================================
 # Configuration and Paths
@@ -11,9 +11,55 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 # Waybar niri-windows module helpers (also sourced by config.sh).
 source "$SCRIPT_DIR/waybar-niri-windows.sh"
 
+FAILED_STEPS=()
+
 echo ">>> Starting installation setup..."
 echo "    Root Config Dir: $ROOT_DIR"
 echo "    Linux Configs Dir: $SCRIPT_DIR"
+
+# ==========================================
+# Step runner
+# ==========================================
+#
+# Every step runs to completion even when an earlier one failed. The network
+# and the toolchain are the least predictable parts on a bare machine (the
+# waybar module is fetched from GitHub and compiled), and a failed build used
+# to abort the script before config.sh ran -- so every config file was silently
+# left unsynced. Failures are now recorded, the run continues, and the summary
+# at the end names what is missing while the exit code stays non-zero.
+
+step() {
+  local name="$1"
+  shift
+  local rc=0
+  echo ""
+  echo ">>> $name"
+  "$@" || rc=$?
+  if [ "$rc" -eq 0 ]; then
+    echo "    ok"
+  else
+    FAILED_STEPS+=("$name")
+    echo "    FAILED (exit $rc); continuing" >&2
+  fi
+}
+
+summary() {
+  echo ""
+  echo "=========================================="
+  if [ "${#FAILED_STEPS[@]}" -eq 0 ]; then
+    echo ">>> All steps completed."
+    return 0
+  fi
+  echo ">>> Finished with ${#FAILED_STEPS[@]} failed step(s):"
+  local s
+  for s in "${FAILED_STEPS[@]}"; do
+    echo "      - $s"
+  done
+  echo ""
+  echo "    These pieces are missing or stale. Re-run this script after fixing"
+  echo "    them; it is idempotent and only redoes what is out of date."
+  return 1
+}
 
 # ==========================================
 # Pacman Packages
@@ -60,8 +106,10 @@ PACKAGES=(
   "ttf-sarasa-gothic"
 )
 
-echo ">>> Installing/Updating packages via pacman: ${PACKAGES[*]}"
-sudo pacman -Syu --needed --noconfirm "${PACKAGES[@]}"
+install_packages() {
+  echo "    Installing/updating: ${PACKAGES[*]}"
+  sudo pacman -Syu --needed --noconfirm "${PACKAGES[@]}" || return 1
+}
 
 # ==========================================
 # xwayland-satellite (AUR: carries upstream fix #494)
@@ -78,77 +126,83 @@ sudo pacman -Syu --needed --noconfirm "${PACKAGES[@]}"
 XWS_PKG="xwayland-satellite"
 XWS_AUR_PKG="xwayland-satellite-git"
 
-echo ">>> Installing $XWS_AUR_PKG (AUR)..."
-if pacman -Q "$XWS_AUR_PKG" &> /dev/null; then
-  echo "  Already installed: $(pacman -Q "$XWS_AUR_PKG")"
-elif ! command -v yay &> /dev/null; then
-  echo "  Note: yay is required to install $XWS_AUR_PKG; skipping. X11 menus under Steam will keep closing instantly."
-else
+install_xwayland_satellite() {
+  echo "    Target: $XWS_AUR_PKG"
+  if pacman -Q "$XWS_AUR_PKG" &> /dev/null; then
+    echo "    Already installed: $(pacman -Q "$XWS_AUR_PKG")"
+    return 0
+  fi
+  if ! command -v yay &> /dev/null; then
+    echo "    yay is required to install $XWS_AUR_PKG; skipping (X11 menus under Steam keep closing instantly)." >&2
+    return 1
+  fi
   # The -git package provides/conflicts $XWS_PKG, so drop the repo package first
   # rather than let pacman hit its conflict prompt under --noconfirm.
   if pacman -Q "$XWS_PKG" &> /dev/null; then
-    sudo pacman -R --noconfirm "$XWS_PKG"
+    sudo pacman -R --noconfirm "$XWS_PKG" || return 1
   fi
-  yay -S --needed --noconfirm "$XWS_AUR_PKG"
-fi
+  yay -S --needed --noconfirm "$XWS_AUR_PKG" || return 1
+}
 
 # ==========================================
-# Set Default Shell
+# Zsh, Oh My Zsh, plugins and theme
 # ==========================================
-
-echo ">>> Setting zsh as default shell..."
-if [ "$SHELL" != "$(command -v zsh)" ]; then
-  echo "Changing default shell to zsh..."
-  chsh -s "$(command -v zsh)"
-else
-  echo "zsh is already the default shell."
-fi
-
-# ==========================================
-# Oh My Zsh Setup
-# ==========================================
-
-echo ">>> Setting up Oh My Zsh..."
-
-if [ ! -d "$HOME/.oh-my-zsh" ]; then
-  echo "Installing Oh My Zsh..."
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-else
-  echo "Oh My Zsh is already installed."
-fi
 
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 
-# ==========================================
-# Plugins: zsh-autosuggestions
-# ==========================================
+set_default_shell() {
+  if [ "$SHELL" != "$(command -v zsh)" ]; then
+    echo "    Changing default shell to zsh..."
+    chsh -s "$(command -v zsh)" || return 1
+  else
+    echo "    zsh is already the default shell."
+  fi
+}
 
-echo ">>> Installing zsh-autosuggestions..."
-if [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
-  git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
-else
-  echo "zsh-autosuggestions already exists, pulling latest..."
-  git -C "$ZSH_CUSTOM/plugins/zsh-autosuggestions" pull
-fi
+install_oh_my_zsh() {
+  if [ -d "$HOME/.oh-my-zsh" ]; then
+    echo "    Oh My Zsh is already installed."
+    return 0
+  fi
+  echo "    Installing Oh My Zsh..."
+  # Fetch first: `sh -c "$(curl ...)"` would swallow a failed download and run
+  # an empty script, silently leaving Oh My Zsh uninstalled.
+  local installer
+  installer="$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" || return 1
+  sh -c "$installer" "" --unattended || return 1
+}
 
-# ==========================================
-# Theme: Dracula
-# ==========================================
+install_zsh_autosuggestions() {
+  local dest="$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+  if [ ! -d "$dest" ]; then
+    git clone https://github.com/zsh-users/zsh-autosuggestions "$dest" || return 1
+  else
+    echo "    already exists, pulling latest..."
+    git -C "$dest" pull || echo "    pull skipped (local changes or no network)"
+  fi
+}
 
-echo ">>> Installing Dracula Zsh Theme..."
-OH_MY_ZSH="$HOME/.oh-my-zsh"
-
-if [ ! -f "$OH_MY_ZSH/themes/dracula.zsh-theme" ]; then
-  TEMP_DIR=$(mktemp -d)
-  curl -fsSL "https://github.com/dracula/zsh/archive/master.zip" -o "$TEMP_DIR/dracula.zip"
-  bsdtar -xzf "$TEMP_DIR/dracula.zip" -C "$TEMP_DIR"
-  cp "$TEMP_DIR/zsh-master/dracula.zsh-theme" "$OH_MY_ZSH/themes/dracula.zsh-theme"
-  cp -r "$TEMP_DIR/zsh-master/lib" "$OH_MY_ZSH/themes/lib"
-  rm -rf "$TEMP_DIR"
-  echo "  Dracula Zsh Theme installed"
-else
-  echo "  Dracula Zsh Theme already installed"
-fi
+install_dracula_theme() {
+  local dest="$HOME/.oh-my-zsh/themes/dracula.zsh-theme"
+  if [ -f "$dest" ]; then
+    echo "    Dracula Zsh Theme already installed."
+    return 0
+  fi
+  local tmp
+  tmp="$(mktemp -d)" || return 1
+  if ! curl -fsSL "https://github.com/dracula/zsh/archive/master.zip" -o "$tmp/dracula.zip"; then
+    rm -rf "$tmp"
+    return 1
+  fi
+  if ! bsdtar -xzf "$tmp/dracula.zip" -C "$tmp"; then
+    rm -rf "$tmp"
+    return 1
+  fi
+  cp "$tmp/zsh-master/dracula.zsh-theme" "$dest" || { rm -rf "$tmp"; return 1; }
+  cp -r "$tmp/zsh-master/lib" "$HOME/.oh-my-zsh/themes/lib" || { rm -rf "$tmp"; return 1; }
+  rm -rf "$tmp"
+  echo "    Dracula Zsh Theme installed"
+}
 
 # ==========================================
 # Waybar: niri window minimap (CFFI module)
@@ -170,17 +224,20 @@ fi
 # fork's main HEAD, so pushing a fix to the fork is enough -- nothing here has
 # to be bumped by hand. See linux/waybar-niri-windows.sh and docs/waybar.md.
 # Window minimap CFFI module (wbcffi ABI v2), needs niri >= 25.08.
-WNMW_WANT="$(wnmw_want_commit)"
 
-echo ">>> Installing Waybar niri-windows module (${WNMW_WANT:0:7})..."
-if wnmw_is_installed "$WNMW_WANT"; then
-  echo "  Already installed, skipping."
-else
-  sudo pacman -S --needed --noconfirm go gcc make pkgconf gtk3 git
-  wnmw_build_and_install "$WNMW_WANT"
-  echo "  Built and installed to $WNMW_DEST"
+install_waybar_niri_windows() {
+  local want
+  want="$(wnmw_want_commit)"
+  echo "    Target revision: ${want:0:7}"
+  if wnmw_is_installed "$want"; then
+    echo "    Already installed, skipping."
+    return 0
+  fi
+  sudo pacman -S --needed --noconfirm go gcc make pkgconf gtk3 git || return 1
+  wnmw_build_and_install "$want" || return 1
+  echo "    Built and installed to $WNMW_DEST"
   wnmw_restart_hint
-fi
+}
 
 # ==========================================
 # Waybar: NVIDIA GPU metrics (gpu-watch)
@@ -196,16 +253,39 @@ fi
 # nothing; gcc is the only build dependency. On a machine without the driver it
 # prints the module's "off" line and exits, and waybar restarts it.
 # See docs/waybar.md.
-echo ">>> Building gpu-watch..."
-if ! command -v gcc &> /dev/null; then
-  sudo pacman -S --needed --noconfirm gcc
-fi
-mkdir -p "$HOME/.local/bin"
-gcc -O2 -o "$HOME/.local/bin/gpu-watch" "$SCRIPT_DIR/src/gpu-watch.c" -ldl
-echo "  Installed to $HOME/.local/bin/gpu-watch"
+
+build_gpu_watch() {
+  if ! command -v gcc &> /dev/null; then
+    sudo pacman -S --needed --noconfirm gcc || return 1
+  fi
+  mkdir -p "$HOME/.local/bin"
+  gcc -O2 -o "$HOME/.local/bin/gpu-watch" "$SCRIPT_DIR/src/gpu-watch.c" -ldl || return 1
+  echo "    Installed to $HOME/.local/bin/gpu-watch"
+}
 
 # ==========================================
 # Copy Configurations
 # ==========================================
 
-bash "$SCRIPT_DIR/config.sh"
+# config.sh also syncs the Fcitx5/Rime profile and theme from the sibling
+# desktop-settings repo, so a successful run here is what makes Chinese input
+# work without a separate manual step.
+sync_configs() {
+  bash "$SCRIPT_DIR/config.sh"
+}
+
+# ==========================================
+# Run
+# ==========================================
+
+step "pacman packages" install_packages
+step "xwayland-satellite-git (AUR)" install_xwayland_satellite
+step "default shell (zsh)" set_default_shell
+step "Oh My Zsh" install_oh_my_zsh
+step "zsh-autosuggestions" install_zsh_autosuggestions
+step "dracula zsh theme" install_dracula_theme
+step "waybar niri-windows module" install_waybar_niri_windows
+step "gpu-watch" build_gpu_watch
+step "config sync (config.sh)" sync_configs
+
+summary

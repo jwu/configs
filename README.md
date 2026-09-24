@@ -128,6 +128,10 @@
 
 ### 自动配置 (Arch Linux / pacman)
 
+> 如果机器上同时有 `configs` / `desktop-settings` / `pi-config` 三个仓库，推荐用顶层入口
+> [`install-arch`](https://github.com/jwu/install-arch)：它会 clone/更新三者并逐个执行，
+> 失败不阻断、最后汇总漏装项。下面的流程是它内部实际调用的一步。
+
 当前 `linux/install.sh` 面向 Arch Linux / pacman 环境，会自动：
 - 安装 `zsh`, `starship`, `zoxide`, `neovim`, `fzf`, `eza`, `fd`, `bat`, `git-delta`, `terminus-font` 和 `otf-firamono-nerd`
 - 安装 Niri、Hyprland、Ghostty、Alacritty、Waybar、Swaylock、Swayidle、Fcitx5/Rime、Noto CJK、Noto Emoji 和 `ttf-sarasa-gothic` 字体

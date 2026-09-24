@@ -273,7 +273,18 @@ backup_file "$HOME/.zshrc"
 cp "$SCRIPT_DIR/.zshrc" "$HOME/.zshrc"
 
 if command -v fcitx5 &> /dev/null; then
-  echo "    Note: run desktop-settings/fcitx5/install-linux.sh to install the Fcitx5/Rime profile and theme."
+  # The profile, the candidate-window theme and the Rime patches live in the
+  # sibling desktop-settings repo; running its installer here is what makes a
+  # plain config.sh enough to get Chinese input working. It is skipped when
+  # that repo is not checked out next to this one.
+  DESKTOP_SETTINGS_DIR="${DESKTOP_SETTINGS_DIR:-$ROOT_DIR/../desktop-settings}"
+  FCITX_INSTALL="$DESKTOP_SETTINGS_DIR/fcitx5/install-linux.sh"
+  if [ -f "$FCITX_INSTALL" ]; then
+    echo ">>> Configuring Fcitx5 / Rime (desktop-settings)..."
+    bash "$FCITX_INSTALL" || echo "    Fcitx5/Rime sync failed; see the output above."
+  else
+    echo "    Note: $FCITX_INSTALL not found; clone desktop-settings to sync the Fcitx5/Rime profile and theme."
+  fi
   echo "    Note: environment.d changes need a re-login to take effect."
 fi
 
