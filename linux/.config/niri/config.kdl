@@ -69,7 +69,9 @@ layout {
 spawn-at-startup "waybar"
 spawn-at-startup "fcitx5"
 spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
-spawn-at-startup "swayidle" "timeout" "300" "$HOME/.local/bin/niri-lock" "timeout" "360" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors"
+
+// No idle-based swayidle here: locking is on demand (Mod+L) and the screen-off
+// timer runs inside niri-lock while the session is locked. See docs/lockscreen.md.
 
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 

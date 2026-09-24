@@ -3,17 +3,41 @@ set -euo pipefail
 
 # Lock the screen with hyprlock; fall back to swaylock if it is not installed.
 #
+# The session locks on demand only (Mod+L); there is no idle auto-lock. While it
+# stays locked, the monitors are powered off (DPMS) after every
+# SCREEN_OFF_TIMEOUT seconds of inactivity -- the timer lives in this script, so
+# it starts when the lock is taken, not from the last input event.
+#
+# niri handles the wake-up itself: it activates the monitors on any key press or
+# pointer motion, and its IPC accepts PowerOffMonitors/PowerOnMonitors while
+# locked (see niri src/input/mod.rs).
+#
 # The lock screen is ~/.config/hypr/hyprlock.conf: the Style-10 layout from
 # MrVivekRajan/Hyprlock-Styles over the same wallpaper swaylock uses, blurred.
-# hyprlock runs in the foreground; swayidle without -w double-forks the command,
-# so it does not block the `timeout 360` power-off-monitors step.
 #
 # A dead locker is recovered with niri's Mod+Alt+L (allow-when-locked), which
 # kills whatever holds the lock and starts swaylock directly (see
 # docs/lockscreen.md).
 
+# Seconds the locked session may stay idle before the monitors go off.
+SCREEN_OFF_TIMEOUT=60
+
 if command -v hyprlock >/dev/null 2>&1; then
-  exec hyprlock --config "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprlock.conf"
+  locker=(hyprlock --config "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprlock.conf")
+else
+  locker=(swaylock -f)
 fi
 
-exec swaylock -f
+# The screen-off timer exists exactly as long as the session is locked: swayidle
+# re-arms after every activity, so the monitors go off again after each further
+# idle period while the lock is held.
+swayidle -w timeout "$SCREEN_OFF_TIMEOUT" "niri msg action power-off-monitors" &
+idle_pid=$!
+
+cleanup() {
+  kill "$idle_pid" 2>/dev/null || true
+  niri msg action power-on-monitors >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
+
+"${locker[@]}" || true

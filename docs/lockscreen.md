@@ -1,8 +1,22 @@
 # 锁屏
 
 Linux 侧锁屏统一走 `linux/.local/bin/niri-lock`：默认用 **hyprlock**；`hyprlock` 不在时回退
-到 `swaylock`，这样锁屏不会因为缺包而静默失败。niri 的 `swayidle` 5 分钟超时和 `Mod+L` 都
-调用这个脚本。
+到 `swaylock`，这样锁屏不会因为缺包而静默失败。`Mod+L` 调用这个脚本。
+
+## 熄屏
+
+没有空闲自动锁屏：会话只在 `Mod+L` 时锁上。锁屏期间 `niri-lock` 自己拉起一个
+`swayidle -w timeout 60`，空闲到点就 `niri msg action power-off-monitors`；swayidle 每次活动
+后重新计时，所以只要还锁着，每段新的空闲都会再熄屏一次。计时器挂在锁屏进程的生命周期
+上，解锁（锁屏进程退出）时 `trap ... EXIT` 杀掉它并点亮显示器 —— 熄屏倒计时从「锁上」
+那一刻开始算，而不是从最后一次输入算。
+
+点亮不需要额外机制：niri 收到按键/鼠标移动时自己激活显示器（`src/input/mod.rs` 的
+`should_activate_monitors`），锁屏时它的 IPC 也照样接受 `PowerOffMonitors` /
+`PowerOnMonitors`（同文件的 `allowed_when_locked`）。所以 niri 的 `spawn-at-startup` 里不再
+有 swayidle。
+
+`Mod+Alt+L` 那条恢复绑定直接跑 `swaylock -f`，绕过 `niri-lock`，那条路径没有熄屏计时。
 
 ## hyprlock 配置
 
