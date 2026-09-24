@@ -69,10 +69,8 @@ binds {
     Mod+Space { spawn "fuzzel"; }
     Ctrl+Space { spawn "fcitx5-remote" "-t"; }
 
-    // These match the active Hyprland Lua bindings. C is also kept as a
-    // close shortcut because it was present in the older Hyprland config.
+    // These match the active Hyprland Lua bindings.
     Mod+W { close-window; }
-    Mod+C { close-window; }
     Mod+V { toggle-window-floating; }
     Mod+Shift+V { spawn "~/.local/bin/niri-clipboard-history"; }
     Mod+Shift+Q { quit; }
