@@ -16,7 +16,7 @@ set -euo pipefail
 # config: hyprlock matches widgets to monitors by port name or EDID description
 # only, and never looks at the resolution, so naming outputs is the only way to
 # put two layouts in one file. Instead the layouts live in hyprlock-small.conf
-# (compact, time only, plus an input-field that stays invisible until you type)
+# (compact, time only, plus a frosted password prompt box)
 # and hyprlock-large.conf (the Style-10 layout), each leaving `monitor` empty,
 # and this script chooses one by the widest attached output. hyprlock.conf just
 # sources the small one, so a bare `hyprlock` still shows something. See

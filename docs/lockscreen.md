@@ -24,7 +24,7 @@ Linux 侧锁屏统一走 `linux/.local/bin/niri-lock`：默认用 **hyprlock**�
 
 | 文件 | 作用 |
 | --- | --- |
-| `hyprlock-small.conf` | 紧凑样式，按 480x320 设计：只留时间 + 一个隐形输入框 |
+| `hyprlock-small.conf` | 紧凑样式，按 480x320 设计：只留时间 + 一个毛玻璃密码框 |
 | `hyprlock-large.conf` | 完整 [Style-10][MrVivekRajan/Hyprlock-Styles]，按 2560x1440 设计 |
 | `hyprlock.conf` | 只有一行 `source`，指向 small —— 给裸跑 `hyprlock` 一个默认 |
 
@@ -82,16 +82,15 @@ hyprlock 的 `source` 不能用来做条件选择（`handleSource` 走的是 `gl
 屏幕中心 `(240, 160)`，**`position` 的 y 正向朝上**（`posFromHVAlign` 里 `valign=top`
 对应大 y），`valign` 决定锚点在底/中/顶：
 
-| 元素 | 几何 | 位置 |
+| 元素 | 几何 | 位置（从屏顶算） |
 | --- | --- | --- |
-| 毛玻璃板 | 320x130 | y 121-251（顶部留白 69，底部留白 59） |
-| 时间 | 60px | 中心 y 186 |
-| 密码圆点区 | 260x46 | 中心 y 82，与底板留 16px 间隙 |
+| 毛玻璃板 | 320x130 | 69-199 |
+| 时间 | 60px | 中心 134 |
+| 密码输入框 | 300x50 | 218-268 |
 
-板是 `shape`（白 7% + 1px 白边 10%）。密码输入平时完全不可见：`inner_color` /
-`outer_color` 全透明、`outline_thickness = 0`、`placeholder_text = ""`，只有打字时才画出
-圆点。**别把它删掉** —— 没有 input-field 时 hyprlock 仍能盲打解锁，但打错了完全没有
-反馈，会被反复失败锁住。
+时间背后的板是 `shape`（白 7% + 1px 白边 10%）。输入框与大屏那款同形：`inner_color` 白
+10% 加 `🔒 Enter Pass` 提示，一眼能看出往哪打字。两者间距 19px，顶部留白 69px、底部留白
+52px；输入框字号由 `size.y / 4` 推导（50/4 ≈ 12px），提示文字和失败信息都不会撑破布局。
 
 ### 背景是实测对比度挑的，不是按比例挑的
 
