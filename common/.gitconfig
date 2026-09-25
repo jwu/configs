@@ -5,8 +5,12 @@
 	defaultBranch = main
 [core]
   pager = delta
+  quotepath = false
 [interactive]
   diffFilter = delta --color-only
+[i18n]
+  logOutputEncoding = utf-8
+  commitEncoding = utf-8
 [delta]
   navigate = true
   light = false
