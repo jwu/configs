@@ -75,6 +75,7 @@ PACKAGES=(
   "starship"
   "zoxide"
   "neovim"
+  "tree-sitter-cli"
   "fzf"
   "eza"
   "fd"

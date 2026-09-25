@@ -98,7 +98,7 @@
 2. **安装软件包**:
    ```bash
    # 命令行工具
-   brew install starship zoxide neovim fzf eza fd bat delta yazi gitui glow
+   brew install starship zoxide neovim tree-sitter-cli fzf eza fd bat delta yazi gitui glow
    # GUI 应用
    brew install --cask neovide font-fira-mono-nerd-font
    ```
@@ -133,7 +133,7 @@
 > 失败不阻断、最后汇总漏装项。下面的流程是它内部实际调用的一步。
 
 当前 `linux/install.sh` 面向 Arch Linux / pacman 环境，会自动：
-- 安装 `zsh`, `starship`, `zoxide`, `neovim`, `fzf`, `eza`, `fd`, `bat`, `git-delta`, `terminus-font` 和 `otf-firamono-nerd`
+- 安装 `zsh`, `starship`, `zoxide`, `neovim`, `tree-sitter-cli`, `fzf`, `eza`, `fd`, `bat`, `git-delta`, `terminus-font` 和 `otf-firamono-nerd`
 - 安装 Niri、Hyprland、Ghostty、Alacritty、Waybar、Swaylock、Swayidle、Fcitx5/Rime、Noto CJK、Noto Emoji 和 `ttf-sarasa-gothic` 字体
 - 设置默认 shell 为 `zsh`
 - 安装 Oh My Zsh、`zsh-autosuggestions`
