@@ -206,28 +206,6 @@ install_zsh_autosuggestions() {
   fi
 }
 
-install_dracula_theme() {
-  local dest="$HOME/.oh-my-zsh/themes/dracula.zsh-theme"
-  if [ -f "$dest" ]; then
-    echo "    Dracula Zsh Theme already installed."
-    return 0
-  fi
-  local tmp
-  tmp="$(mktemp -d)" || return 1
-  if ! curl -fsSL "https://github.com/dracula/zsh/archive/master.zip" -o "$tmp/dracula.zip"; then
-    rm -rf "$tmp"
-    return 1
-  fi
-  if ! bsdtar -xzf "$tmp/dracula.zip" -C "$tmp"; then
-    rm -rf "$tmp"
-    return 1
-  fi
-  cp "$tmp/zsh-master/dracula.zsh-theme" "$dest" || { rm -rf "$tmp"; return 1; }
-  cp -r "$tmp/zsh-master/lib" "$HOME/.oh-my-zsh/themes/lib" || { rm -rf "$tmp"; return 1; }
-  rm -rf "$tmp"
-  echo "    Dracula Zsh Theme installed"
-}
-
 # ==========================================
 # Waybar: niri window minimap (CFFI module)
 # ==========================================
@@ -307,7 +285,6 @@ step "xwayland-satellite-git (AUR)" install_xwayland_satellite
 step "default shell (zsh)" set_default_shell
 step "Oh My Zsh" install_oh_my_zsh
 step "zsh-autosuggestions" install_zsh_autosuggestions
-step "dracula zsh theme" install_dracula_theme
 step "waybar niri-windows module" install_waybar_niri_windows
 step "gpu-watch" build_gpu_watch
 step "config sync (config.sh)" sync_configs

@@ -170,21 +170,6 @@ else
   cd "$ZSH_CUSTOM/plugins/zsh-autosuggestions" && git pull && cd - > /dev/null
 fi
 
-echo ">>> Installing Dracula Zsh Theme..."
-OH_MY_ZSH="$HOME/.oh-my-zsh"
-TEMP_DIR=$(mktemp -d)
-
-if [ ! -f "$OH_MY_ZSH/themes/dracula.zsh-theme" ]; then
-  curl -fsSL "https://github.com/dracula/zsh/archive/master.zip" -o "$TEMP_DIR/dracula.zip"
-  unzip -q "$TEMP_DIR/dracula.zip" -d "$TEMP_DIR"
-  cp "$TEMP_DIR/zsh-master/dracula.zsh-theme" "$OH_MY_ZSH/themes/dracula.zsh-theme"
-  cp -r "$TEMP_DIR/zsh-master/lib" "$OH_MY_ZSH/themes/lib"
-  rm -rf "$TEMP_DIR"
-  echo "  Dracula Zsh Theme installed"
-else
-  echo "  Dracula Zsh Theme already installed"
-fi
-
 # ==========================================
 # Copy Configurations
 # ==========================================

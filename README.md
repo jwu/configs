@@ -136,7 +136,7 @@
 - 安装 `zsh`, `starship`, `zoxide`, `neovim`, `fzf`, `eza`, `fd`, `bat`, `git-delta`, `terminus-font` 和 `otf-firamono-nerd`
 - 安装 Niri、Hyprland、Ghostty、Alacritty、Waybar、Swaylock、Swayidle、Fcitx5/Rime、Noto CJK、Noto Emoji 和 `ttf-sarasa-gothic` 字体
 - 设置默认 shell 为 `zsh`
-- 安装 Oh My Zsh、`zsh-autosuggestions`、Dracula 主题
+- 安装 Oh My Zsh、`zsh-autosuggestions`
 - 运行 `linux/config.sh` 同步配置文件
 
 使用方式：
