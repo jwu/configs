@@ -12,8 +12,11 @@ set -euo pipefail
 # pointer motion, and its IPC accepts PowerOffMonitors/PowerOnMonitors while
 # locked (see niri src/input/mod.rs).
 #
-# The lock screen is ~/.config/hypr/hyprlock.conf: the Style-10 layout from
-# MrVivekRajan/Hyprlock-Styles over the same wallpaper swaylock uses, blurred.
+# The lock screen is ~/.config/hypr/hyprlock.conf, which holds two layouts keyed
+# by output name: a compact one for the 480x320 HDMI-A-3 panel (time only, plus
+# an input-field that stays invisible until you type) and the original Style-10
+# layout for the DP-3 Dell. hyprlock has no responsive units, so every absolute
+# pixel value has to be written per monitor.
 #
 # A dead locker is recovered with niri's Mod+Alt+L (allow-when-locked), which
 # kills whatever holds the lock and starts swaylock directly (see

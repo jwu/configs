@@ -21,16 +21,117 @@ Linux 侧锁屏统一走 `linux/.local/bin/niri-lock`：默认用 **hyprlock**�
 ## hyprlock 配置
 
 `linux/.config/hypr/hyprlock.conf`（hyprlock 的默认搜索路径之一；`niri-lock` 仍显式传
-`--config`）。基线是 [MrVivekRajan/Hyprlock-Styles] 的 **Style-10**，本地改了四处：
-
-| 改动 | 原因 |
-| --- | --- |
-| `background.path` = swaylock 那张 `vantablack-1-twisted-stairs.webp` | 和 swaylock 观感一致；hyprlock 用 `absolutePath()` 展开 `~` |
-| 删掉 Style-10 的头像 `image` | 没有头像；注释块留在文件里，指向自己的图即可启用 |
-| 文字 `font_family` = `Adwaita Sans Bold`（原 `SF Pro Display Bold`） | 系统没装 SF Pro |
-| 图标 label 用 `FiraMono Nerd Font Propo`（否则右边被切，见下） | 等宽 Nerd Font 的 advance 装不下图标 ink |
+`--config`）。基线是 [MrVivekRajan/Hyprlock-Styles] 的 **Style-10**，大屏那套只改了一处
+（底部按钮定位，见下），另为一块 480x320 小屏单独写了一整套紧凑布局。
 
 时间/日期走 `label { text = cmd[update:1000] ... }`，**本来就是实时的**。
+
+### 为什么要按显示器分写
+
+hyprlock 的 `font_size` / `position` / `size` **全是绝对像素**，没有 `em`、百分比或任何
+响应式单位；而 `monitor` 只做字符串匹配 —— 精确等于端口名，或匹配 EDID 描述前缀，
+**分辨率完全不参与匹配**：
+
+```cpp
+// src/renderer/Renderer.cpp -- widget 与显示器的匹配条件
+if (!c.monitor.empty()
+    && c.monitor != POUTPUT->stringPort
+    && !POUTPUT->stringDesc.starts_with(c.monitor)
+    && !("desc:" + POUTPUT->stringDesc).starts_with(c.monitor))
+    continue;
+```
+
+`COutput` 手里就有分辨率（`Vector2D size`），但这个条件一次都没用上。它也不支持逗号
+列表、通配符、正则，更没有「默认/兜底」语义：`monitor =` 留空表示**所有**显示器，表达
+不了「除了上面提过的之外」。于是：
+
+- 一套数值不可能同时适配 480x320 和 2560x1440（旧的单套值按 ~1920x1080 写，`font_size=90`
+  的星期标签在 480 宽的屏上几乎占满，`position=0,350` 的偏移把文字推出屏幕，`x=820` 的
+  电源按钮在 480 宽上完全不可见）；
+- 想让某块屏不叠加另一套布局，两块屏就必须各自显式指定 `monitor`；
+- **没在配置里出现的显示器，在那块屏上一个 widget 都不会画（黑屏）**。但密码仍能盲打
+  解锁 —— 认证在 session lock 层，与有没有 input-field 组件无关。
+
+所以静态配置只能按端口名枚举。如果换 HDMI 口导致端口名变化（`HDMI-A-3` → `HDMI-A-2`），
+匹配会失效、那块屏变黑；要加固可以改用 EDID 描述匹配（`monitor = desc:Dell U2722DX`），
+它不随接口变化。
+
+| 输出 | 分辨率 | 布局 |
+| --- | --- | --- |
+| `DP-3` | 2560x1440 | 完整 Style-10（星期/日期/时间/用户名/输入框/三个按钮） |
+| `HDMI-A-3` | 480x320 | 紧凑：只留时间 + 一个隐形输入框 |
+
+曾试过用 `hyprlock.conf.tmpl` + 一个生成脚本在锁屏前按分辨率生成配置，能自动适配任何
+显示器，但链路太长（模板 / 生成器 / niri-lock 三处协作）而收益只在换硬件时体现，已经
+revert。要恢复这个方向，git 历史里有完整实现。
+
+### 小屏布局（480x320）
+
+屏幕中心 `(240, 160)`，**`position` 的 y 正向朝上**（`posFromHVAlign` 里 `valign=top`
+对应大 y），`valign` 决定锚点在底/中/顶：
+
+| 元素 | 几何 | 位置 |
+| --- | --- | --- |
+| 毛玻璃板 | 320x130 | y 121-251（顶部留白 69，底部留白 59） |
+| 时间 | 60px | 中心 y 186 |
+| 密码圆点区 | 260x46 | 中心 y 82，与底板留 16px 间隙 |
+
+板是 `shape`（白 7% + 1px 白边 10%）。密码输入平时完全不可见：`inner_color` /
+`outer_color` 全透明、`outline_thickness = 0`、`placeholder_text = ""`，只有打字时才画出
+圆点。**别把它删掉** —— 没有 input-field 时 hyprlock 仍能盲打解锁，但打错了完全没有
+反馈，会被反复失败锁住。
+
+### 背景是实测对比度挑的，不是按比例挑的
+
+时间文字是 `rgba(226,232,240)`，WCAG AA 要求对比度 ≥ 4.5:1。按 hyprlock 的实际处理链
+（`gain()` 曲线 + 模糊）算出来的时间区结果：
+
+| 壁纸 | 比例 | 时间区背景均值 | 对比度 |
+| --- | --- | --- | --- |
+| `ristretto-0-launch` | 1.50（与小屏一致，零裁剪） | RGB(94,51,24) | **8.7:1** ✓ |
+| `vantablack-1-twisted-stairs` | 1.78（大屏上下裁 7.8%） | RGB(19,19,19) | **15.1:1** ✓ |
+| `ristretto-1-color-curves` | 1.78 | RGB(177,124,70) | 2.9:1 ✗ |
+| `osaka-jade-3-mountain-moon` | 1.78 | RGB(154,202,148) | 1.5:1 ✗ |
+
+**不要按宽高比自动挑图**：`osaka-jade` 的 1.78 正好匹配大屏，但白字对比度只有 1.5:1，
+挑中它直接看不清。大屏用的是对比度最高的那张。
+
+大屏试过换成小屏那张暖橙图，但大屏文字是**大字号配 0.70 透明度**，叠在偏亮的暖橙上有效
+对比度只剩约 3.2:1 —— 刚过 AA 大文本的 3:1，够不到 4.5:1。而 hyprlock 没有「压暗背景」
+的手段：
+
+- `background` 的 `brightness` **只在 `> 1.0` 时**参与乘法
+  （`Shaders.hpp` 的 `FRAGBLURPREPARE`：`if (brightness > 1.0) pixColor.rgb *= brightness;`），
+  所以 `< 1.0` 的值是彻底的空操作。旧配置里从上游抄来的 `brightness = 0.8172` 从未生效，
+  已经删掉。
+- `background` 的 `color` 只是**纹理加载失败时的兜底色**，不与图混合。
+- 用一层半透明黑色 `shape` 当遮罩也不行：widget 排序用的是 `std::ranges::sort`（不是
+  stable sort），同 `zindex` 的相对顺序没有保证，遮罩会随机盖住文字。
+
+顺带记一笔：`contrast` / `brightness` / `vibrancy` **只在 `blur_passes > 0` 时**才被应用。
+
+### 大屏那套只改了一处
+
+字号与间距全部保留 Style-10 原值（90/40/20、350/250/190）。唯一改动是底部三个按钮的
+定位：原来用 `halign=left/right` 配 `x=±820`，那是照 1920 宽写死的，屏一宽就挤到中间偏
+左；现在三个统一 `halign=center`、只差 x 偏移（±160），任何宽度下都在底部居中且等距。
+
+`onclick` 也从 `reboot now` / `shutdown now` 换成了 `systemctl reboot` / `poweroff` ——
+前者在 Arch 上并不存在。
+
+其它沿用的本地改动：文字 `font_family` 用 `Adwaita Sans Bold`（上游是没装的
+`SF Pro Display Bold`）；图标 label 用 `FiraMono Nerd Font Propo`（原因见下节）；
+Style-10 的头像 `image` 已删掉（没有头像，注释块也一并删了）。
+
+### 其它坑
+
+- **`#` 要写两遍**：hyprlang 把裸 `#` 当行内注释起始，所以 Pango 标记里的颜色要写
+  `##ff8a80`（`placeholder_text` 里的 `##ffffff99` 同理）。
+- **`fail_text` 用 `$ATTEMPTS` 而不是 `$FAIL`**：后者是 `g_pAuth->getCurrentFailText()`，
+  即 PAM 的原始错误文字，太长；`$ATTEMPTS` 才是失败次数。
+- **`fail_text` 的字号**由 `size.y / 4` 推导（小屏 46/4 ≈ 11px），不会撑破布局。
+- **没有 `fail_transition` 这个参数**：v0.9.6 的 `ConfigManager.cpp` 里没有注册它（失败
+  过渡由 animation 的 `inputFieldColors` 节点控制）。
 
 ## 装什么、拷什么
 
@@ -94,7 +195,6 @@ Mod+Alt+L allow-when-locked=true { spawn-sh "pkill -x hyprlock; pkill -x swayloc
 - `--grace <sec>` **不要用**：niri 下 hyprlock 会收到一个 stray key 事件
   （`ERR: Invalid key down event (stray release event?)`），而 grace 期间任何输入直接解锁，
   实测 4 秒就自己解开了。
-- 底部三个 `onclick`（`reboot now` / `shutdown now` / `systemctl suspend`）能否生效取决于
-  polkit agent。
+- 底部三个 `onclick`（`systemctl suspend` / `reboot` / `poweroff`）能否生效取决于 polkit agent。
 
 [MrVivekRajan/Hyprlock-Styles]: https://github.com/MrVivekRajan/Hyprlock-Styles
