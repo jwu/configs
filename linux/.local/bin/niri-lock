@@ -12,11 +12,15 @@ set -euo pipefail
 # pointer motion, and its IPC accepts PowerOffMonitors/PowerOnMonitors while
 # locked (see niri src/input/mod.rs).
 #
-# The lock screen is ~/.config/hypr/hyprlock.conf, which holds two layouts keyed
-# by output name: a compact one for the 480x320 HDMI-A-3 panel (time only, plus
-# an input-field that stays invisible until you type) and the original Style-10
-# layout for the DP-3 Dell. hyprlock has no responsive units, so every absolute
-# pixel value has to be written per monitor.
+# The lock screen style is picked here as a whole file rather than inside the
+# config: hyprlock matches widgets to monitors by port name or EDID description
+# only, and never looks at the resolution, so naming outputs is the only way to
+# put two layouts in one file. Instead the layouts live in hyprlock-small.conf
+# (compact, time only, plus an input-field that stays invisible until you type)
+# and hyprlock-large.conf (the Style-10 layout), each leaving `monitor` empty,
+# and this script chooses one by the widest attached output. hyprlock.conf just
+# sources the small one, so a bare `hyprlock` still shows something. See
+# docs/lockscreen.md.
 #
 # A dead locker is recovered with niri's Mod+Alt+L (allow-when-locked), which
 # kills whatever holds the lock and starts swaylock directly (see
@@ -25,8 +29,18 @@ set -euo pipefail
 # Seconds the locked session may stay idle before the monitors go off.
 SCREEN_OFF_TIMEOUT=60
 
+# Anything at least this wide uses the large style. 900 sits between the
+# 480x320 panel and a 2560x1440 display.
+WIDE_MIN_WIDTH=900
+
 if command -v hyprlock >/dev/null 2>&1; then
-  locker=(hyprlock --config "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprlock.conf")
+  style="hyprlock-small.conf"
+  if niri msg outputs 2>/dev/null | awk -v min="$WIDE_MIN_WIDTH" '
+        /Logical size: / { split($3, d, "x"); if (d[1] + 0 >= min) wide = 1 }
+        END { exit !wide }'; then
+    style="hyprlock-large.conf"
+  fi
+  locker=(hyprlock --config "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/$style")
 else
   locker=(swaylock -f)
 fi

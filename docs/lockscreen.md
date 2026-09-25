@@ -20,13 +20,22 @@ Linux 侧锁屏统一走 `linux/.local/bin/niri-lock`：默认用 **hyprlock**�
 
 ## hyprlock 配置
 
-`linux/.config/hypr/hyprlock.conf`（hyprlock 的默认搜索路径之一；`niri-lock` 仍显式传
-`--config`）。基线是 [MrVivekRajan/Hyprlock-Styles] 的 **Style-10**，大屏那套只改了一处
-（底部按钮定位，见下），另为一块 480x320 小屏单独写了一整套紧凑布局。
+样式拆成三份文件，都在 `linux/.config/hypr/`：
+
+| 文件 | 作用 |
+| --- | --- |
+| `hyprlock-small.conf` | 紧凑样式，按 480x320 设计：只留时间 + 一个隐形输入框 |
+| `hyprlock-large.conf` | 完整 [Style-10][MrVivekRajan/Hyprlock-Styles]，按 2560x1440 设计 |
+| `hyprlock.conf` | 只有一行 `source`，指向 small —— 给裸跑 `hyprlock` 一个默认 |
+
+三份文件里**所有 widget 的 `monitor` 都留空**，也就是“整份文件作用于当前所有显示器”。
+挑哪一份是 `niri-lock` 在锁屏前做的：`niri msg outputs` 的文本输出里只要有哪块屏的
+`Logical size` 宽度 ≥ 900 就用 large，否则 small（拿不到输出信息时也退回 small）。阈值写在
+`niri-lock` 的 `WIDE_MIN_WIDTH`。
 
 时间/日期走 `label { text = cmd[update:1000] ... }`，**本来就是实时的**。
 
-### 为什么要按显示器分写
+### 为什么按样式分文件，而不是在配置里按显示器写
 
 hyprlock 的 `font_size` / `position` / `size` **全是绝对像素**，没有 `em`、百分比或任何
 响应式单位；而 `monitor` 只做字符串匹配 —— 精确等于端口名，或匹配 EDID 描述前缀，
@@ -43,27 +52,30 @@ if (!c.monitor.empty()
 
 `COutput` 手里就有分辨率（`Vector2D size`），但这个条件一次都没用上。它也不支持逗号
 列表、通配符、正则，更没有「默认/兜底」语义：`monitor =` 留空表示**所有**显示器，表达
-不了「除了上面提过的之外」。于是：
+不了「除了上面提过的之外」。后果是三条一起成立的：
 
 - 一套数值不可能同时适配 480x320 和 2560x1440（旧的单套值按 ~1920x1080 写，`font_size=90`
   的星期标签在 480 宽的屏上几乎占满，`position=0,350` 的偏移把文字推出屏幕，`x=820` 的
   电源按钮在 480 宽上完全不可见）；
-- 想让某块屏不叠加另一套布局，两块屏就必须各自显式指定 `monitor`；
-- **没在配置里出现的显示器，在那块屏上一个 widget 都不会画（黑屏）**。但密码仍能盲打
-  解锁 —— 认证在 session lock 层，与有没有 input-field 组件无关。
+- 想让某块屏不叠加另一套布局，两块屏就必须各自点名 `monitor`，于是配置和硬件绑死：换
+  HDMI 口（`HDMI-A-3` → `HDMI-A-2`）匹配就失效、那块屏变黑；
+- **没被点名的显示器，在那块屏上一个 widget 都不会画（黑屏）**。但密码仍能盲打解锁 ——
+  认证在 session lock 层，与有没有 input-field 组件无关。
 
-所以静态配置只能按端口名枚举。如果换 HDMI 口导致端口名变化（`HDMI-A-3` → `HDMI-A-2`），
-匹配会失效、那块屏变黑；要加固可以改用 EDID 描述匹配（`monitor = desc:Dell U2722DX`），
-它不随接口变化。
+`monitor =` 留空 = 作用于所有显示器，这条规则反过来给了出路：**把选择挪到文件层面**。
+每份文件整体就是一个样式，内部全部留空，由 niri-lock 按当前最宽的屏挑一份。文件本身
+就是声明，配置里不再出现端口名。
 
-| 输出 | 分辨率 | 布局 |
-| --- | --- | --- |
-| `DP-3` | 2560x1440 | 完整 Style-10（星期/日期/时间/用户名/输入框/三个按钮） |
-| `HDMI-A-3` | 480x320 | 紧凑：只留时间 + 一个隐形输入框 |
+hyprlock 的 `source` 不能用来做条件选择（`handleSource` 走的是 `glob()`，只认 `~` 和通配
+符，不展开其它环境变量），所以选择只能在锁屏脚本里做。`hyprlock.conf` 保留一行
+`source`，是为了让裸跑 `hyprlock` 也有内容，而不是读到空配置。
 
-曾试过用 `hyprlock.conf.tmpl` + 一个生成脚本在锁屏前按分辨率生成配置，能自动适配任何
-显示器，但链路太长（模板 / 生成器 / niri-lock 三处协作）而收益只在换硬件时体现，已经
-revert。要恢复这个方向，git 历史里有完整实现。
+**取舍**：两块屏同时插着时只有一份样式生效，另一块屏不会有 widget。只要两块屏同时在线
+又需要不同布局，就只能在同一个文件里按名字区分 —— 这是上面那个 `if` 决定的。当前假设
+是「基本不会同时插」。
+
+（也试过用 `hyprlock.conf.tmpl` + 生成脚本在锁屏前按分辨率拼配置，能覆盖多屏并存的情况，
+但链路太长（模板 / 生成器 / niri-lock 三处协作），已经 revert。git 历史里有完整实现。）
 
 ### 小屏布局（480x320）
 
@@ -140,7 +152,7 @@ Style-10 的头像 `image` 已删掉（没有头像，注释块也一并删了�
   `noto-fonts-emoji` 本来就在列表里。
 - `linux/config.sh`：把 `backgrounds/` 拷到 `~/.config/swaylock/backgrounds/`（swaylock 和
   hyprlock 共用，所以这段从 `command -v swaylock` 的 guard 里提出来了），再拷
-  `.config/hypr/hyprlock.conf` 和 `.local/bin/niri-lock`。
+  `.config/hypr/hyprlock{,-small,-large}.conf` 和 `.local/bin/niri-lock`。
 
 ## 图标右边被切掉（坑）
 

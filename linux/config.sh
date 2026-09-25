@@ -61,8 +61,13 @@ fi
 if command -v hyprlock &> /dev/null; then
   echo "Configuring hyprlock..."
   mkdir -p "$HOME/.config/hypr"
-  backup_file "$HOME/.config/hypr/hyprlock.conf"
-  cp "$SCRIPT_DIR/.config/hypr/hyprlock.conf" "$HOME/.config/hypr/hyprlock.conf"
+  # Two style files with `monitor` left empty, plus a hyprlock.conf that only
+  # sources the compact one for a hand-run hyprlock. niri-lock picks between the
+  # styles by output width; see docs/lockscreen.md.
+  for f in hyprlock.conf hyprlock-small.conf hyprlock-large.conf; do
+    backup_file "$HOME/.config/hypr/$f"
+    cp "$SCRIPT_DIR/.config/hypr/$f" "$HOME/.config/hypr/$f"
+  done
 fi
 
 # Waybar
