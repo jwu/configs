@@ -20,27 +20,27 @@ Linux 侧锁屏统一走 `linux/.local/bin/niri-lock`：默认用 **hyprlock**�
 
 ## hyprlock 配置
 
-样式拆成三份文件，都在 `linux/.config/hypr/`：
+样式拆成四份文件，都在 `linux/.config/hypr/`：
 
 | 文件 | 作用 |
 | --- | --- |
 | `hyprlock-large.conf` | 完整 [Style-10][MrVivekRajan/Hyprlock-Styles]，按 2560x1440 设计，**默认** |
+| `hyprlock-medium.conf` | 与 large 同一套元素，按 1366x768 设计：字号收小，位置改成输出尺寸的百分比 |
 | `hyprlock-small.conf` | 紧凑样式，按 480x320 设计：只留时间 + 一个不带底框的密码提示 |
 | `hyprlock.conf` | 只有一行 `source`，指向 large —— 给裸跑 `hyprlock` 一个默认 |
 
-三份文件里**所有 widget 的 `monitor` 都留空**，也就是“整份文件作用于当前所有显示器”。
-挑哪一份是 `niri-lock` 在锁屏前做的，**默认 large**：这个仓库面向普通桌面显示器，紧凑样式
-是给装不下完整布局的小面板用的特例。只有确实读到了输出、且没有任何一块屏的 `Logical size`
-宽度 ≥ 900 时，才切到 small；读不到输出信息就保留默认，不猜。阈值写在 `niri-lock` 的
-`WIDE_MIN_WIDTH`。
+四份文件里**所有 widget 的 `monitor` 都留空**，也就是“整份文件作用于当前所有显示器”。
+挑哪一份是 `niri-lock` 在锁屏前做的，**默认 large**：这个仓库面向普通桌面显示器，另两份
+是给装不下完整布局的屏幕用的。取当前**最宽**的那块屏：宽度 ≥ 1600 用 large，900–1599 用
+medium，< 900 用 small；读不到输出信息就保留默认，不猜。阈值写在 `niri-lock` 的
+`FULL_MIN_WIDTH` / `MEDIUM_MIN_WIDTH`。
 
 时间/日期走 `label { text = cmd[update:1000] ... }`，**本来就是实时的**。
 
 ### 为什么按样式分文件，而不是在配置里按显示器写
 
-hyprlock 的 `font_size` / `position` / `size` **全是绝对像素**，没有 `em`、百分比或任何
-响应式单位；而 `monitor` 只做字符串匹配 —— 精确等于端口名，或匹配 EDID 描述前缀，
-**分辨率完全不参与匹配**：
+hyprlock 的 `font_size` **是绝对像素**；而 `monitor` 只做字符串匹配 —— 精确等于端口名，
+或匹配 EDID 描述前缀，**分辨率完全不参与匹配**：
 
 ```cpp
 // src/renderer/Renderer.cpp -- widget 与显示器的匹配条件
@@ -51,8 +51,14 @@ if (!c.monitor.empty()
     continue;
 ```
 
-`COutput` 手里就有分辨率（`Vector2D size`），但这个条件一次都没用上。它也不支持逗号
-列表、通配符、正则，更没有「默认/兜底」语义：`monitor =` 留空表示**所有**显示器，表达
+`COutput` 手里就有分辨率（`Vector2D size`），但这个条件一次都没用上。
+
+（`position` / `size` 本身是支持百分比的：v0.9.6 的 `CLayoutValueData::getAbsolute` 把带
+`%` 的值按 `(v / 100) * viewport` 换算，`viewport` 就是那块屏的尺寸，medium 这档用的正是
+这一点。但百分比只能挪位置、缩放框，**`font_size` 仍是绝对像素**，而且小屏要的不是「把
+完整布局等比缩小」，是只留时间那种信息裁剪 —— 所以样式仍然按文件分。）
+
+它也不支持逗号列表、通配符、正则，更没有「默认/兜底」语义：`monitor =` 留空表示**所有**显示器，表达
 不了「除了上面提过的之外」。后果是三条一起成立的：
 
 - 一套数值不可能同时适配 480x320 和 2560x1440（旧的单套值按 ~1920x1080 写，`font_size=90`
@@ -77,6 +83,33 @@ hyprlock 的 `source` 不能用来做条件选择（`handleSource` 走的是 `gl
 
 （也试过用 `hyprlock.conf.tmpl` + 生成脚本在锁屏前按分辨率拼配置，能覆盖多屏并存的情况，
 但链路太长（模板 / 生成器 / niri-lock 三处协作），已经 revert。git 历史里有完整实现。）
+
+### 中屏布局（1366x768）
+
+元素与 large 完全相同（星期、日期、时间、用户框、密码框、三个电源按钮），字号收小到能看清
+（星期 52 / 日期 26 / 时间 15，用户框 16、按钮 34），位置**全部写成输出尺寸的百分比**。这档存在的理由就是
+large 的固定像素偏移在 1366x768 上会溢出：90px 的星期名配 `position = 0, 350`，字会被顶
+出屏幕上沿；底部按钮行也往密码框那一列挤。
+
+垂直位置都是相对屏幕中心的百分比（y 正向朝上，与 large 一致）：
+
+| 元素 | 偏移 | 1366x768 上的区间（行高按 1.2×字号估） |
+| --- | --- | --- |
+| 星期 | `+37%` | 69-131 |
+| 日期 | `+28%` | 153-185 |
+| 时间 | `+22.5%` | 202-220 |
+| 用户框（240x48） | `-20%` | 514-562 |
+| 密码框（320x48） | `-32%` | 606-654 |
+| 按钮行（34px，距底 5%） | `5%` | 709-750 |
+
+最紧的一对（日期到时间）还剩 17px，其余更松；换成 1280x800 / 1280x1024 / 1024x768 只会
+更宽（百分比跟着高度走，字号不变）。
+
+按钮横向用 `-8%, 0, 8%` 而不是 large 的 `±160px`：1366 宽下中心间距 109px，与 large 在
+2560 宽上的视觉密度相当；最窄的 900 宽屏上，三个 34px 图标之间也还有 38px 空隙。
+
+框和字号的尺寸（`size = 320, 48`、`font_size`）故意留在像素上：百分比框会连文字一起缩小，
+正好抵消掉「中屏」这档的意义。
 
 ### 小屏布局（480x320）
 
@@ -158,7 +191,7 @@ Style-10 的头像 `image` 已删掉（没有头像，注释块也一并删了�
   `noto-fonts-emoji` 本来就在列表里。
 - `linux/config.sh`：把 `backgrounds/` 拷到 `~/.config/swaylock/backgrounds/`（swaylock 和
   hyprlock 共用，所以这段从 `command -v swaylock` 的 guard 里提出来了），再拷
-  `.config/hypr/hyprlock{,-small,-large}.conf` 和 `.local/bin/niri-lock`。
+  `.config/hypr/hyprlock{,-small,-medium,-large}.conf` 和 `.local/bin/niri-lock`。
 
 ## 图标右边被切掉（坑）
 

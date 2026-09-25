@@ -15,12 +15,14 @@ set -euo pipefail
 # The lock screen style is picked here as a whole file rather than inside the
 # config: hyprlock matches widgets to monitors by port name or EDID description
 # only, and never looks at the resolution, so naming outputs is the only way to
-# put two layouts in one file. Instead the layouts live in hyprlock-large.conf
-# (the Style-10 layout, and the default -- this repo targets ordinary desktop
-# displays) and hyprlock-small.conf (compact, time only, plus a boxless password
-# prompt, for panels too small for the full layout), each leaving `monitor`
-# empty. hyprlock.conf sources the large one, so a bare `hyprlock` still shows
-# something. See docs/lockscreen.md.
+# put several layouts in one file. Instead the layouts live in
+# hyprlock-large.conf (the Style-10 layout, and the default -- this repo targets
+# ordinary desktop displays), hyprlock-medium.conf (the same elements at
+# readable sizes, placed in percentages of the output, for mid-size panels where
+# the large layout overflows) and hyprlock-small.conf (compact, time only, plus
+# a boxless password prompt, for panels too small for the full layout), each
+# leaving `monitor` empty. hyprlock.conf sources the large one, so a bare
+# `hyprlock` still shows something. See docs/lockscreen.md.
 #
 # A dead locker is recovered with niri's Mod+Alt+L (allow-when-locked), which
 # kills whatever holds the lock and starts swaylock directly (see
@@ -29,20 +31,30 @@ set -euo pipefail
 # Seconds the locked session may stay idle before the monitors go off.
 SCREEN_OFF_TIMEOUT=60
 
-# Anything at least this wide uses the large style. 900 sits between the
-# 480x320 panel and a 2560x1440 display.
-WIDE_MIN_WIDTH=900
+# Width bands for the three styles, widest match wins. 1600 sits between a
+# 1366x768 panel (medium) and a 1920x1080 or wider display (large); 900 sits
+# between the 480x320 panel and a 1024x768 one.
+FULL_MIN_WIDTH=1600
+MEDIUM_MIN_WIDTH=900
 
 if command -v hyprlock >/dev/null 2>&1; then
-  # Default to the large style. Switching to the compact one requires a positive
+  # Default to the large style. Dropping to a smaller one requires a positive
   # sighting -- outputs were read and none of them is wide enough -- so a failure
-  # to query niri keeps the default instead of guessing small.
+  # to query niri keeps the default instead of guessing.
   style="hyprlock-large.conf"
-  if niri msg outputs 2>/dev/null | awk -v min="$WIDE_MIN_WIDTH" '
-        /Logical size: / { seen = 1; split($3, d, "x"); if (d[1] + 0 >= min) wide = 1 }
-        END { exit !(seen && !wide) }'; then
-    style="hyprlock-small.conf"
-  fi
+  detected="$(niri msg outputs 2>/dev/null | awk -v full="$FULL_MIN_WIDTH" -v medium="$MEDIUM_MIN_WIDTH" '
+        /Logical size: / { seen = 1; split($3, d, "x"); w = d[1] + 0
+                           if (w >= full)   hasFull   = 1
+                           if (w >= medium) hasMedium = 1 }
+        END { if (!seen) exit 1
+              if (hasFull)        print "large"
+              else if (hasMedium) print "medium"
+              else                print "small" }' || true)"
+  case "$detected" in
+    large)  style="hyprlock-large.conf" ;;
+    medium) style="hyprlock-medium.conf" ;;
+    small)  style="hyprlock-small.conf" ;;
+  esac
   locker=(hyprlock --config "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/$style")
 else
   locker=(swaylock -f)
