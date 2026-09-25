@@ -24,6 +24,19 @@ input {
       accel-speed -0.6
       accel-profile "flat"
     }
+
+    touchpad {
+        // Two-finger scroll direction. This node takes no argument: present =
+        // natural scrolling (content follows the fingers), absent = traditional
+        // scrolling (matches the mouse wheel). Flip direction by adding or
+        // removing this single line.
+        natural-scroll
+
+        // Scale the scroll speed (1.0 = niri default). Note this is only a speed
+        // multiplier -- libinput deliberately does not implement kinetic
+        // (momentum) scrolling for touchpads.
+        scroll-factor horizontal=1.0 vertical=1.5
+    }
 }
 
 // Hide the pointer while typing and once it has been idle. See docs/niri.md.
@@ -36,6 +49,15 @@ cursor {
 output "DP-3" {
     mode "2560x1440@59.951"
     scale 1
+    transform "normal"
+}
+
+// eDP-1 is the built-in Apple Retina panel (2560x1600, ~227 PPI).
+// scale 1.6 gives a 1600x1000 logical size (~142 PPI), matching a
+// typical 15.6" 1080p laptop for comfortable UI sizing.
+output "eDP-1" {
+    mode "2560x1600@60.001"
+    scale 1.6
     transform "normal"
 }
 
