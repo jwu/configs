@@ -58,7 +58,11 @@ Steam 的弹窗 `override_redirect=true`、`input=True`、无 `WM_TAKE_FOCUS`：
 
 - 官方 `extra` 停在 0.8.2-1（2026-07-22），打包仓库 `git log` 里没有重打包记录，修复只在 master 上。
 - 拿 AUR `-git` 就不用在本仓库 vendor patch + 自己跑 makepkg 出包。
-- 代价一：引入 `yay`，这是本仓库第一次依赖 AUR helper；没有 yay 时脚本只提示、不中断。
+- 代价一：引入 `yay`，这是本仓库第一次依赖 AUR helper。`linux/install.sh` 自己不装它，
+  没有 yay 时只提示、不中断；上层入口 `install-arch` 会在跑 configs 之前自动构建
+  `yay-bin`（预编译二进制，不需要 Go/Rust 工具链）。那一步失败时手动补：
+  `sudo pacman -S --needed base-devel git`，然后 `git clone https://aur.archlinux.org/yay-bin.git`、
+  `cd yay-bin && makepkg -si`（`makepkg` 不能加 sudo，它会拒绝 root）。
 - 代价二：`-git` 跟随 master，上游后续改动会直接进来。**这是临时的**，见下节。
 
 ## 生效与验证
