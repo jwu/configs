@@ -81,6 +81,7 @@ PACKAGES=(
   "fd"
   "bat"
   "git-delta"
+  "unzip"
   "terminus-font"
   "otf-firamono-nerd"
   "niri"
