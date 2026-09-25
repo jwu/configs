@@ -24,14 +24,15 @@ Linux 侧锁屏统一走 `linux/.local/bin/niri-lock`：默认用 **hyprlock**�
 
 | 文件 | 作用 |
 | --- | --- |
+| `hyprlock-large.conf` | 完整 [Style-10][MrVivekRajan/Hyprlock-Styles]，按 2560x1440 设计，**默认** |
 | `hyprlock-small.conf` | 紧凑样式，按 480x320 设计：只留时间 + 一个不带底框的密码提示 |
-| `hyprlock-large.conf` | 完整 [Style-10][MrVivekRajan/Hyprlock-Styles]，按 2560x1440 设计 |
-| `hyprlock.conf` | 只有一行 `source`，指向 small —— 给裸跑 `hyprlock` 一个默认 |
+| `hyprlock.conf` | 只有一行 `source`，指向 large —— 给裸跑 `hyprlock` 一个默认 |
 
 三份文件里**所有 widget 的 `monitor` 都留空**，也就是“整份文件作用于当前所有显示器”。
-挑哪一份是 `niri-lock` 在锁屏前做的：`niri msg outputs` 的文本输出里只要有哪块屏的
-`Logical size` 宽度 ≥ 900 就用 large，否则 small（拿不到输出信息时也退回 small）。阈值写在
-`niri-lock` 的 `WIDE_MIN_WIDTH`。
+挑哪一份是 `niri-lock` 在锁屏前做的，**默认 large**：这个仓库面向普通桌面显示器，紧凑样式
+是给装不下完整布局的小面板用的特例。只有确实读到了输出、且没有任何一块屏的 `Logical size`
+宽度 ≥ 900 时，才切到 small；读不到输出信息就保留默认，不猜。阈值写在 `niri-lock` 的
+`WIDE_MIN_WIDTH`。
 
 时间/日期走 `label { text = cmd[update:1000] ... }`，**本来就是实时的**。
 
