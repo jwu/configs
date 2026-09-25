@@ -157,7 +157,7 @@
     "format-disabled": "<span size='15pt'>\u200b</span><span size='15pt' rise='-1536'>\u200b</span>{icon}",
     "interval": 5,
     "tooltip-format": "{essid}\t{gwaddr}",
-    "on-click": "rfkill toggle wifi",
+    "on-click": "nm-connection-editor",
     "on-click-right": "nm-connection-editor",
     "tooltip": true,
     "max-length": 20
