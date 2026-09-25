@@ -106,9 +106,25 @@ PACKAGES=(
   "ttf-sarasa-gothic"
 )
 
+# A pacman transaction is atomic: one file that cannot be retrieved rolls the
+# whole upgrade back and installs nothing, so every later step that needs these
+# packages (zsh, fcitx5) fails too. The usual cause is the DB of the mirror that
+# comes first in /etc/pacman.d/mirrorlist being a few hours behind: a package was
+# rebuilt, that mirror still lists the old version, and the old file is already
+# gone from every mirror (fcitx5 5.1.22 vs 5.1.23, 2026-09-25). Fix the
+# mirrorlist first, then -Syy -- -Syy alone just re-reads the same stale mirror.
 install_packages() {
   echo "    Installing/updating: ${PACKAGES[*]}"
-  sudo pacman -Syu --needed --noconfirm "${PACKAGES[@]}" || return 1
+  if sudo pacman -Syu --needed --noconfirm "${PACKAGES[@]}"; then
+    return 0
+  fi
+  echo "    pacman failed: a failed transaction installs no package at all." >&2
+  echo "    A 404 on 'failed retrieving file' means the DB of the mirror listed" >&2
+  echo "    first in /etc/pacman.d/mirrorlist is behind. Replace or reorder it," >&2
+  echo "    e.g. 'sudo reflector --country China --age 6 --protocol https" >&2
+  echo "    --latest 20 --sort rate --save /etc/pacman.d/mirrorlist', THEN run" >&2
+  echo "    'sudo pacman -Syy' and re-run -- -Syy alone re-reads the same mirror." >&2
+  return 1
 }
 
 # ==========================================
@@ -150,13 +166,21 @@ install_xwayland_satellite() {
 
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 
+# chsh rejects an empty -s argument with "shell must be a full path name", which
+# says nothing about the real cause: zsh was never installed because the pacman
+# step above failed. Check for it here instead of passing "" to chsh.
 set_default_shell() {
-  if [ "$SHELL" != "$(command -v zsh)" ]; then
-    echo "    Changing default shell to zsh..."
-    chsh -s "$(command -v zsh)" || return 1
-  else
-    echo "    zsh is already the default shell."
+  local zsh
+  if ! zsh="$(command -v zsh)"; then
+    echo "    zsh is not installed (see the pacman step above); skipping." >&2
+    return 1
   fi
+  if [ "${SHELL:-}" = "$zsh" ]; then
+    echo "    zsh is already the default shell."
+    return 0
+  fi
+  echo "    Changing default shell to zsh ($zsh)..."
+  chsh -s "$zsh" || return 1
 }
 
 install_oh_my_zsh() {
