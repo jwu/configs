@@ -24,7 +24,7 @@ Linux 侧锁屏统一走 `linux/.local/bin/niri-lock`：默认用 **hyprlock**�
 
 | 文件 | 作用 |
 | --- | --- |
-| `hyprlock-small.conf` | 紧凑样式，按 480x320 设计：只留时间 + 一个毛玻璃密码框 |
+| `hyprlock-small.conf` | 紧凑样式，按 480x320 设计：只留时间 + 一个不带底框的密码提示 |
 | `hyprlock-large.conf` | 完整 [Style-10][MrVivekRajan/Hyprlock-Styles]，按 2560x1440 设计 |
 | `hyprlock.conf` | 只有一行 `source`，指向 small —— 给裸跑 `hyprlock` 一个默认 |
 
@@ -86,11 +86,17 @@ hyprlock 的 `source` 不能用来做条件选择（`handleSource` 走的是 `gl
 | --- | --- | --- |
 | 毛玻璃板 | 320x130 | 69-199 |
 | 时间 | 60px | 中心 134 |
-| 密码输入框 | 300x50 | 218-268 |
+| 密码提示 / 圆点所在区 | 300x50 | 218-268 |
 
-时间背后的板是 `shape`（白 7% + 1px 白边 10%）。输入框与大屏那款同形：`inner_color` 白
-10% 加 `🔒 Enter Pass` 提示，一眼能看出往哪打字。两者间距 19px，顶部留白 69px、底部留白
-52px；输入框字号由 `size.y / 4` 推导（50/4 ≈ 12px），提示文字和失败信息都不会撑破布局。
+时间背后的板是 `shape`（白 7% + 1px 白边 10%）。密码输入**不带底框**：`inner_color` /
+`outer_color` 全透明、`outline_thickness = 0`，只有 `🔒 Enter Pass` 提示和打字时画出的圆点，
+直接浮在背景上。提示字 `rgb(200,200,200)` 在这张背景上约 6.4:1，够看。
+
+两者间距 19px，顶部留白 69px、底部留白 52px。字号由 `size.y / 4` 推导（50/4 ≈ 12px），
+所以提示和失败信息都跟着区域尺寸走。
+
+因为不画边框，`fail_color`（它只给 outline 上色）在这个字段上没有效果，失败反馈只能靠
+`fail_text`。
 
 ### 背景是实测对比度挑的，不是按比例挑的
 
