@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Network
+Comment=Network Management Applet -- disabled because the waybar network module already shows this
+Exec=nm-applet
+Hidden=true

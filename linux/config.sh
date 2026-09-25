@@ -133,6 +133,14 @@ if command -v waybar &> /dev/null; then
   fi
 fi
 
+# The waybar network module already shows connectivity, so nm-applet only adds a
+# duplicate tray icon. Disable its XDG autostart with a user-level override; the
+# system file under /etc/xdg/autostart stays untouched. See docs/waybar.md.
+echo ">>> Disabling the duplicate nm-applet tray icon..."
+mkdir -p "$HOME/.config/autostart"
+backup_file "$HOME/.config/autostart/nm-applet.desktop"
+cp "$SCRIPT_DIR/.config/autostart/nm-applet.desktop" "$HOME/.config/autostart/nm-applet.desktop"
+
 # Fcitx5 tray icons. The tray items are drawn by waybar, but the icon names come
 # from fcitx5 (Rime's Chinese/Latin states, and the keyboard layout), so they are
 # overridden by name under XDG_DATA_HOME. The keyboard-layout one has to mirror

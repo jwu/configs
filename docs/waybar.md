@@ -129,6 +129,10 @@ OBEX / blueman / bluetuith 那一侧见 `bluetooth.md`。
 
 有线拿蓝色，所以蓝牙 `connected` 也留在蓝色上，两者只靠图标区分（`󰈀` / `󰂱`）。
 
+`nm-applet` 的托盘图标与这个模块重复，所以它的 XDG autostart 被
+`~/.config/autostart/nm-applet.desktop`（`Hidden=true`）覆盖关闭；系统文件
+`/etc/xdg/autostart/nm-applet.desktop` 不动，`config.sh` 负责部署这份覆盖。
+
 ## cffi/niri-windows
 
 模块来自我们自己的 fork（`jwu/waybar-niri-windows`，基线是上游 `v2.3.1` = `17828f9`），
