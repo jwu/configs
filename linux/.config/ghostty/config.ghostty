@@ -16,12 +16,23 @@ font-style-italic = Italic
 font-style-bold-italic = Bold Italic
 font-thicken = true
 font-thicken-strength = 0
+# alpha-blending is left at the Linux default (`linear-corrected`). Per the
+# docs it looks nearly identical to `native` while avoiding native's darkening
+# artifacts, so setting `native` here would only add artifacts for no visible
+# gain. (macOS defaults to `native`; there it means Display P3, on Linux sRGB.)
 # alpha-blending = linear-corrected
 
-# Chinese fallback fonts, in order
+# Chinese fallback fonts, in order. Noto Sans **Mono** CJK SC (not the
+# proportional Noto Sans CJK SC) keeps fallback glyphs monospaced.
 font-family = Sarasa Mono SC
-font-family = Noto Sans CJK SC
+font-family = Noto Sans Mono CJK SC
 window-title-font-family = Sarasa Gothic SC
+
+# Sarasa Mono SC ships no Medium, so the `font-style = Medium` above (which
+# FiraMono does have) degrades to Sarasa Regular and CJK renders one weight
+# lighter than the Latin text. Pin the CJK ranges to SemiBold to match.
+# macOS needs none of this: PingFang SC has a real Medium. See docs/ghostty.md.
+font-codepoint-map = U+2460-U+24FF,U+2E80-U+9FFF,U+F900-U+FAFF,U+FE10-U+FE4F,U+FF00-U+FFEF=Sarasa Mono SC SemiBold
 
 # ------------------------------------------------------------
 # Colors (One Half Dark / OneDark)

@@ -1,8 +1,46 @@
 # Ghostty 配置
 
-Linux 侧的 `config.ghostty` 有两处和上游写法不同，都是 niri 这个会话环境逼出来的；
-macOS 的 `mac/.config/ghostty/config` 不受这些差异影响。标题栏相关的部分见
-`docs/ghostty-titlebar.md`。
+Linux 侧的 `config.ghostty` 有几处和上游写法不同：一处是 niri 这个会话环境逼出来的，
+一处是 Linux 字体栈与 macOS 的差异（同样的写法在 macOS 上并不需要），还有一处是跟随
+上游替换 deprecated 字段。macOS 的 `mac/.config/ghostty/config` 不受这些差异影响。
+标题栏相关的部分见 `docs/ghostty-titlebar.md`。
+
+## 中文字重：`font-codepoint-map` 与 Sarasa 缺失的 Medium
+
+`font-style = Medium` 对 FiraMono 有效（它确实有 Medium face），但 Sarasa Mono SC 只有
+XLight / Light / Regular / SemiBold / Bold，没有 Medium，fontconfig 会降级到 Regular：
+
+```bash
+fc-match "Sarasa Mono SC:style=Medium"   # -> Sarasa-Regular.ttc "Regular"
+ghostty +show-face --string=A             # -> FiraMono Nerd Font Medium
+ghostty +show-face --string=中            # -> Sarasa Mono SC
+```
+
+结果是中英混排时英文偏重、中文偏轻。用 `font-codepoint-map` 把 CJK 区段钉到
+`Sarasa Mono SC SemiBold`：
+
+```ini
+font-codepoint-map = U+2460-U+24FF,U+2E80-U+9FFF,U+F900-U+FAFF,U+FE10-U+FE4F,U+FF00-U+FFEF=Sarasa Mono SC SemiBold
+```
+
+这是偏好取向，不是精确匹配。Sarasa 没有 Medium，只能在 Regular(400) 和 SemiBold(600)
+之间二选一：两者与 FiraMono Medium(500) 的 `usWeightClass` 距离相同，而 fontconfig
+weight 反而是 Regular(80) 更接近 Medium(100)（`fc-match -f '%{weight}'` 可直接查到）。
+选 SemiBold 是为了中英混排时中文更醒目，代价是比英文略重；想更贴近英文的字重就把
+上面那行的字体名换成 `Sarasa Mono SC`。
+
+这里必须用 `font-codepoint-map`，不能靠重复 `font-family` 拼 fallback 链：fallback 列表里
+的 family 会一起吃到全局的 `font-style = Medium`，而 codepoint-map 的字体值会原样交给
+fontconfig，字重得以保留。验证：
+
+```bash
+ghostty +show-face --font-codepoint-map="U+4E2D=Sarasa Mono SC SemiBold" --string=中
+# -> Sarasa Mono SC SemiBold
+```
+
+顺带把第三个 fallback 从比例字体 `Noto Sans CJK SC` 换成等宽的 `Noto Sans Mono CJK SC`，
+避免比例字体参与终端渲染。macOS 不需要这一段：PingFang SC 自带 Medium，
+`font-style = Medium` 在英文和中文上同时生效。
 
 ## quick terminal 的 global 绑定
 
