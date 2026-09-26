@@ -76,3 +76,77 @@ niri 没有「手动隐藏光标」的 action 或 bind，这两个自动规则�
 Ghostty 侧的 `mouse-hide-while-typing = true` 只覆盖它自己的窗口，niri 那条是全
 会话生效的。另外 Ghostty ≥ 1.0.0 实现了 OSC 22 指针形状（用 CSS 光标名），程序可以
 `\e]22;none\a` 隐藏、`\e]22;default\a` 恢复，适合在编辑器里临时藏起来，不属于常驻规则。
+
+## 触控板手感
+
+`linux/.config/niri/config.kdl` 的 `touchpad` 段按 macOS 的手感调过一轮，取舍记录如下。
+
+### 加速度用 adaptive，不用 flat
+
+niri 的 `accel-profile` 只有两个合法值，二进制里的报错就是
+`invalid accel profile, can be "adaptive" or "flat"`：
+
+| 值 | 行为 |
+| --- | --- |
+| `flat` | 关掉加速曲线，位移与手指距离成正比，即「和鼠标一致」 |
+| `adaptive` | 慢速接近 1:1 便于精调，手指越快增益越高 |
+
+macOS 的触控板是后者，所以触控板 `adaptive`、鼠标保持 `flat`。`accel-speed` 只在
+`adaptive` 下才起作用（范围 -1.0~1.0，默认 0.0）。
+
+libinput 1.32 其实有自定义加速度曲线的 API（`libinput_config_accel_create` /
+`libinput_config_accel_set_points`），但那是给 compositor 消费的，niri 没接，
+只能在上面两档里选。要让曲线形状本身可调，得给 niri 提 feature request。
+
+### 滚动没有惯性
+
+libinput 不做 kinetic scrolling，是明确的设计分工，文档里说：
+
+> libinput expects the caller to be in charge of widget handling, the source
+> information is thus enough to provide kinetic scrolling on a per-widget basis.
+
+因为惯性要在「内容到顶/到底」时立刻停住，只有应用知道当前滚动容器的边界。
+所以 niri 没有实现，`scroll-factor` 只是速度乘数，libinput-config 里也没有
+momentum 之类的键；想要惯性只能在应用层，例如 Firefox 的 `general.smoothScroll.*`。
+niri 仓库里目前没有 kinetic / momentum 相关的 issue 或 PR。
+
+### Apple SPI 触控板没有压力轴
+
+本机触控板是 `Apple SPI Touchpad`（`applespi`，SPI 总线），`/sys/class/input/*/capabilities/abs`
+里只有位置和接触面积（`ABS_MT_TOUCH_MAJOR` / `ABS_MT_WIDTH_MAJOR`），**没有
+`ABS_PRESSURE` / `ABS_MT_PRESSURE`**，所以：
+
+- `libinput measure touchpad-pressure` 这类压力调优无效；
+- 手掌误触只能靠 `dwt`（打字时）和按接触面积判定，阈值来自 libinput quirk
+  `AttrPalmSizeThreshold` / `AttrTouchSizeRange`（`/usr/share/libinput/50-system-apple.quirks`
+  里 `MatchBus=spi` + `MatchVendor=0x06CB` 那条，默认 1600 和 150:130）。
+  要改就在 `/etc/libinput/local-overrides.quirks` 里覆盖，重启 niri 生效；
+- libinput-config 的可用键里也没有压力/手掌阈值。
+
+日志里偶发的 `kernel bug: Touch jump detected and discarded` 是 applespi 驱动侧的
+触摸跳变（libinput 会丢弃），属于驱动问题，不是配置能解决的。
+
+### 多指手势不可配
+
+三指纵向 = 切 workspace、三指横向 = 移 view、四指纵向 = 开关 overview 都是硬编码，
+没有配置项，外部手势工具也抢不走（设备由 niri grab）。能配的只有把双指滚动绑到 action：
+
+```kdl
+Mod+WheelScrollDown { focus-column-right; }
+```
+
+### 鼠标滚轮
+
+niri 按 axis source 分派滚动因子（`src/input/mod.rs`）：
+
+```rust
+match source {
+    AxisSource::Wheel  => config.input.mouse.scroll_factor,
+    AxisSource::Finger => config.input.touchpad.scroll_factor,
+    _ => None,
+}
+```
+
+所以滚轮归 `input.mouse.scroll_factor` 管，和高分辨率滚轮（`REL_WHEEL_HI_RES`）配合生效。
+`window-rule` 的 `scroll-factor` 会再乘上去，可给单个应用单独调速。
+本机鼠标没有 `REL_HWHEEL`，`horizontal=` 用不上。

@@ -26,6 +26,16 @@ input {
     }
 
     touchpad {
+        // Tap-to-click.
+        tap
+
+        // Palm rejection: ignore the touchpad briefly after each keypress.
+        dwt
+
+        // Tap-and-drag, plus drag-lock so a brief finger lift keeps the drag alive.
+        drag true
+        drag-lock
+
         // Two-finger scroll direction. This node takes no argument: present =
         // natural scrolling (content follows the fingers), absent = traditional
         // scrolling (matches the mouse wheel). Flip direction by adding or
@@ -35,7 +45,19 @@ input {
         // Scale the scroll speed (1.0 = niri default). Note this is only a speed
         // multiplier -- libinput deliberately does not implement kinetic
         // (momentum) scrolling for touchpads.
-        scroll-factor horizontal=1.0 vertical=1.5
+        scroll-factor horizontal=1.0 vertical=0.85
+
+        // One finger = left, two = right, three = middle.
+        click-method "clickfinger"
+        tap-button-map "left-right-middle"
+
+        // macOS-like acceleration: precise when slow, higher gain as finger speed
+        // rises. See docs/niri.md for why this beats "flat", and for accel-speed.
+        accel-profile "adaptive"
+        accel-speed -0.05
+
+        // Left+right click emulates a middle click.
+        middle-emulation
     }
 }
 
