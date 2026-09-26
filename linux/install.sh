@@ -268,6 +268,24 @@ build_gpu_watch() {
 }
 
 # ==========================================
+# Zed CLI name
+# ==========================================
+
+# Arch's zed package names the upstream "zed" CLI "zeditor", so the command line
+# only has `zeditor`. Provide the upstream name too (useful for `zed <path>` and
+# for $EDITOR, which needs `zed --wait`). Just a symlink: the package keeps
+# owning /usr/bin/zeditor.
+symlink_zed_cli() {
+  if ! command -v zeditor &> /dev/null; then
+    echo "    zeditor not found; skipping (install the zed package first)."
+    return 0
+  fi
+  mkdir -p "$HOME/.local/bin"
+  ln -sf /usr/bin/zeditor "$HOME/.local/bin/zed"
+  echo "    Installed $HOME/.local/bin/zed -> /usr/bin/zeditor"
+}
+
+# ==========================================
 # Copy Configurations
 # ==========================================
 
@@ -289,6 +307,7 @@ step "Oh My Zsh" install_oh_my_zsh
 step "zsh-autosuggestions" install_zsh_autosuggestions
 step "waybar niri-windows module" install_waybar_niri_windows
 step "gpu-watch" build_gpu_watch
+step "zed CLI name" symlink_zed_cli
 step "config sync (config.sh)" sync_configs
 
 summary
