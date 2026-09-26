@@ -250,6 +250,7 @@ Linux 侧 `config.sh` 还会顺手检查 Waybar 的 `cffi/niri-windows` 模块�
 - [`docs/xwayland-satellite.md`](docs/xwayland-satellite.md) — X11 override-redirect 弹窗的焦点判据、Steam 顶栏菜单闪退、AUR `-git` 包的取舍与拆除条件。
 - [`docs/ime-icons.md`](docs/ime-icons.md) — Fcitx5 托盘图标的同名覆盖规则（含键盘布局那张必须放 Adwaita 目录的原因）、SNI `IconName` 与状态的对应、大小写为何在 Wayland 下失效、重启 waybar 的时机。
 - [`docs/niri.md`](docs/niri.md) — focus-follows-mouse 为何只在跨窗口时触发、`warp-mouse-to-focus` 的三种模式与不生效的场合、光标隐藏的两个开关。
+- [`docs/chezmoi-migration.md`](docs/chezmoi-migration.md) — 把 `config.sh` 的文件同步层换成 chezmoi 的评估：边界划分、源目录布局、四处模板化、`gh` 抢写 `git config`、迁移阶段与待决策点。方案已演进为独立项目 `jwu/dotfiles`。
 
 源码注释保持简短，详细推导见以上文档。
 
