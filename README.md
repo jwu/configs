@@ -1,3 +1,28 @@
+> [!WARNING]
+> **本仓库已废弃（DEPRECATED），不再维护。**
+>
+> 配置已迁移到 **[jwu/dotfiles](https://github.com/jwu/dotfiles)**——一份 chezmoi 源，统一管理
+> macOS / Linux / Windows。新机器按新仓库的 bootstrap 脚本落地：
+>
+> ```bash
+> # Linux
+> sh -c "$(curl -fsLS https://raw.githubusercontent.com/jwu/dotfiles/main/bootstrap/arch.sh)"
+>
+> # macOS（Homebrew 要先装好）
+> bash -c "$(curl -fsLS https://raw.githubusercontent.com/jwu/dotfiles/main/bootstrap/macos.sh)"
+> ```
+>
+> ```bat
+> :: Windows（无需管理员）
+> curl -fsSL https://raw.githubusercontent.com/jwu/dotfiles/main/bootstrap/windows.bat -o "%TEMP%\dotfiles-bootstrap.bat"
+> "%TEMP%\dotfiles-bootstrap.bat"
+> ```
+>
+> 完整说明与日常用法见新仓库的 [README](https://github.com/jwu/dotfiles#readme)。
+> 本仓库仅作历史存档保留，其中内容可能已经过时。
+
+---
+
 # Terminal Configs
 
 开发环境配置方案 (Windows, Mac, Linux)。包含了 Alacritty, WezTerm, Neovim, Starship, Zsh 等工具的配置。
